@@ -448,31 +448,31 @@ main() {
     eval "$(/Users/Parsimony/miniconda3/bin/conda shell.bash hook)"
     
     # Raw QC analysis
-    #run_fastqc "$WORKDIR" "$OUTDIR/untrimmed"
-    #run_multiqc "$OUTDIR/untrimmed" "$OUTDIR/multiqc"
+    run_fastqc "$WORKDIR" "$OUTDIR/untrimmed"
+    run_multiqc "$OUTDIR/untrimmed" "$OUTDIR/multiqc"
     
     # Trimming process
-    #run_trimming
+    run_trimming
     
     # Post-trimming QC analysis
-    #run_fastqc "$OUTDIR/trimmed" "$OUTDIR/trimmed"
-    #run_multiqc "$OUTDIR/trimmed" "$OUTDIR/multiqc_trimmed"
+    run_fastqc "$OUTDIR/trimmed" "$OUTDIR/trimmed"
+    run_multiqc "$OUTDIR/trimmed" "$OUTDIR/multiqc_trimmed"
 
     # Mapping process
-    #run_mapping
+    run_mapping
 
     # Mapping statistics
     mapping_stats
 
     # Assembly process
-    #run_assembly
+    run_assembly
 
     # Assembly statistics
-    #assembly_stats
+    assembly_stats
 
     # Viral identification.
-    #ntblast
-    #nrblast
+    ntblast
+    nrblast
 
     # Report time
     duration=$SECONDS

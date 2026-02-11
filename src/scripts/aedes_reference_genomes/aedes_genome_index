@@ -1,0 +1,40 @@
+#!/bin/bash
+
+SECONDS=0
+
+eval "$(/Users/Parsimony/miniconda3/bin/conda shell.bash hook)"
+
+# Before running the script for genome indexing, 
+# The objetive of this script is to make a super reference based on nine Aedes species: 
+# Ae. albopictus, Ae. aegypti, Ae. mascarensis, Ae. japonicus, Ae. notoscriptus, Ae. (Ochlerotatus) sierrensis, Ae. taeniorhynchus, Ae. koreicus, and Ae. polynesiensis.
+# For details on the genomes used see the README.md file
+
+super_ref="superreference.fna"  #Output file definition
+gtf="superreference.gtf"
+
+# Define the directory where the index will be stored
+INDEX_DIR="aedes_super_index"
+
+# Create the index directory
+mkdir -p "$INDEX_DIR"
+
+# Remove any previous incomplete index
+rm -rf "$INDEX_DIR"/*
+
+echo "Building STAR index (this may take several hours)..."
+conda activate star_env
+# Build the STAR index
+STAR \
+  --runMode genomeGenerate \
+  --genomeDir "$INDEX_DIR" \
+  --genomeFastaFiles "$super_ref" \
+  --sjdbGTFfile "$gtf" \
+  --sjdbOverhang 199 \
+  --runThreadN 6 \
+  --genomeSAindexNbases 14            
+
+conda deactivate
+
+echo "STAR index built in directory: $INDEX_DIR"
+echo "Index contains these files:"
+ls -la "$INDEX_DIR/"
