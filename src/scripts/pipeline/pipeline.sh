@@ -4,7 +4,7 @@ SECONDS=0
 
 # If run on a different computer, make sure the Working Directory path is correct and the permissions to run the code are correct as well
 # First of all, we establish a working directory
-WORKDIR="./data/Ae_serratus_sequences"
+WORKDIR="./data/Aedes_RNA_sequences"
 cd "$WORKDIR" || { echo "Failed to change directory to $WORKDIR"; exit 1; }
 
 OUTDIR="$WORKDIR/analysis" # Output directory
