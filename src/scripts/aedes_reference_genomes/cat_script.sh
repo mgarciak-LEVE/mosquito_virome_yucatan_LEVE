@@ -2,45 +2,78 @@
 
 eval "$(/Users/Parsimony/miniconda3/bin/conda shell.bash hook)"
 
-echo "=== Building Aedes Superreference  for Hodt Depletion ==="
+OUTDIR="./data/Aedes_RNA_sequences/genomes"
+
+echo "=== Building Aedes Superreference  for Host Reads Depletion ==="
 
 # Script for Aedes genome and chromosome annotation concatenation
 # It is recommended to prefix chromosome names. This way we avoid naming conflicts
 
-# Aedes aegypti (RefSeq, chromosome-level)
-sed 's/^>/>Aaeg_|/g' GCF_002204515.2_AaegL5.0_genomic.fna > Aedes_aegypti.fna
-# Aedes albopictus (RefSeq, chromosome-level, 2024)  
-sed 's/^>/>Aalb_|/g' GCF_035046485.1_AalbF5_genomic.fna > Aedes_albopictus.fna
-# Aedes mascarensis (GenBank, chromosome-level)
-sed 's/^>/>Amas_|/g' GCA_052575835.1_genomic.fna > Aedes_mascarensis.fna
-# Aedes sierrensis (Ochlerotatus)
-sed 's/^>/>Asie_|/g' GCA_044231785.1_genomic.fna > Aedes_sierrensis.fna
-# Aedes japonicus
-sed 's/^>/>Ajap_|/g' GCA_052815935.1_genomic.fna > Aedes_japonicus.fna
-# Aedes notoscriptus
-sed 's/^>/>Anot_|/g' GCA_040801935.1_genomic.fna > Aedes_notoscriptus.fna
-# Aedes koreicus
-sed 's/^>/>Akor_|/g' GCA_024533555.2_genomic.fna > Aedes_koreicus.fna
+FILES=(
+    # Aedes aegypti (RefSeq, chromosome-level)
+    "GCF_002204515.2_AaegL5.0_genomic.fna|Aaeg|Aedes aegypti"
+    # Aedes albopictus (RefSeq, chromosome-level, 2024)
+    "GCF_035046485.1_AalbF5_genomic.fna|Aalb|Aedes albopictus"
+    # Aedes mascarensis (GenBank, chromosome-level)
+    "GCA_052575835.1_genomic.fna|Amas|Aedes mascarensis"
+    # Aedes sierrensis (Ochlerotatus)
+    "GCA_044231785.1_genomic.fna|Asie|Aedes sierrensis"
+    # Aedes japonicus
+    "GCA_052815935.1_genomic.fna|Ajap|Aedes japonicus"
+    # Aedes notoscriptus
+    "GCA_040801935.1_genomic.fna|Anot|Aedes notoscriptus"
+    # Aedes koreicus
+    "GCA_024533555.2_genomic.fna|Akor|Aedes koreicus"
+)
 
+echo "=== Concatenating genome files ==="
 
-# sed is for simple text substitution. We are only changing the first line information, in this case, the name.
-# ^> means "find lines that start with >"
+TEMP_FILE="${OUTDIR}/superreference_temp.fna"
+> "$TEMP_FILE"
 
-# In the case of genome annotation, since .gtf files are column based, we will use awk in order to modify only the first column that contains the name. 
+# Process each file
+for entry in "${FILES[@]}"; do
+    IFS='|' read -r filename prefix name <<< "$entry"
+    
+    echo "Processing: $name ($filename)"
 
-echo "Concatenating genome files..."
-
-# Clear existing superreference file
-> superreference.fna
-
-cat Aedes_aegypti.fna >> superreference.fna
-cat Aedes_albopictus.fna >> superreference.fna
-cat Aedes_mascarensis.fna >> superreference.fna
-cat Aedes_sierrensis.fna >> superreference.fna
-cat Aedes_notoscriptus.fna >> superreference.fna
-cat Aedes_japonicus.fna >> superreference.fna
-cat Aedes_koreicus.fna >> superreference.fna
+    # Add prefix to chromosome names and append to temp file
+    sed "s/^>/>${prefix}_/g" "$filename" >> "$TEMP_FILE"
+done
 
 echo "Superreference files created successfully"
 
-mv superreference.fna /Users/Parsimony/Desktop/jorge_folder/datos/secuencias_Ae_serratus/reference_genomes/aedes_genomes
+echo "=== Generating statistics ==="
+
+# Generate basic statistics for the superreference file
+SEQ_COUNT=$(grep -c "^>" "$TEMP_FILE" 2>/dev/null || echo "0")
+
+BASE_COUNT=0
+while IFS= read -r line; do
+    if [[ ! "$line" =~ ^\> ]]; then
+        BASE_COUNT=$((BASE_COUNT + ${#line}))
+    fi
+done < "$TEMP_FILE"
+
+echo "Total sequences: $SEQ_COUNT"
+echo "Total bases: $BASE_COUNT"
+
+# Save statistics to file
+STATS_FILE="$OUTDIR/genome_stats.txt"
+cat > "$STATS_FILE" << EOF
+Created: $(date)
+Files included: ${#FILES[@]}
+Total sequences: $SEQ_COUNT
+Total bases: $BASE_COUNT
+
+Genomes:
+EOF
+
+# Add genome list to stats
+for entry in "${FILES[@]}"; do
+    IFS='|' read -r filename prefix name <<< "$entry"
+    echo "  - $name ($filename)" >> "$STATS_FILE"
+done
+
+
+

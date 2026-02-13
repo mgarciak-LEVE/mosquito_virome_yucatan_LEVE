@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# Directories
+export BLASTDB="${XDG_DATA_HOME:-$HOME/.local/share}/blastdb"
+export DIAMONDDB="${XDG_DATA_HOME:-$HOME/.local/share}/diamond_db"
+
+mkdir -p "$BLASTDB" "$DIAMONDDB"
+cd $WORKDIR/blast/databases # We download in the database directory nr and nt databases from NCBI
+
+# Download NCBI nr database
+wget https://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/nr.gz pigz -d -p 16 nr_cluster.fasta.gz
+
+# Download taxonomy database from NCBI
+wget ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdmp.zipunzip taxdmp.zip unzip taxdmp.zip
+
+wget ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/prot.accession2taxid.FULL.gz gunzip prot.accession2taxid.FULL.gz
+
+
+
+# NCBI nt database
+wget https://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/nt.gz pigz -d -p <number of threads> nt_cluster.fasta.gz
+
+
+
+# Download function
+download_database() {
+    local url=$1
+    local output_dir=$2
+
+    wget -P "$output_dir" "$url"
+}
+
+Descargamos las bases de datos a un directorio en $HOME para poder acceder desde cualquier ambiente a ella:
+
+
+
+\# Para ntBLAST  
+\~ % wget [https://ftp.ncbi.nlm.nih.gov/blast/db/ref\_viruses\_rep\_genomes.tar.gz](https://ftp.ncbi.nlm.nih.gov/blast/db/ref_viruses_rep_genomes.tar.gz) \# Para secuencias de nucleótidos  
+\~ % tar \-xzvf ref\_viruses\_rep\_genomes[.tar.gz](http://.tar.gz) \# Se descomprimen los archivos descargados  
+\# Para Diamond  
+\~ % wget [https://ftp.ncbi.nlm.nih.gov/refseq/release/viral/viral.1.protein.faa.gz](https://ftp.ncbi.nlm.nih.gov/refseq/release/viral/viral.1.protein.faa.gz) \# Para aminoácidos  
+\~ % gunzip viral.1.protein.faa.gz
+
+
+
+Primero activamos el ambiente de conda de diamond:
+~ % conda activate diamond_env
+Posteriormente se hicieron los archivos binarios para Diamond. 
+~ % diamond makedb --in viral.1.protein.faa -d viral_proteins
+
+Para realizar el blast sólo que seguirá la siguiente estructura:
+
+# Blast
+~ % conda activate blast_env
+~ % blastn -query contigs.fasta -db ~/blast_databases/ref_viruses_rep_genomes -out ${OUTDIR}/blast/ntblast/blast_results.txt
+
+# Diamond
+~ % conda activate diamond_env
+~ % diamond blastx -q contigs.fasta -d ~/blast_databases/viral_proteins.dmnd -o ${OUTDIR}/blast/nrblast/diamond_results.txt

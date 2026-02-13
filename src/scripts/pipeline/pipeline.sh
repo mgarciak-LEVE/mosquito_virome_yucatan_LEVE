@@ -10,7 +10,7 @@ cd "$WORKDIR" || { echo "Failed to change directory to $WORKDIR"; exit 1; }
 OUTDIR="$WORKDIR/analysis" # Output directory
 
 mkdir -p "$OUTDIR"/{untrimmed,trimmed} # We generate the necesarry output folders
-threads=7 # Thread definition for mapping
+threads= 16 # Thread definition for mapping
 
 # A pipline was used to process some Aedes serratus sequences
 
