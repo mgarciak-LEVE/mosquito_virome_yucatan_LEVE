@@ -24,7 +24,7 @@ Characterize viral diversity in Ae. serratus and Ae. taeniorhynchus mosquitoes f
 
 The proposed workflow for this project consists of several stages: sequence cleaning to ensure adequate quality...
 
-Pool creation for 15-25 specimens, sequencing, bioinformatic processing, viral sequences, viral isolation, homogenized pool inoculation, cytopathic effect monitoring, viral purification, alignment confirmation via RT-PCR with specific primers, and viral characterization including microscopy and genome resequencing. Right branch: Quality control with FastQC and MultiQC, trimming with Trimmomatic, removal of host reads, complete Aedes genome assembly, concatenation of contigs and superscaffold alignment, local alignment against nibm basin and redundant database DIAMOND, and viral diversity analysis. Arrows indicate workflow progression and connections between steps. Professional scientific tone documenting systematic viral analysis methodology.
+
 
 
 ## Prerequisites.
@@ -33,6 +33,31 @@ Pool creation for 15-25 specimens, sequencing, bioinformatic processing, viral s
 - Generation of super-reference from different mosquito genomes and alignment for host read depletion: STAR (Dobin et al., 2013).
 - Assembly of reads that did not align to the host: MEGAHIT (Li et al., 2015) and SPAdes (Prijbelski et al., 2020).
 - Annotation of sequences and viral proteins: BLAST (Altschul et al., 1990) and Diamond (Buchfink et al., 2015).
+
+## Directory Structure
+
+```
+mosquito_virome_yucatan_LEVE/
+├── data/
+│   ├── Aedes_RNA_sequences/
+├── reference_genomes/
+│   └── aedes_genomes/
+│       └── aedes_super_index/
+├── results/
+│   ├── aedes_analysis/
+│   │   ├── untrimmed/
+│   │   ├── trimmed/
+│   │   ├── trimmed_qc/
+│   │   ├── aligned/
+│   │   ├── assembly/
+│   │   └── blast/
+│   └── ...
+├── logs/
+└── scripts/
+    └── pipeline_whole/
+        └── pipeline.sh
+```
+
 
 ## References
 1. Andrews, S. (2010). FastQC: A Quality Control Tool for High Throughput Sequence Data. Retrieved from http://www.bioinformatics.babraham.ac.uk/projects/fastqc/

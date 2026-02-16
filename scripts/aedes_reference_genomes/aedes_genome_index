@@ -29,7 +29,7 @@ STAR \
   --genomeFastaFiles "$super_ref" \
   --runThreadN 6 \
   --genomeChrBinNbits 16 \
-  --limitGenomeGenerateRAM 64000000000 \
+  --limitGenomeGenerateRAM 60000000000 \
   --genomeSAindexNbases 14
 
 conda deactivate

@@ -3,14 +3,38 @@
 SECONDS=0
 
 # If run on a different computer, make sure the Working Directory path is correct and the permissions to run the code are correct as well
-# First of all, we establish a working directory
-WORKDIR="./data/Aedes_RNA_sequences"
-cd "$WORKDIR" || { echo "Failed to change directory to $WORKDIR"; exit 1; }
+# First of all, we establish a script directory
 
-OUTDIR="$WORKDIR/analysis" # Output directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # We assume that the scripts are located in a subdirectory "scripts/"
+# Works regardless of the current working directory.
+PROJECT_ROOT="$SCRIPT_DIR"
 
-mkdir -p "$OUTDIR"/{untrimmed,trimmed} # We generate the necesarry output folders
-threads= 16 # Thread definition for mapping
+# RELATIVE PATHS
+RAW_DATA_DIR="${PROJECT_ROOT}/data/Aedes_RNA_sequences"
+
+# RESULTS DIRECTORIES
+RESULTS_DIR="${PROJECT_ROOT}/results/aedes_analysis"
+UNTRIMMED_QC_DIR="${RESULTS_DIR}/untrimmed"
+TRIMMED_DIR="${RESULTS_DIR}/trimmed"
+TRIMMED_QC_DIR="${RESULTS_DIR}/trimmed_qc"
+ALIGNED_DIR="${RESULTS_DIR}/aligned"
+ASSEMBLY_DIR="${RESULTS_DIR}/assembly"
+BLAST_DIR="${RESULTS_DIR}/blast"
+
+# DATABASES AND REFERENCE GENOMES
+REFERENCE_DIR="${PROJECT_ROOT}/reference_genomes/aedes_genomes/aedes_super_index"
+BLAST_DB="${PROJECT_ROOT}/databases/blast/ref_viruses_rep_genomes"
+DIAMOND_DB="${PROJECT_ROOT}/databases/diamond/viral_proteins.dmnd"
+
+# LOGS DIRECTORY
+LOGS_DIR="${PROJECT_ROOT}/logs"
+
+# WORKING AND OUTPUT DIRECTORIES
+WORKDIR="$RAW_DATA_DIR"
+OUTDIR="$RESULTS_DIR"
+
+
+threads=16 # Thread definition
 
 # A pipline was used to process some Aedes serratus sequences
 
@@ -67,7 +91,7 @@ run_multiqc() {
 run_trimming() {
     #Runs trimming for paired-end reads. It distinguishes between the R1 and R2 reads
     echo "Starting trimming process..."
-    mkdir -p "${OUTDIR}/trimmed" # -p flag means to create parent directories if they dont exist 
+    mkdir -p "${TRIMMED_DIR}" # -p flag means to create parent directories if they dont exist 
 
     for R1_file in "$WORKDIR"/*_R1.fastq; do   # Does a loop. Finds every file in the working directory that matches the pattern "*_R1.fastq" and assigns each file path to the variable R1
         R2_file="${R1_file/_R1.fastq/_R2.fastq}" # Parameter expansion: ${variable/pattern/replacement}
@@ -84,10 +108,10 @@ run_trimming() {
     # For the forward and reverse files ($R1 and $R2)
     trimmomatic PE -threads 10 -phred33 \
         "$R1_file" "$R2_file" \
-        "$OUTDIR/trimmed/${newR1}_paired.fastq" \
-        "$OUTDIR/trimmed/${newR1}_unpaired.fastq" \
-        "$OUTDIR/trimmed/${newR2}_paired.fastq" \
-        "$OUTDIR/trimmed/${newR2}_unpaired.fastq" \
+        "${TRIMMED_DIR}/${newR1}_paired.fastq" \
+        "${TRIMMED_DIR}/${newR1}_unpaired.fastq" \
+        "${TRIMMED_DIR}/${newR2}_paired.fastq" \
+        "${TRIMMED_DIR}/${newR2}_unpaired.fastq" \
         ILLUMINACLIP:${adapters}:2:30:10:2:keepBothReads \
         LEADING:10 TRAILING:10 SLIDINGWINDOW:3:25 MINLEN:50 # ILUMMINACLIP is for adapter clipping
     done   
@@ -97,8 +121,8 @@ run_trimming() {
 # MAPPING FUNCTION
 run_mapping() {
     echo "Starting alignment process..."
-    mkdir -p "${OUTDIR}/aligned" # Output directory for the aligned sequences
-    REFERENCE="$WORKDIR/reference_genomes/aedes_genomes/aedes_super_index" # Sequence references to which the reads will be aligned # Aedes reference genomes obtained from https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_035046485.1/ for Ae alopictus and https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_002204515.2/ for Ae. aegypti
+    mkdir -p "${ALIGNED_DIR}" # Output directory for the aligned sequences
+    REFERENCE="$REFERENCE_DIR"
 
     ulimit -n 4096
 
@@ -119,7 +143,7 @@ run_mapping() {
         --runMode alignReads \
         --genomeDir "$REFERENCE" \
         --readFilesIn "$R1" "$R2" \
-        --outFileNamePrefix "${OUTDIR}/aligned/${sample}_" \
+        --outFileNamePrefix "${ALIGNED_DIR}/${sample}_" \
         --outSAMtype BAM SortedByCoordinate \
         --outReadsUnmapped Fastx \
         --quantMode GeneCounts \
@@ -134,7 +158,7 @@ run_mapping() {
 # ASSEMBLY INFORMATION
 mapping_stats() {
     echo "Generating mapping statistics..."
-    mkdir -p "${OUTDIR}/aligned/statistics"
+    mkdir -p "${ALIGNED_DIR}/statistics"
     
     #Creates CSV file
     stats_file="${OUTDIR}/aligned/statistics/mapping_summary.csv"
@@ -384,37 +408,36 @@ assembly_stats() {
 
 
 ntblast() {
-    mkdir -p "${OUTDIR}/blast"
-    mkdir -p "${OUTDIR}/blast/ntblast"
+    mkdir -p "${BLAST_DIR}/ntblast"
 
      echo "Running BLAST on assembly results..."
 
     conda activate blast_env
 
     # rnaSPAdes
-    blastn -query "${OUTDIR}/assembly/rnaSPAdes/hard_filtered_transcripts.fasta" \
-       -db ~/blast_databases/ref_viruses_rep_genomes \
-       -out ${OUTDIR}/blast/ntblast/rnaSPAdes_blast_results.txt \
-       -outfmt 6 -evalue 1e-5 -num_threads 8
+    blastn -query "${ASSEMBLY_DIR}/rnaSPAdes/hard_filtered_transcripts.fasta" \
+        -db "$BLAST_DB" \
+        -out "${BLAST_DIR}/ntblast/rnaSPAdes_blast_results.txt" \
+        -outfmt 6 -evalue 1e-5 -num_threads 8
 
     # metaSPAdes
-    blastn -query \
-       -db ~/blast_databases/ref_viruses_rep_genomes \
-       -out ${OUTDIR}/blast/ntblast/metaSPAdes_blast_results.txt \
-       -outfmt 6 -evalue 1e-5 -num_threads 8
+    blastn -query "${ASSEMBLY_DIR}/metaSPAdes/contigs.fasta" \
+        -db "$BLAST_DB" \
+        -out "${BLAST_DIR}/ntblast/metaSPAdes_blast_results.txt" \
+        -outfmt 6 -evalue 1e-5 -num_threads 8
 
     # MEGAhit
-    blastn -query \
-       -db ~/blast_databases/ref_viruses_rep_genomes \
-       -out ${OUTDIR}/blast/ntblast/MEGAhit_blast_results.txt \
-       -outfmt 6 -evalue 1e-5 -num_threads 8
+    blastn -query "${ASSEMBLY_DIR}/MEGAhit/final.contigs.fa" \
+        -db "$BLAST_DB" \
+        -out "${BLAST_DIR}/ntblast/MEGAhit_blast_results.txt" \
+        -outfmt 6 -evalue 1e-5 -num_threads 8
 
     conda deactivate
 }
 
 nrblast() {
-    mkdir -p "${OUTDIR}/blast"
-    mkdir -p "${OUTDIR}/blast/nrblast"
+    mkdir -p "${BLAST_DIR}"
+    mkdir -p "${BLAST_DIR}/nrblast"
     
 
     echo "Running DIAMOND on assembly results..."
@@ -423,20 +446,20 @@ nrblast() {
 
     # rnaSPAdes
     diamond blastx -q "${OUTDIR}/assembly/rnaSPAdes/hard_filtered_transcripts.fasta" \
-            -d ~/blast_databases/viral_proteins.dmnd \
-            -o ${OUTDIR}/blast/nrblast/rnaSPAdes_diamond_results.txt \
+            -d "$DIAMOND_DB" \
+            --o "${BLAST_DIR}/nrblast/rnaSPAdes_diamond_results.txt" \
             --ultra-sensitive --evalue 1e-5 --threads 8 --outfmt 6
 
     # metaSPAdes
-    diamond blastx -q \
-            -d ~/blast_databases/viral_proteins.dmnd \
-            -o ${OUTDIR}/blast/nrblast/metaSPAdes_diamond_results.txt \
+    diamond blastx -q "${OUTDIR}/assembly/metaSPAdes/contigs.fasta" \
+            -d "$DIAMOND_DB" \
+            --o "${BLAST_DIR}/nrblast/metaSPAdes_diamond_results.txt" \
             --ultra-sensitive --evalue 1e-5 --threads 8 --outfmt 6
 
     # MEGAhit
-    diamond blastx -q \
-            -d ~/blast_databases/viral_proteins.dmnd \
-            -o ${OUTDIR}/blast/nrblast/MEGAhit_diamond_results.txt \
+    diamond blastx -q "${OUTDIR}/assembly/MEGAhit/final.contigs.fa" \
+            -d "$DIAMOND_DB" \
+            --o "${BLAST_DIR}/nrblast/MEGAhit_diamond_results.txt" \
             --ultra-sensitive --evalue 1e-5 --threads 8 --outfmt 6
 
     conda deactivate
@@ -447,16 +470,16 @@ nrblast() {
 main() {
     eval "$(/Users/Parsimony/miniconda3/bin/conda shell.bash hook)"
     
-    # Raw QC analysis
-    run_fastqc "$WORKDIR" "$OUTDIR/untrimmed"
-    run_multiqc "$OUTDIR/untrimmed" "$OUTDIR/multiqc"
+# Raw QC analysis
+    run_fastqc "$WORKDIR" "$UNTRIMMED_QC_DIR"
+    run_multiqc "$UNTRIMMED_QC_DIR" "$RESULTS_DIR"
     
     # Trimming process
     run_trimming
     
     # Post-trimming QC analysis
-    run_fastqc "$OUTDIR/trimmed" "$OUTDIR/trimmed"
-    run_multiqc "$OUTDIR/trimmed" "$OUTDIR/multiqc_trimmed"
+    run_fastqc "$TRIMMED_DIR" "$TRIMMED_QC_DIR"
+    run_multiqc "$TRIMMED_QC_DIR" "$RESULTS_DIR"
 
     # Mapping process
     run_mapping
@@ -470,9 +493,10 @@ main() {
     # Assembly statistics
     assembly_stats
 
-    # Viral identification.
+    # Viral identification
     ntblast
     nrblast
+
 
     # Report time
     duration=$SECONDS
