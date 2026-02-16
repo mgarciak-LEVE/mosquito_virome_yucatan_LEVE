@@ -3,57 +3,94 @@
 # Directories
 export BLASTDB="${XDG_DATA_HOME:-$HOME/.local/share}/blastdb"
 export DIAMONDDB="${XDG_DATA_HOME:-$HOME/.local/share}/diamond_db"
+THREADS=16
 
-mkdir -p "$BLASTDB" "$DIAMONDDB"
-cd $WORKDIR/blast/databases # We download in the database directory nr and nt databases from NCBI
-
-# Download NCBI nr database
-wget https://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/nr.gz pigz -d -p 16 nr_cluster.fasta.gz
-
-# Download taxonomy database from NCBI
-wget ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdmp.zipunzip taxdmp.zip unzip taxdmp.zip
-
-wget ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/prot.accession2taxid.FULL.gz gunzip prot.accession2taxid.FULL.gz
-
-
-
-# NCBI nt database
-wget https://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/nt.gz pigz -d -p <number of threads> nt_cluster.fasta.gz
-
-
-
-# Download function
-download_database() {
-    local url=$1
-    local output_dir=$2
-
-    wget -P "$output_dir" "$url"
+log_step() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
 }
 
-Descargamos las bases de datos a un directorio en $HOME para poder acceder desde cualquier ambiente a ella:
+download_databases() {
+    log_step "Starting database preparation"
+    mkdir -p "$BLASTDB" "$DIAMONDDB"
+    
+    # Create and enter database directory
+    DB_DIR="$WORKDIR/blast/databases"
+    mkdir -p "$DB_DIR"
+    cd "$DB_DIR"
 
+    # Download NCBI nr database
+    log_step "Downloading NCBI nr database"
+    wget https://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/nr.gz
+    pigz -d -p "$THREADS" nr.gz
 
+    # Download taxonomy database from NCBI
+    log_step "Downloading taxonomy database"
+    wget ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdmp.zip
+    unzip taxdmp.zip
 
-\# Para ntBLAST  
-\~ % wget [https://ftp.ncbi.nlm.nih.gov/blast/db/ref\_viruses\_rep\_genomes.tar.gz](https://ftp.ncbi.nlm.nih.gov/blast/db/ref_viruses_rep_genomes.tar.gz) \# Para secuencias de nucleótidos  
-\~ % tar \-xzvf ref\_viruses\_rep\_genomes[.tar.gz](http://.tar.gz) \# Se descomprimen los archivos descargados  
-\# Para Diamond  
-\~ % wget [https://ftp.ncbi.nlm.nih.gov/refseq/release/viral/viral.1.protein.faa.gz](https://ftp.ncbi.nlm.nih.gov/refseq/release/viral/viral.1.protein.faa.gz) \# Para aminoácidos  
-\~ % gunzip viral.1.protein.faa.gz
+    log_step "Downloading accession2taxid mapping"
+    wget ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/prot.accession2taxid.FULL.gz
+    pigz -d -p "$THREADS" -k prot.accession2taxid.FULL.gz
 
+    # Download new_taxdump for rank information (from your step 3)
+    log_step "Downloading new_taxdump for rank information"
+    wget https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz
+    tar -xzvf new_taxdump.tar.gz
 
+    # NCBI nt database
+    log_step "Downloading NCBI nt database"
+    wget https://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/nt.gz
+    pigz -d -p "$THREADS" nt.gz
 
-Primero activamos el ambiente de conda de diamond:
-~ % conda activate diamond_env
-Posteriormente se hicieron los archivos binarios para Diamond. 
-~ % diamond makedb --in viral.1.protein.faa -d viral_proteins
+    # Formatting nr database using taxonomy files
+    log_step "Creating DIAMOND nr_tax database"
+    ./diamond makedb \
+        --in nr \
+        --taxonnodes nodes.dmp \
+        --taxonnames names.dmp \
+        --taxonmap prot.accession2taxid.FULL \
+        -d nr_tax
 
-Para realizar el blast sólo que seguirá la siguiente estructura:
+    
+    mkdir -p /fast2/tmp_diamond
 
-# Blast
-~ % conda activate blast_env
-~ % blastn -query contigs.fasta -db ~/blast_databases/ref_viruses_rep_genomes -out ${OUTDIR}/blast/ntblast/blast_results.txt
+    # Create temp directory for large database processing
+    mkdir -p /fast2/tmp_diamond
 
-# Diamond
-~ % conda activate diamond_env
-~ % diamond blastx -q contigs.fasta -d ~/blast_databases/viral_proteins.dmnd -o ${OUTDIR}/blast/nrblast/diamond_results.txt
+    # Download and process refseq_protein (from your step 1.1)
+    log_step "Processing refseq_protein database"
+    mkdir -p refseq_protein
+    
+    # Download indexed refseq-protein
+    rsync -avP rsync://ftp.ncbi.nlm.nih.gov/blast/db/refseq_protein.* refseq_protein/.
+    
+    # Decompress the database
+    cd refseq_protein
+    for i in *.tar.gz; do
+        pigz -dc -p "$THREADS" "$i" | tar -xvf - && rm -f "$i"
+        log_step "Decompressed $i"
+    done
+    
+    # Convert to fasta using blastdbcmd
+    blastdbcmd \
+        -db refseq_protein \
+        -entry all \
+        -out ../refseq_protein.fasta
+    
+    cd ..
+
+    # Create refseq_protein_tax database
+    log_step "Creating DIAMOND refseq_protein_tax database"
+    diamond makedb \
+        --in refseq_protein.fasta \
+        -d refseq_protein_tax \
+        --taxonnodes nodes.dmp \
+        --taxonnames names.dmp \
+        --taxonmap prot.accession2taxid.FULL \
+        --threads "$THREADS" \
+        --tmpdir /fast2/tmp_diamond
+
+    log_step "Diamond database creation completed."
+}
+
+download_databases

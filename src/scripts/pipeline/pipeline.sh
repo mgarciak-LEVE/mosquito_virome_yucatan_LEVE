@@ -98,7 +98,7 @@ run_trimming() {
 run_mapping() {
     echo "Starting alignment process..."
     mkdir -p "${OUTDIR}/aligned" # Output directory for the aligned sequences
-    REFERENCE="/Users/Parsimony/Desktop/jorge_folder/datos/secuencias_Ae_serratus/reference_genomes/aedes_genomes/aedes_super_index" # Sequence references to which the reads will be aligned # Aedes reference genomes obtained from https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_035046485.1/ for Ae alopictus and https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_002204515.2/ for Ae. aegypti
+    REFERENCE="$WORKDIR/reference_genomes/aedes_genomes/aedes_super_index" # Sequence references to which the reads will be aligned # Aedes reference genomes obtained from https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_035046485.1/ for Ae alopictus and https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_002204515.2/ for Ae. aegypti
 
     ulimit -n 4096
 
