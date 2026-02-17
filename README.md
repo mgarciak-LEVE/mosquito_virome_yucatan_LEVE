@@ -40,16 +40,26 @@ The proposed workflow for this project consists of several stages: sequence clea
 mosquito_virome_yucatan_LEVE/
 ├── data/
 │   ├── Aedes_RNA_sequences/
+│   │   |
+│       | total_RNA/
+│       |   └── .gitignore
+│       | small_RNA/
+│       |   └── .gitignore
 ├── reference_genomes/
 │   └── aedes_genomes/
 │       └── aedes_super_index/
 ├── results/
 │   ├── aedes_analysis/
 │   │   ├── untrimmed/
+│   │   │   ├──fastqc/ 
+│   │   │   │   └── .gitignore
 │   │   ├── trimmed/
-│   │   ├── trimmed_qc/
-│   │   ├── aligned/
-│   │   ├── assembly/
+│   │   ├── trimmed_qc/ 
+│   │   │   └── .gitignore
+│   │   ├── aligned/ 
+│   │   │   └── .gitignore
+│   │   ├── assembly/ 
+│   │   │   └── .gitignore
 │   │   └── blast/
 │   └── ...
 ├── logs/

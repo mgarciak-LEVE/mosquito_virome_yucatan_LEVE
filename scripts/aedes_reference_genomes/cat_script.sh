@@ -4,7 +4,7 @@ eval "$(/Users/Parsimony/miniconda3/bin/conda shell.bash hook)"
 
 OUTDIR="./data/Aedes_RNA_sequences/genomes"
 
-echo "=== Building Aedes Superreference  for Host Reads Depletion ==="
+echo "=== BUILDING AEDES SUPERREFERENCE FOR HOST READ DEPLETION ==="
 
 # Script for Aedes genome and chromosome annotation concatenation
 # It is recommended to prefix chromosome names. This way we avoid naming conflicts
@@ -26,7 +26,7 @@ FILES=(
     "GCA_024533555.2_genomic.fna|Akor|Aedes koreicus"
 )
 
-echo "=== Concatenating genome files ==="
+echo "=== CONCATENATING GENOME FILES ==="
 
 TEMP_FILE="${OUTDIR}/superreference_temp.fna"
 > "$TEMP_FILE"
@@ -43,7 +43,7 @@ done
 
 echo "Superreference files created successfully"
 
-echo "=== Generating statistics ==="
+echo "=== SUMMARY REPORT ==="
 
 # Generate basic statistics for the superreference file
 SEQ_COUNT=$(grep -c "^>" "$TEMP_FILE" 2>/dev/null || echo "0")
