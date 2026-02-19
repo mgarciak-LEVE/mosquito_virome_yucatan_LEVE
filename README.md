@@ -35,37 +35,54 @@ The proposed workflow for this project consists of several stages: sequence clea
 - Annotation of sequences and viral proteins: BLAST (Altschul et al., 1990) and Diamond (Buchfink et al., 2015).
 
 ## Directory Structure
+The code follows the assumption that the directory follows the structure outlined in the project. If you modify the directory structure, make sure to update the paths in the code accordingly.
 
 ```
 mosquito_virome_yucatan_LEVE/
+│
 ├── data/
-│   ├── Aedes_RNA_sequences/
-│   │   |
-│       | total_RNA/
-│       |   └── .gitignore
-│       | small_RNA/
-│       |   └── .gitignore
-├── reference_genomes/
-│   └── aedes_genomes/
-│       └── aedes_super_index/
+│   ├── raw/
+│   ├── total_RNA/
+│   ├── small_RNA/
+│   └── metadata/
+│
+├── references/
+│   ├── mosquito_genomes/
+│   │   └── aedes_super_index/
+│   └── databases/
+│       ├── BLAST/
+│       └── DIAMOND/
+│
 ├── results/
-│   ├── aedes_analysis/
-│   │   ├── untrimmed/
-│   │   │   ├──fastqc/ 
-│   │   │   │   └── .gitignore
-│   │   ├── trimmed/
-│   │   ├── trimmed_qc/ 
-│   │   │   └── .gitignore
-│   │   ├── aligned/ 
-│   │   │   └── .gitignore
-│   │   ├── assembly/ 
-│   │   │   └── .gitignore
-│   │   └── blast/
-│   └── ...
+│   ├── untrimmed/
+│   ├── trimmed/
+│   ├── trimmed_qc/
+│   ├── aligned/
+│   │   └── statistics/
+│   └── assembly/
+│       ├── fastq/
+│       ├── rnaSPAdes/
+│       │   └── [sample]/
+│       ├── metaSPAdes/
+│       │   └── [sample]/
+│       ├── MEGAhit/
+│       │   └── [sample]/
+│       └── statistics/
+│
 ├── logs/
+│   ├── trimming/
+│   ├── mapping/
+│   ├── assembly/
+│   └── blast/
+│
+├── docs/
+│   └── aedes_genomes_specs/
+│
 └── scripts/
-    └── pipeline_whole/
-        └── pipeline.sh
+    ├── aedes_reference_genomes/
+    ├── databases/
+    ├── pipeline_whole/
+    └── individual_analyses/
 ```
 
 

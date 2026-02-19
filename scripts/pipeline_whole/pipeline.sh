@@ -7,13 +7,14 @@ SECONDS=0
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # We assume that the scripts are located in a subdirectory "scripts/"
 # Works regardless of the current working directory.
-PROJECT_ROOT="$SCRIPT_DIR"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # RELATIVE PATHS
-RAW_DATA_DIR="${PROJECT_ROOT}/data/Aedes_RNA_sequences"
+RAW_DATA_DIR="${PROJECT_ROOT}/data/raw/total_RNA"
 
 # RESULTS DIRECTORIES
-RESULTS_DIR="${PROJECT_ROOT}/results/aedes_analysis"
+RESULTS_DIR="${PROJECT_ROOT}/results"
+
 UNTRIMMED_QC_DIR="${RESULTS_DIR}/untrimmed"
 TRIMMED_DIR="${RESULTS_DIR}/trimmed"
 TRIMMED_QC_DIR="${RESULTS_DIR}/trimmed_qc"
@@ -22,9 +23,9 @@ ASSEMBLY_DIR="${RESULTS_DIR}/assembly"
 BLAST_DIR="${RESULTS_DIR}/blast"
 
 # DATABASES AND REFERENCE GENOMES
-REFERENCE_DIR="${PROJECT_ROOT}/reference_genomes/aedes_genomes/aedes_super_index"
-BLAST_DB="${PROJECT_ROOT}/databases/blast/ref_viruses_rep_genomes"
-DIAMOND_DB="${PROJECT_ROOT}/databases/diamond/viral_proteins.dmnd"
+REFERENCE_DIR="${PROJECT_ROOT}/references/aedes_genomes/aedes_super_index"
+BLAST_DB="${PROJECT_ROOT}/references/databases/BLAST"
+DIAMOND_DB="${PROJECT_ROOT}/references/databases/DIAMOND"
 
 # LOGS DIRECTORY
 LOGS_DIR="${PROJECT_ROOT}/logs"
@@ -161,7 +162,7 @@ mapping_stats() {
     mkdir -p "${ALIGNED_DIR}/statistics"
     
     #Creates CSV file
-    stats_file="${OUTDIR}/aligned/statistics/mapping_summary.csv"
+    stats_file="${OUTDIR}/statistics/mapping_summary.csv"
     #Specifies the file column headers
     echo "Sample,Input_Reads,Average_Length,Uniquely_Mapped_Reads,Uniquely_Percent,Total_Multimapped,Total_Multimapped_Percent,Unmapped_Reads,Unmapped_Percent,Unmapped_Too_Short,Unmapped_Other" > "$stats_file"
 
@@ -206,23 +207,22 @@ mapping_stats() {
 # ASSEMBLY FUNCTION 
 run_assembly() {
     echo "Starting assembly process..."
-    mkdir -p "${OUTDIR}/assembly" # Output directory for assembly
-    mkdir -p "${OUTDIR}/assembly/fastq"
+    mkdir -p "${ASSEMBLY_DIR}/fastq" # Output directory for assembly
 
-    for R1 in "$OUTDIR"/aligned/*_Unmapped.out.mate1; do
+    for R1 in "${ALIGNED_DIR}"/*_Unmapped.out.mate1; do
         R2="${R1/_Unmapped.out.mate1/_Unmapped.out.mate2}"
-        
         sample=$(basename $R1 | cut -d'_' -f1)
 
         # Sample specific output directories
-        mkdir -p "$OUTDIR/assembly/rnaSPAdes/$sample"
-        mkdir -p "$OUTDIR/assembly/metaSPAdes/$sample"
+        mkdir -p "${ASSEMBLY_DIR}/rnaSPAdes/${sample}"
+        mkdir -p "${ASSEMBLY_DIR}/metaSPAdes/${sample}"
+
         echo "Cleaning up previous MEGAhit results for $sample..."
         rm -rf "$OUTDIR/assembly/MEGAhit/$sample" 2>/dev/null
         
 
-        R1_fastq="$OUTDIR/assembly/fastq/${sample}_R1.fastq"
-        R2_fastq="$OUTDIR/assembly/fastq/${sample}_R2.fastq"
+        R1_fastq="${ASSEMBLY_DIR}/fastq/${sample}_R1.fastq"
+        R2_fastq="${ASSEMBLY_DIR}/fastq/${sample}_R2.fastq"
 
         echo "Extracting unmapped reads from BAM format to FASTQ"
         
@@ -241,7 +241,7 @@ run_assembly() {
         rnaspades.py \
         -1 "$R1_fastq" \
         -2 "$R2_fastq" \
-        -o "$OUTDIR"/assembly/rnaSPAdes/$sample \
+        -o "$OUTDIR"/assembly/rnaSPAdes/$sample\
         -t $threads
         conda deactivate
         echo "rnaSPAdes assembly finished for sample $sample"
@@ -283,7 +283,7 @@ run_assembly() {
 # ASSEMBLY INFORMATION
 assembly_stats() {
     echo "Generating assembly statistics with seqkit..."
-    mkdir -p "${OUTDIR}/assembly/statistics"
+    mkdir -p "${ASSEMBLY_DIR}/statistics"
     
     #Creates CSV file
     stats_file="${OUTDIR}/assembly/statistics/assembly_summary_seqkit.csv"
@@ -445,19 +445,19 @@ nrblast() {
     conda activate diamond_env
 
     # rnaSPAdes
-    diamond blastx -q "${OUTDIR}/assembly/rnaSPAdes/hard_filtered_transcripts.fasta" \
+    diamond blastx -q "${ASSEMBLY_DIR}/rnaSPAdes/hard_filtered_transcripts.fasta" \
             -d "$DIAMOND_DB" \
             --o "${BLAST_DIR}/nrblast/rnaSPAdes_diamond_results.txt" \
             --ultra-sensitive --evalue 1e-5 --threads 8 --outfmt 6
 
     # metaSPAdes
-    diamond blastx -q "${OUTDIR}/assembly/metaSPAdes/contigs.fasta" \
+    diamond blastx -q "${ASSEMBLY_DIR}/metaSPAdes/contigs.fasta" \
             -d "$DIAMOND_DB" \
             --o "${BLAST_DIR}/nrblast/metaSPAdes_diamond_results.txt" \
             --ultra-sensitive --evalue 1e-5 --threads 8 --outfmt 6
 
     # MEGAhit
-    diamond blastx -q "${OUTDIR}/assembly/MEGAhit/final.contigs.fa" \
+    diamond blastx -q "${ASSEMBLY_DIR}/MEGAhit/final.contigs.fa" \
             -d "$DIAMOND_DB" \
             --o "${BLAST_DIR}/nrblast/MEGAhit_diamond_results.txt" \
             --ultra-sensitive --evalue 1e-5 --threads 8 --outfmt 6
