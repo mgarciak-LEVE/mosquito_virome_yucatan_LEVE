@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source "$(conda info --base)/etc/profile.d/conda.sh" 
+
 SECONDS=0
 
 # If run on a different computer, make sure the Working Directory path is correct and the permissions to run the code are correct as well
@@ -7,15 +9,15 @@ SECONDS=0
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # We assume that the scripts are located in a subdirectory "scripts/"
 # Works regardless of the current working directory.
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # RELATIVE PATHS
-RAW_DATA_DIR="${PROJECT_ROOT}/data/raw/total_RNA"
+RAW_DATA_DIR="${PROJECT_ROOT}/data/raw/total_RNA/cat_files"
 
 # RESULTS DIRECTORIES
 RESULTS_DIR="${PROJECT_ROOT}/results"
 
-UNTRIMMED_QC_DIR="${RESULTS_DIR}/untrimmed"
+UNTRIMMED_QC_DIR="${RESULTS_DIR}/untrimmed_qc"
 TRIMMED_DIR="${RESULTS_DIR}/trimmed"
 TRIMMED_QC_DIR="${RESULTS_DIR}/trimmed_qc"
 ALIGNED_DIR="${RESULTS_DIR}/aligned"
@@ -35,7 +37,7 @@ WORKDIR="$RAW_DATA_DIR"
 OUTDIR="$RESULTS_DIR"
 
 
-threads=16 # Thread definition
+threads=12 # Thread definition
 
 # A pipline was used to process some Aedes serratus sequences
 
@@ -81,7 +83,6 @@ run_multiqc() {
     local input_dir=$1 # Takes the first argument
     local output_dir=$2 # Takes the second argument
 
-    conda init
     echo "Running MultiQC on $input_dir..."
     conda activate multiqc_env # MultiQC conda environment 
     multiqc "$input_dir" -o "$output_dir"
@@ -114,7 +115,7 @@ run_trimming() {
         "${TRIMMED_DIR}/${newR2}_paired.fastq" \
         "${TRIMMED_DIR}/${newR2}_unpaired.fastq" \
         ILLUMINACLIP:${adapters}:2:30:10:2:keepBothReads \
-        LEADING:10 TRAILING:10 SLIDINGWINDOW:3:25 MINLEN:50 # ILUMMINACLIP is for adapter clipping
+        LEADING:20 TRAILING:20 SLIDINGWINDOW:3:25 MINLEN:50 # ILUMMINACLIP is for adapter clipping
     done   
     conda deactivate
 }
@@ -468,11 +469,10 @@ nrblast() {
 
 # SEQUENCE ANALYSIS PIPELINE <-----------
 main() {
-    eval "$(/Users/Parsimony/miniconda3/bin/conda shell.bash hook)"
-    
+
 # Raw QC analysis
-    run_fastqc "$WORKDIR" "$UNTRIMMED_QC_DIR"
-    run_multiqc "$UNTRIMMED_QC_DIR" "$RESULTS_DIR"
+    run_fastqc "$WORKDIR" "${UNTRIMMED_QC_DIR}/fastqc"
+    run_multiqc "${UNTRIMMED_QC_DIR}/fastqc" "${UNTRIMMED_QC_DIR}/multiqc"
     
     # Trimming process
     run_trimming
@@ -482,20 +482,20 @@ main() {
     run_multiqc "$TRIMMED_QC_DIR" "$RESULTS_DIR"
 
     # Mapping process
-    run_mapping
+    #run_mapping
 
     # Mapping statistics
-    mapping_stats
+    #mapping_stats
 
     # Assembly process
-    run_assembly
+    #run_assembly
 
     # Assembly statistics
-    assembly_stats
+    #assembly_stats
 
     # Viral identification
-    ntblast
-    nrblast
+    #ntblast
+    #nrblast
 
 
     # Report time

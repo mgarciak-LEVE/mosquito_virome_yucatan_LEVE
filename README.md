@@ -42,9 +42,11 @@ mosquito_virome_yucatan_LEVE/
 │
 ├── data/
 │   ├── raw/
-│   ├── total_RNA/
-│   ├── small_RNA/
-│   └── metadata/
+│   |   ├── total_RNA/
+│   |   │   └── [samples]
+│   |   ├── small_RNA/
+│   |   │   └── [samples]/
+│   |   └── metadata/
 │
 ├── references/
 │   ├── mosquito_genomes/
@@ -54,20 +56,22 @@ mosquito_virome_yucatan_LEVE/
 │       └── DIAMOND/
 │
 ├── results/
-│   ├── untrimmed/
+│   ├── untrimmed_qc/
+│   │   └── fastqc/
+│   │   └── multiqc/
 │   ├── trimmed/
 │   ├── trimmed_qc/
+│   │   └── fastqc/
+│   │   └── multiqc/
 │   ├── aligned/
-│   │   └── statistics/
 │   └── assembly/
-│       ├── fastq/
+│       ├── statistics/
 │       ├── rnaSPAdes/
-│       │   └── [sample]/
+│       │   └── [samples]/
 │       ├── metaSPAdes/
-│       │   └── [sample]/
+│       │   └── [samples]/
 │       ├── MEGAhit/
-│       │   └── [sample]/
-│       └── statistics/
+│       │   └── [samples]/
 │
 ├── logs/
 │   ├── trimming/
