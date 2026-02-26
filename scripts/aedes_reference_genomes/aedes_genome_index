@@ -14,7 +14,7 @@ SUPER_REF="aedes_superreference.fna"
 INDEX_DIR="aedes_super_index"
 LOG_DIR="logs"
 GENOME_CHR_BIN_BITS=18   # For better memory distribution
-SA_INDEX_BASES=14 # Parameters optimized for 12.1Gb genome (9 species)
+SA_INDEX_BASES=14 # Parameters optimized for 12.1Gb genome (8 species)
 
 # Create the index directory
 mkdir -p "$INDEX_DIR"

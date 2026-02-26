@@ -1,0 +1,14 @@
+Created: Thu Feb 26 15:25:45 CST 2026
+Files included: 7
+Total sequences: 0
+0
+Total bases: 0
+
+Genomes:
+  - Aedes aegypti (GCF_002204515.2_AaegL5.0_genomic.fna)
+  - Aedes albopictus (GCF_035046485.1_AalbF5_genomic.fna)
+  - Aedes mascarensis (GCA_052575835.1_Am_MascCH02_pri1.0_genomic.fna)
+  - Aedes sierrensis (GCA_044231785.1_Aedes_sierrensis_1_genomic.fna)
+  - Aedes japonicus (GCA_052815935.1_ASM5281593v1_genomic.fna)
+  - Aedes notoscriptus (GCA_040801935.1_CSIRO_AGI_Anoto_v1_genomic.fna)
+  - Aedes koreicus (GCA_024533555.2_Akor_1.1_genomic.fna)
