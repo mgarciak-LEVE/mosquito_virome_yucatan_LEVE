@@ -5,7 +5,9 @@
 
 SECONDS=0
 
-eval "$(/Users/Parsimony/miniconda3/bin/conda shell.bash hook)"
+# eval "$(/Users/Parsimony/miniconda3/bin/conda shell.bash hook)" # MACOS installation
+
+source "/c/ProgramData/anaconda3/etc/profile.d/conda.sh" # WINDOWS installation
 
 # Before running the script for genome indexing, we need to configure our script parameters 
 THREADS=16

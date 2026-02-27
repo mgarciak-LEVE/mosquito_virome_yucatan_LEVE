@@ -1,8 +1,7 @@
-Created: Thu Feb 26 15:25:45 CST 2026
+Created: Thu Feb 26 19:05:11     2026
 Files included: 7
-Total sequences: 0
-0
-Total bases: 0
+Total sequences: 16685
+Total bases: 8281802817
 
 Genomes:
   - Aedes aegypti (GCF_002204515.2_AaegL5.0_genomic.fna)

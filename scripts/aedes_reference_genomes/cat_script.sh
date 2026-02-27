@@ -54,12 +54,7 @@ echo "=== SUMMARY REPORT ==="
 # Generate basic statistics for the superreference file
 SEQ_COUNT=$(grep -c "^>" "$TEMP_FILE" 2>/dev/null || echo "0")
 
-BASE_COUNT=0
-while IFS= read -r line; do
-    if [[ ! "$line" =~ ^\> ]]; then
-        BASE_COUNT=$((BASE_COUNT + ${#line}))
-    fi
-done < "$TEMP_FILE"
+BASE_COUNT=$(awk '!/^>/ {sum += length($0)} END {print sum}' "$TEMP_FILE" 2>/dev/null || echo "0")
 
 echo "Total sequences: $SEQ_COUNT"
 echo "Total bases: $BASE_COUNT"
