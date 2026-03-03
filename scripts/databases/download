@@ -18,12 +18,12 @@ download_databases() {
     mkdir -p "$DB_DIR"
     cd "$DB_DIR"
 
-    # Download NCBI nr database
+    # 1. Download NCBI nr database
     log_step "Downloading NCBI nr database"
     wget https://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/nr.gz
     pigz -d -p "$THREADS" nr.gz
 
-    # Download taxonomy database from NCBI
+    # 2. Download taxonomy database from NCBI
     log_step "Downloading taxonomy database"
     wget ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdmp.zip
     unzip taxdmp.zip
@@ -32,8 +32,9 @@ download_databases() {
     wget ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/prot.accession2taxid.FULL.gz
     pigz -d -p "$THREADS" -k prot.accession2taxid.FULL.gz
 
-    # Download new_taxdump for rank information (from your step 3)
+    # Download new_taxdump for rank information
     log_step "Downloading new_taxdump for rank information"
+
     wget https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz
     tar -xzvf new_taxdump.tar.gz
 
@@ -44,20 +45,17 @@ download_databases() {
 
     # Formatting nr database using taxonomy files
     log_step "Creating DIAMOND nr_tax database"
+     mkdir -p /fast2/tmp_diamond
+
     ./diamond makedb \
         --in nr \
         --taxonnodes nodes.dmp \
         --taxonnames names.dmp \
         --taxonmap prot.accession2taxid.FULL \
+        --tmpdir /fast2/tmp_diamond \
         -d nr_tax
 
-    
-    mkdir -p /fast2/tmp_diamond
-
-    # Create temp directory for large database processing
-    mkdir -p /fast2/tmp_diamond
-
-    # Download and process refseq_protein (from your step 1.1)
+    # Download and process refseq_protein
     log_step "Processing refseq_protein database"
     mkdir -p refseq_protein
     

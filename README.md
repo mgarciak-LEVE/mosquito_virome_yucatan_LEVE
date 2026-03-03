@@ -47,13 +47,13 @@ mosquito_virome_yucatan_LEVE/
 │   |   ├── small_RNA/
 │   |   │   └── [samples]/
 │   |   └── metadata/
-│
-├── references/
-│   ├── mosquito_genomes/
-│   │   └── aedes_super_index/
-│   └── databases/
-│       ├── BLAST/
-│       └── DIAMOND/
+│   |       └── [metadata files]
+│   ├── references/
+|    │   ├── mosquito_genomes/
+|    │   │   └── aedes_super_index/
+|    │   └── databases/
+|    │       ├── BLAST/
+|    │       └── DIAMOND/
 │
 ├── results/
 │   ├── untrimmed_qc/

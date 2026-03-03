@@ -1,0 +1,39 @@
+STAR version=2.7.10b
+STAR compilation time,server,dir= :/Users/distiller/project/STARcompile/source
+STAR git: On branch master ; commit c6f8efc2c7043ef83bf8b0d9bed36bbb6b9b1133 ; diff files: 
+##### Command Line:
+STAR --runMode genomeGenerate --genomeDir /Users/Parsimony/GitHub_Projects/mosquito_virome_yucatan_LEVE/data/references/aedes_super_index --genomeFastaFiles /Users/Parsimony/GitHub_Projects/mosquito_virome_yucatan_LEVE/references/genomic_files --runThreadN 12 --genomeChrBinNbits 18 --limitGenomeGenerateRAM 300000 --genomeSAindexNbases 14
+##### Initial USER parameters from Command Line:
+###### All USER parameters from Command Line:
+runMode                       genomeGenerate        ~RE-DEFINED
+genomeDir                     /Users/Parsimony/GitHub_Projects/mosquito_virome_yucatan_LEVE/data/references/aedes_super_index     ~RE-DEFINED
+genomeFastaFiles              /Users/Parsimony/GitHub_Projects/mosquito_virome_yucatan_LEVE/references/genomic_files        ~RE-DEFINED
+runThreadN                    12     ~RE-DEFINED
+genomeChrBinNbits             18     ~RE-DEFINED
+limitGenomeGenerateRAM        300000     ~RE-DEFINED
+genomeSAindexNbases           14     ~RE-DEFINED
+##### Finished reading parameters from all sources
+
+##### Final user re-defined parameters-----------------:
+runMode                           genomeGenerate   
+runThreadN                        12
+genomeDir                         /Users/Parsimony/GitHub_Projects/mosquito_virome_yucatan_LEVE/data/references/aedes_super_index
+genomeFastaFiles                  /Users/Parsimony/GitHub_Projects/mosquito_virome_yucatan_LEVE/references/genomic_files   
+genomeSAindexNbases               14
+genomeChrBinNbits                 18
+limitGenomeGenerateRAM            300000
+
+-------------------------------
+##### Final effective command line:
+STAR   --runMode genomeGenerate      --runThreadN 12   --genomeDir /Users/Parsimony/GitHub_Projects/mosquito_virome_yucatan_LEVE/data/references/aedes_super_index   --genomeFastaFiles /Users/Parsimony/GitHub_Projects/mosquito_virome_yucatan_LEVE/references/genomic_files      --genomeSAindexNbases 14   --genomeChrBinNbits 18   --limitGenomeGenerateRAM 300000
+----------------------------------------
+
+Number of fastq files for each mate = 1
+ParametersSolo: --soloCellFilterType CellRanger2.2 filtering parameters:  3000 0.99 10
+Finished loading and checking parameters
+--genomeDir directory exists and will be overwritten: /Users/Parsimony/GitHub_Projects/mosquito_virome_yucatan_LEVE/data/references/aedes_super_index/
+Mar 03 15:02:22 ... starting to generate Genome files
+
+EXITING because of INPUT ERROR: could not read from genomeFastaFile: /Users/Parsimony/GitHub_Projects/mosquito_virome_yucatan_LEVE/references/genomic_files
+
+Mar 03 15:02:22 ...... FATAL ERROR, exiting

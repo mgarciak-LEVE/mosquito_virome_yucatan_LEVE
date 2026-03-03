@@ -1,0 +1,39 @@
+STAR version=2.7.10b
+STAR compilation time,server,dir= :/Users/distiller/project/STARcompile/source
+STAR git: On branch master ; commit c6f8efc2c7043ef83bf8b0d9bed36bbb6b9b1133 ; diff files: 
+##### Command Line:
+STAR --runMode genomeGenerate --genomeDir aedes_super_index --genomeFastaFiles superreference_temp.fna --runThreadN 12 --genomeChrBinNbits 18 --limitGenomeGenerateRAM 30 --genomeSAindexNbases 14
+##### Initial USER parameters from Command Line:
+###### All USER parameters from Command Line:
+runMode                       genomeGenerate        ~RE-DEFINED
+genomeDir                     aedes_super_index     ~RE-DEFINED
+genomeFastaFiles              superreference_temp.fna        ~RE-DEFINED
+runThreadN                    12     ~RE-DEFINED
+genomeChrBinNbits             18     ~RE-DEFINED
+limitGenomeGenerateRAM        30     ~RE-DEFINED
+genomeSAindexNbases           14     ~RE-DEFINED
+##### Finished reading parameters from all sources
+
+##### Final user re-defined parameters-----------------:
+runMode                           genomeGenerate   
+runThreadN                        12
+genomeDir                         aedes_super_index
+genomeFastaFiles                  superreference_temp.fna   
+genomeSAindexNbases               14
+genomeChrBinNbits                 18
+limitGenomeGenerateRAM            30
+
+-------------------------------
+##### Final effective command line:
+STAR   --runMode genomeGenerate      --runThreadN 12   --genomeDir aedes_super_index   --genomeFastaFiles superreference_temp.fna      --genomeSAindexNbases 14   --genomeChrBinNbits 18   --limitGenomeGenerateRAM 30
+----------------------------------------
+
+Number of fastq files for each mate = 1
+ParametersSolo: --soloCellFilterType CellRanger2.2 filtering parameters:  3000 0.99 10
+Finished loading and checking parameters
+--genomeDir directory exists and will be overwritten: aedes_super_index/
+Mar 03 14:24:06 ... starting to generate Genome files
+
+EXITING because of INPUT ERROR: could not open genomeFastaFile: superreference_temp.fna
+
+Mar 03 14:24:06 ...... FATAL ERROR, exiting
