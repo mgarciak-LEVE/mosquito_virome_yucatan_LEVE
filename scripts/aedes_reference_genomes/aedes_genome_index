@@ -13,7 +13,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Before running the script for genome indexing, we need to configure our script parameters 
 THREADS=12
-STAR_RAM=34000000
+STAR_RAM=340000000
 SUPER_REF="${PROJECT_ROOT}/data/references/mosquito_genomes/genomic_files/superreference_temp.fna"
 INDEX_DIR="${PROJECT_ROOT}/data/references/aedes_super_index"
 LOG_DIR="${PROJECT_ROOT}/logs"
