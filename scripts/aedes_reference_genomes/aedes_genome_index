@@ -5,7 +5,9 @@
 
 SECONDS=0
 
-eval "$(/Users/Parsimony/miniconda3/bin/conda shell.bash hook)"
+# eval "$(/Users/Parsimony/miniconda3/bin/conda shell.bash hook)" # MACOS installation
+
+source "/c/ProgramData/anaconda3/etc/profile.d/conda.sh" # WINDOWS installation
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # We assume that the scripts are located in a subdirectory "scripts/"
 # Works regardless of the current working directory.
