@@ -25,7 +25,7 @@ ASSEMBLY_DIR="${RESULTS_DIR}/assembly"
 BLAST_DIR="${RESULTS_DIR}/blast"
 
 # DATABASES AND REFERENCE GENOMES
-REFERENCE_DIR="${PROJECT_ROOT}/references/aedes_genomes/aedes_super_index"
+REFERENCE_DIR="${PROJECT_ROOT}/data/references/aedes_super_index"
 BLAST_DB="${PROJECT_ROOT}/references/databases/BLAST"
 DIAMOND_DB="${PROJECT_ROOT}/references/databases/DIAMOND"
 
@@ -108,7 +108,7 @@ run_trimming() {
     adapters="/Users/Parsimony/miniconda3/envs/trimmomatic/share/trimmomatic-0.39-2/adapters/TruSeq3-PE-2.fa" 
     
     # For the forward and reverse files ($R1 and $R2)
-    trimmomatic PE -threads 10 -phred33 \
+    trimmomatic PE -threads 12 -phred33 \
         "$R1_file" "$R2_file" \
         "${TRIMMED_DIR}/${newR1}_paired.fastq" \
         "${TRIMMED_DIR}/${newR1}_unpaired.fastq" \
@@ -124,7 +124,6 @@ run_trimming() {
 run_mapping() {
     echo "Starting alignment process..."
     mkdir -p "${ALIGNED_DIR}" # Output directory for the aligned sequences
-    REFERENCE="$REFERENCE_DIR"
 
     ulimit -n 4096
 
@@ -135,7 +134,7 @@ run_mapping() {
     sample=$(sample_names "$R1" "sample")
 
 
-    echo "Using STAR index from: $REFERENCE"
+    echo "Using STAR index from: $REFERENCE_DIR"
     echo "Aligning $sample..." # Alignment done by STAR 
     echo "Files: $(basename "$R1") and $(basename "$R2")"
 
@@ -143,7 +142,7 @@ run_mapping() {
 
     STAR \
         --runMode alignReads \
-        --genomeDir "$REFERENCE" \
+        --genomeDir "$REFERENCE_DIR" \
         --readFilesIn "$R1" "$R2" \
         --outFileNamePrefix "${ALIGNED_DIR}/${sample}_" \
         --outSAMtype BAM SortedByCoordinate \
@@ -151,7 +150,7 @@ run_mapping() {
         --quantMode GeneCounts \
         --outFilterMismatchNoverLmax 0.1 \
         --runThreadN $threads \
-        --limitBAMsortRAM 30000000000 \
+        --limitBAMsortRAM 34000000000 \
         
     conda deactivate
     done
@@ -271,7 +270,7 @@ run_assembly() {
         -1 "$R1_fastq" \
         -2 "$R2_fastq" \
         -o "$OUTDIR"/assembly/MEGAhit/$sample \
-        -t 4 \
+        -t $threads \
         -m 30
         conda deactivate
         echo "MEGAhit assembly finished for sample $sample"
@@ -471,21 +470,21 @@ nrblast() {
 main() {
 
 # Raw QC analysis
-    run_fastqc "$WORKDIR" "${UNTRIMMED_QC_DIR}/fastqc"
-    run_multiqc "${UNTRIMMED_QC_DIR}/fastqc" "${UNTRIMMED_QC_DIR}/multiqc"
+    #run_fastqc "$WORKDIR" "${UNTRIMMED_QC_DIR}/fastqc"
+    #run_multiqc "${UNTRIMMED_QC_DIR}/fastqc" "${UNTRIMMED_QC_DIR}/multiqc"
     
     # Trimming process
-    run_trimming
+    #run_trimming
     
     # Post-trimming QC analysis
-    run_fastqc "$TRIMMED_DIR" "$TRIMMED_QC_DIR"
-    run_multiqc "$TRIMMED_QC_DIR" "$RESULTS_DIR"
+    #run_fastqc "$TRIMMED_DIR" "$TRIMMED_QC_DIR/fastqc"
+    #run_multiqc "$TRIMMED_QC_DIR/fastqc" "$RESULTS_DIR/multiqc"
 
     # Mapping process
-    #run_mapping
+    run_mapping
 
     # Mapping statistics
-    #mapping_stats
+    mapping_stats
 
     # Assembly process
     #run_assembly

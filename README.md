@@ -49,11 +49,11 @@ mosquito_virome_yucatan_LEVE/
 │   |   └── metadata/
 │   |       └── [metadata files]
 │   ├── references/
-|    │   ├── mosquito_genomes/
-|    │   │   └── aedes_super_index/
-|    │   └── databases/
-|    │       ├── BLAST/
-|    │       └── DIAMOND/
+|   │   ├── mosquito_genomes/
+|   │   │   └── aedes_super_index/
+|   │   └── databases/
+|   │       ├── BLAST/
+|   │       └── DIAMOND/
 │
 ├── results/
 │   ├── untrimmed_qc/
