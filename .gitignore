@@ -8,6 +8,6 @@
 *.fna
 
 # DIRECTORIES
-results/trimmed_qc/fastqc/*
-results/untrimmed_qc/fastqc/*
+**/fastqc/
+
 
