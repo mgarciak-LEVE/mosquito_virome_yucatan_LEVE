@@ -11,3 +11,6 @@
 **/fastqc/
 
 
+# Directories
+**/results/aligned/
+data/references/

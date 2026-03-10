@@ -121,7 +121,7 @@ run_trimming() {
 }
 
 # MAPPING FUNCTION
-run_mapping() {
+run_mapping_paired() {
     echo "Starting alignment process..."
     mkdir -p "${ALIGNED_DIR}" # Output directory for the aligned sequences
 
@@ -144,10 +144,9 @@ run_mapping() {
         --runMode alignReads \
         --genomeDir "$REFERENCE_DIR" \
         --readFilesIn "$R1" "$R2" \
-        --outFileNamePrefix "${ALIGNED_DIR}/${sample}_" \
+        --outFileNamePrefix "${ALIGNED_DIR}/${sample}_paired_" \
         --outSAMtype BAM SortedByCoordinate \
         --outReadsUnmapped Fastx \
-        --quantMode GeneCounts \
         --outFilterMismatchNoverLmax 0.1 \
         --runThreadN $threads \
         --limitBAMsortRAM 34000000000 \
@@ -155,6 +154,62 @@ run_mapping() {
     conda deactivate
     done
 }
+
+run_mapping_unpaired() {
+    echo "Starting single-end alignment process for unpaired reads..."
+    mkdir -p "${ALIGNED_DIR}"
+
+    ulimit -n 4096
+
+    # Process R1 unpaired reads
+    for R1_unpaired in "$OUTDIR"/trimmed/*_R1_unpaired.fastq; do
+        sample=$(sample_names "$R1_unpaired" "sample")
+        
+        echo "Using STAR index from: $REFERENCE_DIR"
+        echo "Aligning $sample (single-end R1 unpaired)..."
+        echo "File: $(basename "$R1_unpaired")"
+
+        conda activate star_env
+
+        STAR \
+            --runMode alignReads \
+            --genomeDir "$REFERENCE_DIR" \
+            --readFilesIn "$R1_unpaired" \
+            --outFileNamePrefix "${ALIGNED_DIR}/${sample}_R1_unpaired_" \
+            --outSAMtype BAM SortedByCoordinate \
+            --outReadsUnmapped Fastx \
+            --outFilterMismatchNoverLmax 0.1 \
+            --runThreadN $threads \
+            --limitBAMsortRAM 34000000000
+            
+        conda deactivate
+    done
+
+    # Process R2 unpaired reads
+    for R2_unpaired in "$OUTDIR"/trimmed/*_R2_unpaired.fastq; do
+        sample=$(sample_names "$R2_unpaired" "sample")
+        
+        echo "Using STAR index from: $REFERENCE_DIR"
+        echo "Aligning $sample (single-end R2 unpaired)..."
+        echo "File: $(basename "$R2_unpaired")"
+
+        conda activate star_env
+
+        STAR \
+            --runMode alignReads \
+            --genomeDir "$REFERENCE_DIR" \
+            --readFilesIn "$R2_unpaired" \
+            --outFileNamePrefix "${ALIGNED_DIR}/${sample}_R2_unpaired_" \
+            --outSAMtype BAM SortedByCoordinate \
+            --outReadsUnmapped Fastx \
+            --outFilterMismatchNoverLmax 0.1 \
+            --runThreadN $threads \
+            --limitBAMsortRAM 34000000000
+            
+        conda deactivate
+    done
+}
+
 
 # ASSEMBLY INFORMATION
 mapping_stats() {
@@ -169,14 +224,32 @@ mapping_stats() {
 
     for star_log in "$OUTDIR/aligned"/*Log.final.out; do
         if [[ -f "$star_log" ]]; then
-            sample=$(basename "$star_log" | sed 's/_Log.final.out//')
+            filename=$(basename "$star_log" "_Log.final.out")
+            
+            # Parse sample and read type based on naming convention
+            if [[ "$filename" == *"_paired_"* ]]; then
+                sample=$(echo "$filename" | sed 's/_paired_//')
+                read_type="paired"
+            elif [[ "$filename" == *"_R1_unpaired_"* ]]; then
+                sample=$(echo "$filename" | sed 's/_R1_unpaired_//')
+                read_type="R1_unpaired"
+            elif [[ "$filename" == *"_R2_unpaired_"* ]]; then
+                sample=$(echo "$filename" | sed 's/_R2_unpaired_//')
+                read_type="R2_unpaired"
+            else
+                sample="$filename"
+                read_type="unknown"
+            fi
+
 
                     # Parse statistics
                     input_reads=$(grep "Number of input reads" $star_log | awk '{print $6}')
                     avg_length=$(grep "Average input read length" $star_log | awk '{print $6}')
+                    
                     #Uniquely mapped
                     uniquely_mapped_reads=$(grep "Uniquely mapped reads number" $star_log  | awk '{print $6}')
                     uniquely_percent=$(grep "Uniquely mapped reads %" $star_log  | awk '{print $6}' | sed 's/%//')
+                    
                     #Multimapped
                     multi_mapped1=$(grep "Number of reads mapped to multiple loci" $star_log  | awk '{print $9}')
                     multi_mapped1_percent=$(grep "% of reads mapped to multiple loci" $star_log  | awk '{print $9}' | sed 's/%//')
@@ -241,7 +314,7 @@ run_assembly() {
         rnaspades.py \
         -1 "$R1_fastq" \
         -2 "$R2_fastq" \
-        -o "$OUTDIR"/assembly/rnaSPAdes/$sample\
+        -o "$OUTDIR"/assembly/rnaSPAdes/$sample \
         -t $threads
         conda deactivate
         echo "rnaSPAdes assembly finished for sample $sample"
@@ -481,7 +554,8 @@ main() {
     #run_multiqc "$TRIMMED_QC_DIR/fastqc" "$RESULTS_DIR/multiqc"
 
     # Mapping process
-    run_mapping
+    run_mapping_paired
+    run_mapping_unpaired
 
     # Mapping statistics
     mapping_stats
