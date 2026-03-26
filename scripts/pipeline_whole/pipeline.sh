@@ -1,4 +1,10 @@
 #!/bin/bash
+# Author: Jorge A. Castro-Rodríguez
+# ver 15.0.0
+# General Desciption:
+
+
+
 
 source "$(conda info --base)/etc/profile.d/conda.sh" 
 
@@ -223,7 +229,7 @@ mapping_stats() {
 
 
     for star_log in "$OUTDIR/aligned"/*Log.final.out; do
-        if [[ -f "$star_log" ]]; then
+        if [[ -f "$star_log" ]]; then  # If the file exists... 
             filename=$(basename "$star_log" "_Log.final.out")
             
             # Parse sample and read type based on naming convention
