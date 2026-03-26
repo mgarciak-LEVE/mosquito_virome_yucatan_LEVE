@@ -1,0 +1,12 @@
+taxId,taxLevel,genus_tax_id,name,common_name,category,is_phage,species_tax_ids,agg_score,max_z_score,nt.z_score,nt.rpm,nt.count,nt.contigs,nt.contig_r,nt.percent_identity,nt.alignment_length,nt.e_value,nt.bg_mean,nt.bg_stdev,nt.bg_mean_mass_normalized,nt.bg_stdev_mass_normalized,nr.z_score,nr.rpm,nr.count,nr.contigs,nr.contig_r,nr.percent_identity,nr.alignment_length,nr.e_value,nr.bg_mean,nr.bg_stdev,nr.bg_mean_mass_normalized,nr.bg_stdev_mass_normalized,known_pathogen
+3044761,"genus",3044761,"Megavirus","","viruses",false,[1128135],"-","-","-",0.08053926514685852,1,"-","-",85.714,56,14.7789,"-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-",0
+1128135,"species",3044761,"Megavirus courdo7","","viruses",false,"-","-","-","-",0.1,1,"-","-",85.7,56,14.8,"-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-",0
+2060084,"genus",2060084,"Pandoravirus","","viruses",false,[1349409],"-","-","-",0.08053926514685852,1,"-","-",77.778,63,11.2968,"-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-",0
+1349409,"species",2060084,"Pandoravirus dulcis","","viruses",false,"-","-","-","-",0.1,1,"-","-",77.8,63,11.3,"-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-",0
+1511808,"genus",1511808,"Alphapartitivirus","","viruses",false,[2970694],"-","-","-",0.16107853029371705,2,"-","-",89.1955,73.5,26.6693,"-","-","-","-","-",0.16107853029371705,2,"-","-",96,24.5,7.43429,"-","-","-","-",0
+2970694,"species",1511808,"Enontekio alphapartitivirus 1","","viruses",false,"-","-","-","-",0.2,2,"-","-",89.2,73.5,26.7,"-","-","-","-","-",0.2,2,"-","-",96,24.5,7.4,"-","-","-","-",0
+232799,"genus",232799,"Iflavirus","","viruses",false,[2970551],"-","-","-",0.16107853029371705,2,"-","-",91.654,73,29.074,"-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-",0
+2970551,"species",232799,"Hanko iflavirus 1","","viruses",false,"-","-","-","-",0.2,2,"-","-",91.7,73,29.1,"-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-",0
+200011006,"genus",200011006,"non-genus-specific reads in family Totiviridae","-","viruses",false,"[2727863,2689339,2026601]","-","-","-",0.16107853029371705,2,"-","-",91.328,60,20.9406,"-","-","-","-","-",0.8053926514685852,10,"-","-",87.37,24.7,5.9,"-","-","-","-",0
+2727863,"species",200011006,"Malassezia restricta virus MrV40L","","viruses",false,"-","-","-","-",0.2,2,"-","-",91.3,60,20.9,"-","-","-","-","-",0.2,2,"-","-",81.3,24,5,"-","-","-","-",0
+3 Filters Applied:,Categories:, Viruses,Viruses - Phage,Thresholds:, NT L (alignment length in bp) >= 50
