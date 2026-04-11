@@ -15,3 +15,5 @@
 **/results/aligned/
 data/references/
 docs/czid_sequence_reports/
+docs/czid_sequence_reports_provisional/
+scripts/czid_analysis/sequence_analysis_aedes_aegypti.ipynb
