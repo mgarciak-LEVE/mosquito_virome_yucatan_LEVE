@@ -1,33 +1,72 @@
 #!/bin/bash
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # We assume that the scripts are located in a subdirectory "scripts/"
-# Works regardless of the current working directory.
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"  # Go up only 2 levels, not 3
+
+# Script for lane concatenation
+# Author: Jorge Alberto Castro Rodríguez
+# Ver. 2.0.0
+
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 RAW_DATA_DIR="${PROJECT_ROOT}/data/raw/total_RNA"
 
 cd ${RAW_DATA_DIR}
-ls -la ${RAW_DATA_DIR}
 output_dir="${RAW_DATA_DIR}/cat_files"
-
 mkdir -p "${output_dir}"
 
-# Gunzip files and keep originals.
+# Gunzip files and keep originals
 for file in *.gz; do
     echo "Extracting: $file"
-    gunzip -k "$file"  # Keeps original .gz files
+    gunzip -k "$file"
 done
 
-# For each sample, concatenate the lanes (only L001 and L002)
-    for sample in $(ls *.fastq | grep -E '_L00[12]_' | cut -d'_' -f1-2 | sort -u); do
- 
- # Concatenate R1 files (L001 + L002)
-    cat "${sample}_L001_R1_001.fastq" "${sample}_L002_R1_001.fastq" > "${output_dir}/$(basename ${sample})_R1.fastq"
+# Get unique sample names (everything before _L00[12]_)
+for sample in $(ls *.fastq | grep -E '_L00[12]_' | cut -d'_' -f1-2 | sort -u); do
     
-# Concatenate R2 files (L001 + L002)
-    cat "${sample}_L001_R2_001.fastq" "${sample}_L002_R2_001.fastq" > "${output_dir}/$(basename ${sample})_R2.fastq"
+    # Initialize arrays to collect files
+    r1_files=()
+    r2_files=()
     
-    echo "Created: ${output_dir}/$(basename ${sample})_R1.fastq and ${output_dir}/$(basename ${sample})_R2.fastq"
+    # Check for L001 and L002 files
+    for lane in L001 L002; do
+        r1_file="${sample}_${lane}_R1_001.fastq"
+        r2_file="${sample}_${lane}_R2_001.fastq"
+        
+        if [[ -f "$r1_file" ]]; then
+            r1_files+=("$r1_file")
+        fi
+        
+        if [[ -f "$r2_file" ]]; then
+            r2_files+=("$r2_file")
+        fi
+    done
+    
+    # Concatenate R1 files if any exist
+    if [[ ${#r1_files[@]} -gt 0 ]]; then
+        cat "${r1_files[@]}" > "${output_dir}/$(basename ${sample})_R1.fastq"
+        echo "Created: ${output_dir}/$(basename ${sample})_R1.fastq from ${#r1_files[@]} lane(s)"
+    else
+        echo "Warning: No R1 files found for sample ${sample}"
+    fi
+    
+    # Concatenate R2 files if any exist
+    if [[ ${#r2_files[@]} -gt 0 ]]; then
+        cat "${r2_files[@]}" > "${output_dir}/$(basename ${sample})_R2.fastq"
+        echo "Created: ${output_dir}/$(basename ${sample})_R2.fastq from ${#r2_files[@]} lane(s)"
+    else
+        echo "Warning: No R2 files found for sample ${sample}"
+    fi
 done
 
+# Optional: Remove original lane files
 
-# Remove the original lane files (optional)
-rm *_L001_*.fastq *_L002_*.fastq
+rm -f -- *_L001_*.fastq *_L002_*.fastq
+
+# Compressing of .fastq files
+for file in "${output_dir}"/*.fastq; do
+    if [ -f "$file" ]; then
+        echo "Compressing: $file" 	
+        gzip "$file"
+    fi
+done
+
+echo "Process completed..."
