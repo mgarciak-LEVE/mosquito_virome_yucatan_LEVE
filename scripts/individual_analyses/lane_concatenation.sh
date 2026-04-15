@@ -82,4 +82,11 @@ for file in "${output_dir}"/*.fastq; do
     fi
 done
 
+
+# MD5 hexanumeric for later.
+cd ${RAW_DATA_DIR}
+md5sum *.fastq.gz > "${PROJECT_ROOT}/docs/md5_files/md5sums_original.txt"
+echo "MD5 checksums saved to: ${PROJECT_ROOT}/docs/md5_files/md5sums_original.txt"
+
+
 echo "Process completed..."
