@@ -3,7 +3,7 @@
 # Script for concatenation of sequencing lanes per sample, with integrity verification and MD5 checksum generation.
 # Author: Jorge Alberto Castro Rodríguez
 # Ver. 2.1.1 
-# 04/15/2026
+# 15/04/2026
 
 ####==================================####
 ####          CONFIGURATION           ####
