@@ -8,13 +8,11 @@
 *.fna
 *.png
 
+
 # DIRECTORIES
-**/fastqc/
-
-
-# Directories
 **/results/aligned/
 data/references/
+data/czid_raw/
 docs/czid_sequence_reports/
 docs/czid_sequence_reports_provisional/
 scripts/czid_analysis/sequence_analysis_aedes_aegypti.ipynb

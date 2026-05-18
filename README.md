@@ -41,6 +41,9 @@ The code follows the assumption that the directory follows the structure outline
 mosquito_virome_yucatan_LEVE/
 │
 ├── data/
+│   ├── czid_raw/
+│   |   ├── non_host_reads/
+│   |   ├── viral_contigs/
 │   ├── raw/
 │   |   ├── total_RNA/
 │   |   │   └── [samples]
