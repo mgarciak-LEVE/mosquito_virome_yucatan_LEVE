@@ -102,7 +102,7 @@ for i in "${!VIRUS_DIRS[@]}"; do
         full_filename=$(basename "$contig_file" .fasta)
 
         # Extract sample name from contig filename
-        sample_name=$(echo "$full_filename" | sed 's/_S\d{1,2}_\d{6}_contigs.*$//')
+        sample_name=$(echo "$full_filename" | sed 's/_contigs.*$//')
 
         echo "Sample: ${sample_name}"
         echo "Contig: ${full_filename}.fasta"
@@ -173,6 +173,10 @@ for i in "${!VIRUS_DIRS[@]}"; do
             tg_send "ERROR: Mapping failed for ${VIRUS_NAME}/${sample_name}"
             continue
         fi
+
+        conda deactivate
+
+        conda activate samtools_env
 
         # Count mapped reads
         mapped_reads=$(samtools view -c "${sample_out}/${sample_name}_aligned.sam" 2>/dev/null)

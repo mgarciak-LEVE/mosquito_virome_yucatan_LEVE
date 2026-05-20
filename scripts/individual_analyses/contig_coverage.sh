@@ -21,8 +21,6 @@ VIRUS_NAMES=(
     "GMMLV"
 )
 
-THREADS=14
-
 # Telegram bot
 source "${SCRIPT_DIR}/bot_telegram.sh"
 
