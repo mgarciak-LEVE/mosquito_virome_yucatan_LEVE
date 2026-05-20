@@ -2,8 +2,8 @@
 
 # Script for contig coverage analysis after read mapping.
 # Author: Jorge Alberto Castro Rodríguez
-# Ver. 1.0.0
-# 18/05/2026
+# Ver. 1.1.0
+# 19/05/2026
 
 ####==================================####
 ####          CONFIGURATION           ####
@@ -13,6 +13,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 RAW_DATA_DIR="${PROJECT_ROOT}/data/raw/czid_raw"
 MAPPING_DIR="${RAW_DATA_DIR}/mapping"
+
+# Container paths
+CONTAINER_DIR="${PROJECT_ROOT}/containers"
+SAMTOOLS_SIF="${CONTAINER_DIR}/samtools_1.20--h50ea8bc_1.sif"
 
 # Virus names
 VIRUS_NAMES=(
@@ -24,7 +28,13 @@ VIRUS_NAMES=(
 # Telegram bot
 source "${SCRIPT_DIR}/bot_telegram.sh"
 
-source "$(conda info --base)/etc/profile.d/conda.sh"
+# Output directory for coverage results
+stats_csv=${PROJECT_ROOT}/results/coverage/coverage_stats.csv
+# Crear directorio si no existe
+mkdir -p "$(dirname "$stats_csv")"
+
+# CSV file for summary statistics
+echo "sample,virus,total_positions,avg_depth,min_depth,max_depth,covered_positions,gap_positions,pct_covered,pct_gaps" > "$stats_csv"
 
 echo "=========================================="
 echo "  Coverage Analysis"
@@ -77,11 +87,9 @@ for VIRUS_NAME in "${VIRUS_NAMES[@]}"; do
         ####============================####
 
         echo "Calculating per-base depth..."
-        
-        conda activate samtools_env
 
         # Generate per-base depth file
-        samtools depth \
+        apptainer exec "${SAMTOOLS_SIF}" samtools depth \
             -a \
             "$bam_file" \
             > "${sample_dir}/${sample_name}_depth.txt"
@@ -89,7 +97,6 @@ for VIRUS_NAME in "${VIRUS_NAMES[@]}"; do
         if [ $? -ne 0 ]; then
             echo "  ERROR: Depth calculation failed for ${sample_name}"
             tg_send "ERROR: Depth failed for ${VIRUS_NAME}/${sample_name}"
-            conda deactivate
             continue
         fi
 
@@ -132,8 +139,6 @@ for VIRUS_NAME in "${VIRUS_NAMES[@]}"; do
             "${sample_dir}/${sample_name}_depth.txt")
         max_depth=$(awk 'NR==1 {max=$3} $3>max {max=$3} END {print max+0}' \
             "${sample_dir}/${sample_name}_depth.txt")
-
-        conda deactivate
 
         ####============================####
         ####        SAVE STATISTICS      ####
@@ -190,6 +195,9 @@ EOF
 
         echo ""
 
+        # CSV summary for all samples
+        echo "${sample_name},${VIRUS_NAME},${total_positions},${avg_depth},${min_depth},${max_depth},${covered_positions},${gap_positions},${pct_covered},${pct_gaps}" >> "$stats_csv"
+        
     done
 
     echo "Completed coverage analysis for ${VIRUS_NAME}"
