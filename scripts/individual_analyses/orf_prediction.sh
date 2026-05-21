@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script for ORF prediction from viral consensus genomes and statistics related to them.
-# Ver. 1.0.0
+# Ver. 1.1.0
 # 20/05/2026
 
 ####==================================####
@@ -15,7 +15,7 @@ ORF_DIR="${PROJECT_ROOT}/data/raw/czid_raw/orfs"
 
 # Container paths
 CONTAINER_DIR="${PROJECT_ROOT}/containers"
-EMBOSS_SIF="${CONTAINER_DIR}/samtools_1.20--h50ea8bc_1.sif" #### CHECKOUT IT OUT
+EMBOSS_SIF="${CONTAINER_DIR}/emboss_6.6.0--h0f19ade_14.sif"
 
 # Virus names
 VIRUS_NAMES=(
@@ -28,8 +28,8 @@ VIRUS_NAMES=(
 source "${SCRIPT_DIR}/bot_telegram.sh"
 
 # Output directory for coverage results
-stats_csv=${PROJECT_ROOT}/results/orf_predicition/orf_coverage_stats.csv
-# Crear directorio si no existe
+stats_csv=${PROJECT_ROOT}/results/orf_predicition/czid/orf_coverage_stats.csv
+# Create directory for stats if it doesn't exist
 mkdir -p "$(dirname "$stats_csv")"
 
 # CSV file for summary statistics
@@ -73,35 +73,23 @@ for i in "${!VIRUS_NAMES[@]}"; do
 ####   PROCESS EACH SAMPLE DIRECTORY  ####
 ####==================================####
 
-    for sample_dir in "${VIRUS_INPUT}"/*/; do
+     for fasta_file in "${VIRUS_INPUT}"/*_consensus.fa; do
 
-        sample_name=$(basename "$sample_dir")
-        fasta_file="${sample_dir}/${sample_name}_consensus.fa"
-
-        # Skip if BAM file doesn't exist
         if [ ! -f "$fasta_file" ]; then
-            echo "WARNING: No fasta file for ${sample_name}. Skipping."
-            continue
-        fi
-
-        # Find the original consensus file
-        fasta_file=$(ls "${VIRUS_INPUT}/${sample_name}"* 2>/dev/null | head -1)
-
-        if [ -z "$fasta_file" ] || [ ! -f "$fasta_file" ]; then
-            echo "  WARNING: No FASTA found for ${sample_name}. Skipping."
-            tg_send "WARNING: No FASTA for ${VIRUS_NAME}/${sample_name}"
             continue
         fi
 
         if [ ! -s "$fasta_file" ]; then
-            echo "  WARNING: FASTA file is empty for ${sample_name}. Skipping."
-            tg_send "WARNING: Empty FASTA file for ${VIRUS_NAME}/${sample_name}"
+            echo "  WARNING: FASTA file for ${VIRUS_NAME} is empty. Skipping."
+            tg_send "WARNING: FASTA file for ${VIRUS_NAME} is empty. Skipping."
             continue
         fi
 
+        sample_name=$(basename "$fasta_file" _consensus.fa)
+
         echo "----------------------------------------"
         echo "Sample: ${sample_name}"
-        echo "FASTA:    $(basename "$fasta_file")"
+        echo "FASTA:  $(basename "$fasta_file")"
         echo "----------------------------------------"
 
         apptainer exec "${EMBOSS_SIF}" getorf -sequence "$fasta_file" -outseq "${VIRUS_OUTPUT}/${sample_name}_orfs.fasta" -minsize 300 -find 1
@@ -140,7 +128,8 @@ for i in "${!VIRUS_NAMES[@]}"; do
 
         # CSV summary for all samples
         echo "${sample_name},${VIRUS_NAME},${orf_id},${start},${end},${strand},${frame},${length_nt},${length_aa}" >> "$stats_csv"
-    
+        tg_send "ORF prediction for ${sample_name} (${VIRUS_NAME}): ORF ${orf_id}, Start: ${start}, End: ${end}, Strand: ${strand}, Frame: ${frame}, Length (nt): ${length_nt}, Length (aa): ${length_aa}"
+
     done
 
 done
