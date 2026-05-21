@@ -29,7 +29,7 @@ VIRUS_NAMES=(
 source "${SCRIPT_DIR}/bot_telegram.sh"
 
 # Output directory for coverage results
-stats_csv=${PROJECT_ROOT}/results/coverage/coverage_stats.csv
+stats_csv=${PROJECT_ROOT}/results/czid/coverage/coverage_stats.csv
 # Crear directorio si no existe
 mkdir -p "$(dirname "$stats_csv")"
 
