@@ -7,13 +7,17 @@
 *.gz
 *.fna
 *.png
+.env
 
+# mac files
+scripts/individual_analyses/consensus_sequence_generation_mac.sh
+scripts/individual_analyses/contig_coverage_mac.sh
 
 # DIRECTORIES
 **/results/aligned/
 data/references/
 data/czid_raw/
-data/raw
+data/raw 
 containers/
 docs/czid_sequence_reports/
 docs/czid_sequence_reports_provisional/
