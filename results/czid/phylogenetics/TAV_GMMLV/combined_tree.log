@@ -1,0 +1,14 @@
+IQ-TREE version 3.1.2 for Linux x86 64-bit built May 17 2026
+Developed by Bui Quang Minh, Thomas Wong, Nhan Ly-Trong, Huaiyan Ren
+Contributed by Lam-Tung Nguyen, Dominik Schrempf, Chris Bielow,
+Olga Chernomor, Michael Woodhams, Diep Thi Hoang, Heiko Schmidt
+
+Host:    LUMA (AVX512, FMA3, 48 GB RAM)
+Command: /usr/local/bin/iqtree -s /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/TAV_GMMLV/combined_trimmed.fasta -m MFP -bb 1000 -alrt 1000 -nt AUTO -pre /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/TAV_GMMLV/combined_tree
+Seed:    477680 (Using SPRNG - Scalable Parallel Random Number Generator)
+Time:    Sun May 24 23:34:46 2026
+Kernel:  AVX+FMA - auto-detect threads (32 CPU cores detected)
+
+Reading alignment file /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/TAV_GMMLV/combined_trimmed.fasta ... Fasta format detected
+Reading fasta file: done in 0.000906944 secs
+ERROR: Unknown sequence type.

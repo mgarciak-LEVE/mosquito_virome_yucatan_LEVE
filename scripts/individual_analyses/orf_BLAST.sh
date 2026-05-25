@@ -15,7 +15,7 @@ BLAST_OUTPUT_DIR="${PROJECT_ROOT}/results/czid/BLAST"
 
 # OSFV reference sequence for BLAST database
 OSFV_DB_DIR="${PROJECT_ROOT}/data/databases"
-OSFV_REFERENCES="${OSFV_DB_DIR}/osfv_references.fasta"
+OSFV_REFERENCES="${OSFV_DB_DIR}/ncbi_dataset/data/genomic.fna"
 OSFV_DB="${OSFV_DB_DIR}/osfv_references_db"
 
 # Container paths
@@ -104,14 +104,17 @@ for i in "${!VIRUS_NAMES[@]}"; do
         mkdir -p "$orf_split_dir"
 
         # Split multi-FASTA into individual ORF files
-        awk '/^>/ {
+        awk -v virus="$VIRUS_NAME" -v sample="$sample_name" '/^>/ {
             match($0, /_([0-9]+) /, arr)
             orf_num = arr[1]
-            filename = sprintf("%s/%s_orf_%s.fasta", "'"$orf_split_dir"'", "'"$sample_name"'", orf_num)
+            # Create distinct header: >OSFV_PM2528_S2_923330_orf1
+            new_header = sprintf(">%s_%s_orf%s", virus, sample, orf_num)
+            print new_header
+            next
         }
         {
-            print >> filename
-        }' "$orf_file"
+            print
+        }'  "$orf_file" > "${orf_split_dir}/${sample_name}_orfs.fasta"
 
         echo "  ORFs split into: $(basename "$orf_split_dir")"
 
@@ -142,7 +145,7 @@ for i in "${!VIRUS_NAMES[@]}"; do
 
                 blast_out="${VIRUS_OUTPUT}/${sample_name}_orf${orf_num}_blastn.tsv"
 
-                apptainer exec "${BLAST_SIF}" blastn \
+                apptainer exec "${BLAST_SIF}" tblastn \
                     -query "$single_orf" \
                     -db "$OSFV_DB" \
                     -out "$blast_out" \
@@ -187,8 +190,7 @@ for i in "${!VIRUS_NAMES[@]}"; do
 
                 apptainer exec "${BLAST_SIF}" blastp \
                     -query "$single_orf" \
-                    -db nr \
-                    -remote \
+                    -db "${PROJECT_ROOT}/data/databases/viral_refseq_prot" \
                     -out "$blast_out" \
                     -outfmt "6 qseqid sseqid pident length qlen slen evalue stitle"
 
