@@ -1,0 +1,345 @@
+IQ-TREE version 3.1.2 for Linux x86 64-bit built May 17 2026
+Developed by Bui Quang Minh, Thomas Wong, Nhan Ly-Trong, Huaiyan Ren
+Contributed by Lam-Tung Nguyen, Dominik Schrempf, Chris Bielow,
+Olga Chernomor, Michael Woodhams, Diep Thi Hoang, Heiko Schmidt
+
+Host:    LUMA (AVX512, FMA3, 48 GB RAM)
+Command: /usr/local/bin/iqtree -s /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/OSFV/osfv_trimmed.fasta -m GTR+G+I -bb 1000 -alrt 1000 -nt AUTO -pre /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/OSFV/osfv_tree
+Seed:    52979 (Using SPRNG - Scalable Parallel Random Number Generator)
+Time:    Sun May 24 23:05:00 2026
+Kernel:  AVX+FMA - auto-detect threads (32 CPU cores detected)
+
+Reading alignment file /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/OSFV/osfv_trimmed.fasta ... Fasta format detected
+Reading fasta file: done in 0.0135891 secs using 83.24% CPU
+Alignment most likely contains DNA/RNA sequences
+Constructing alignment: done in 0.022682 secs using 2959% CPU
+Alignment has 192 sequences with 13429 columns, 13429 distinct patterns
+13399 parsimony-informative, 26 singleton sites, 4 constant sites
+                                                               Gap/Ambiguity  Composition  p-value
+Analyzing sequences: done in 0.000591993 secs using 1932% CPU
+   1  Consensus_PM2528_S2_923330_consensus_threshold_0.5_quality_20   94.18%    failed      4.62%
+   2  NC_035071.1                                                     22.74%    failed      0.00%
+   3  NC_001564.2                                                     34.57%    failed      0.01%
+   4  NC_033697.1                                                     34.75%    failed      0.00%
+   5  NC_043116.1                                                     92.49%    passed     72.25%
+   6  NC_016997.1                                                     31.36%    failed      0.04%
+   7  NC_035118.1                                                     35.56%    failed      0.00%
+   8  NC_028137.1                                                     27.48%    failed      0.00%
+   9  NC_043111.1                                                     92.68%    failed      0.01%
+  10  NC_043112.1                                                     92.68%    failed      0.00%
+  11  NC_043114.1                                                     92.68%    failed      0.00%
+  12  NC_043113.1                                                     92.68%    failed      1.98%
+  13  NC_043117.1                                                     92.68%    failed      1.03%
+  14  NC_043118.1                                                     92.68%    passed      7.07%
+  15  NC_024077.1                                                     27.55%    failed      0.00%
+  16  NC_028397.1                                                     84.56%    failed      0.00%
+  17  NC_028399.1                                                     82.28%    failed      0.00%
+  18  NC_028383.1                                                     83.83%    failed      0.00%
+  19  NC_028392.1                                                     85.88%    failed      0.01%
+  20  Consensus_PM3153_S5_923338_consensus_threshold_0.5_quality_20   46.61%    passed     32.42%
+  21  NC_008604.2                                                     26.82%    failed      0.00%
+  22  NC_012671.1                                                     26.53%    failed      0.00%
+  23  NC_021069.1                                                     26.55%    failed      0.00%
+  24  NC_040682.1                                                     29.15%    failed      0.00%
+  25  NC_027819.1                                                     27.23%    failed      1.38%
+  26  NC_035187.1                                                     32.06%    failed      0.00%
+  27  NC_024299.2                                                     26.74%    failed      0.00%
+  28  NC_040645.1                                                     28.50%    failed      0.02%
+  29  NC_000943.1                                                     19.07%    failed      0.00%
+  30  NC_001563.2                                                     19.29%    failed      0.51%
+  31  NC_009942.1                                                     19.12%    failed      0.03%
+  32  NC_034018.1                                                     23.55%    failed      0.00%
+  33  NC_007580.2                                                     19.39%    failed      0.00%
+  34  NC_009028.2                                                     20.26%    failed      0.00%
+  35  NC_012534.1                                                     19.77%    failed      0.00%
+  36  NC_015843.2                                                     19.30%    failed      0.00%
+  37  NC_018705.3                                                     19.71%    failed      0.00%
+  38  NC_009026.2                                                     20.04%    failed      0.00%
+  39  NC_001437.1                                                     19.16%    failed      0.00%
+  40  NC_012532.1                                                     19.92%    failed      0.00%
+  41  NC_035889.1                                                     19.82%    failed      0.01%
+  42  NC_009029.2                                                     19.86%    failed      0.00%
+  43  NC_001474.2                                                     20.66%    failed      0.00%
+  44  NC_001475.2                                                     20.75%    failed      0.00%
+  45  NC_001477.1                                                     20.73%    failed      0.00%
+  46  NC_002640.1                                                     21.33%    failed      0.00%
+  47  NC_012533.1                                                     20.78%    failed      0.00%
+  48  NC_026623.1                                                     23.57%    failed      0.00%
+  49  NC_017086.1                                                     20.49%    failed      0.00%
+  50  NC_024806.1                                                     23.39%    failed      0.00%
+  51  NC_024017.1                                                     19.76%    failed      0.11%
+  52  NC_040788.1                                                     24.57%    failed      0.00%
+  53  NC_002031.1                                                     20.23%    failed      4.47%
+  54  NC_008719.1                                                     20.34%    failed      0.00%
+  55  NC_012735.1                                                     20.25%    failed      0.00%
+  56  NC_029054.2                                                     24.33%    failed      0.00%
+  57  NC_033699.1                                                     24.33%    failed      0.00%
+  58  NC_030289.1                                                     24.23%    failed      0.00%
+  59  NC_033725.1                                                     24.28%    failed      0.00%
+  60  NC_033698.1                                                     24.36%    failed      0.00%
+  61  NC_043110.1                                                     24.36%    passed     28.73%
+  62  NC_033693.1                                                     24.26%    failed      0.00%
+  63  NC_027999.1                                                     21.06%    failed      0.00%
+  64  NC_008718.1                                                     22.43%    failed      0.18%
+  65  NC_026624.1                                                     24.12%    failed      0.42%
+  66  NC_001672.1                                                     19.55%    failed      0.00%
+  67  NC_001809.1                                                     20.40%    failed      0.00%
+  68  NC_027709.1                                                     20.36%    failed      0.00%
+  69  NC_005062.1                                                     20.76%    failed      0.00%
+  70  NC_003690.1                                                     19.96%    failed      0.00%
+  71  NC_039218.1                                                     23.23%    failed      0.00%
+  72  NC_003687.1                                                     20.53%    failed      0.00%
+  73  NC_033723.1                                                     24.09%    failed      0.00%
+  74  NC_039219.1                                                     24.07%    failed      0.00%
+  75  NC_033724.1                                                     24.28%    failed      0.00%
+  76  NC_023424.1                                                     21.37%    failed      0.00%
+  77  NC_033726.1                                                     24.00%    failed      0.00%
+  78  NC_023439.1                                                     21.48%    failed      0.00%
+  79  NC_033721.1                                                     23.98%    failed      0.00%
+  80  NC_003635.1                                                     22.38%    failed      0.00%
+  81  NC_026620.1                                                     25.20%    failed      0.00%
+  82  NC_003675.1                                                     24.86%    failed      0.00%
+  83  NC_004119.1                                                     21.69%    failed      0.00%
+  84  NC_034007.1                                                     25.02%    failed      0.00%
+  85  NC_006551.1                                                     19.55%    failed      2.85%
+  86  NC_034151.1                                                     19.63%    failed      0.00%
+  87  NC_040776.1                                                     20.16%    failed      0.00%
+  88  NC_032088.1                                                     20.33%    failed      0.00%
+  89  NC_034223.1                                                     79.99%    failed      0.00%
+  90  NC_040610.1                                                     20.57%    failed      0.00%
+  91  NC_024114.1                                                     79.09%    failed      0.00%
+  92  NC_003676.1                                                     25.38%    failed      0.04%
+  93  NC_033715.1                                                     21.03%    failed      0.00%
+  94  NC_024113.1                                                     77.91%    failed      0.00%
+  95  NC_034222.1                                                     78.58%    failed      0.00%
+  96  NC_009825.1                                                     39.03%    failed      0.00%
+  97  NC_009827.1                                                     37.93%    failed      0.00%
+  98  NC_024112.1                                                     80.63%    failed      0.00%
+  99  NC_034225.1                                                     81.53%    failed      0.00%
+ 100  NC_024111.1                                                     80.57%    failed      0.00%
+ 101  NC_034224.1                                                     80.88%    failed      0.00%
+ 102  NC_034017.1                                                     25.79%    failed      0.00%
+ 103  NC_034204.1                                                     25.78%    failed      1.65%
+ 104  NC_005064.1                                                     25.44%    failed      0.00%
+ 105  NC_012932.1                                                     26.03%    failed      0.00%
+ 106  NC_027817.1                                                     25.54%    failed      0.00%
+ 107  NC_028384.1                                                     85.18%    failed      0.00%
+ 108  NC_030401.1                                                     29.06%    failed      0.00%
+ 109  NC_034242.1                                                     28.04%    failed      0.00%
+ 110  NC_033694.1                                                     29.61%    failed      0.06%
+ 111  NC_030290.1                                                     26.00%    failed      0.00%
+ 112  NC_040555.1                                                     25.50%    failed      0.00%
+ 113  NC_040589.1                                                     30.86%    failed      0.00%
+ 114  NC_001461.1                                                     26.18%    failed      0.00%
+ 115  NC_076029.1                                                     26.82%    failed      0.00%
+ 116  NC_039237.1                                                     26.96%    failed      0.00%
+ 117  NC_076032.1                                                     26.97%    failed      0.00%
+ 118  NC_002657.1                                                     26.75%    failed      0.00%
+ 119  NC_077023.1                                                     27.47%    failed      0.00%
+ 120  NC_003679.1                                                     26.58%    failed      0.00%
+ 121  NC_018713.1                                                     26.84%    failed      0.00%
+ 122  NC_003678.1                                                     25.96%    failed      0.00%
+ 123  NC_012812.1                                                     26.64%    failed      0.00%
+ 124  NC_024018.2                                                     27.06%    failed      0.00%
+ 125  NC_023176.1                                                     25.67%    failed      0.00%
+ 126  NC_035432.1                                                     25.48%    failed      0.00%
+ 127  NC_077000.1                                                     26.61%    failed      0.00%
+ 128  NC_077024.1                                                     26.83%    failed      0.00%
+ 129  NC_028401.1                                                     87.34%    failed      0.00%
+ 130  NC_028393.1                                                     85.25%    failed      0.02%
+ 131  NC_028395.1                                                     82.03%    failed      0.00%
+ 132  NC_028398.1                                                     78.91%    failed      0.00%
+ 133  NC_028400.1                                                     79.51%    failed      0.00%
+ 134  NC_028394.1                                                     82.98%    failed      0.02%
+ 135  NC_028385.1                                                     81.51%    failed      0.00%
+ 136  NC_028386.1                                                     85.94%    failed      0.00%
+ 137  NC_028402.1                                                     83.39%    failed      0.00%
+ 138  NC_030653.1                                                     35.44%    failed      0.00%
+ 139  NC_038964.1                                                     33.85%    failed      0.00%
+ 140  NC_005039.1                                                     35.86%    failed      0.00%
+ 141  NC_028382.1                                                     80.73%    failed      0.00%
+ 142  NC_028387.1                                                     81.68%    failed      0.00%
+ 143  NC_030400.1                                                     41.42%    failed      0.00%
+ 144  NC_028396.1                                                     79.70%    failed      0.00%
+ 145  NC_024805.1                                                     27.57%    failed      1.88%
+ 146  NC_028391.1                                                     86.46%    failed      0.03%
+ 147  NC_031327.1                                                     32.33%    failed      0.41%
+ 148  NC_028388.1                                                     79.76%    failed      0.00%
+ 149  NC_028389.1                                                     80.88%    failed      0.00%
+ 150  NC_003996.1                                                     43.43%    failed      0.00%
+ 151  NC_025677.1                                                     27.94%    failed      0.00%
+ 152  NC_077001.1                                                     27.53%    failed      0.00%
+ 153  NC_077026.1                                                     33.56%    failed      0.00%
+ 154  NC_077015.1                                                     33.76%    failed      0.00%
+ 155  NC_001655.1                                                     40.79%    failed      0.00%
+ 156  NC_040815.1                                                     43.64%    failed      0.00%
+ 157  NC_026797.1                                                     41.58%    failed      0.00%
+ 158  NC_038432.1                                                     41.50%    failed      0.00%
+ 159  NC_031950.1                                                     38.65%    failed      0.00%
+ 160  NC_074786.1                                                     38.94%    failed      0.00%
+ 161  NC_038428.1                                                     42.03%    failed      0.00%
+ 162  NC_004102.1                                                     38.10%    failed      0.00%
+ 163  NC_009826.1                                                     39.26%    failed      0.00%
+ 164  NC_009824.1                                                     38.73%    failed      0.00%
+ 165  NC_009823.1                                                     38.09%    failed      0.00%
+ 166  NC_030791.1                                                     38.86%    failed      0.00%
+ 167  NC_024889.1                                                     38.83%    failed      0.00%
+ 168  NC_038425.1                                                     38.33%    failed      0.00%
+ 169  NC_038430.1                                                     38.28%    failed      0.00%
+ 170  NC_021153.1                                                     41.60%    failed      0.00%
+ 171  NC_038427.1                                                     40.69%    failed      0.00%
+ 172  NC_025672.1                                                     42.63%    failed      0.00%
+ 173  NC_025673.1                                                     43.99%    failed      0.00%
+ 174  NC_031947.1                                                     39.68%    failed      0.00%
+ 175  NC_038431.1                                                     39.90%    failed      0.00%
+ 176  NC_028377.1                                                     38.90%    failed      0.00%
+ 177  NC_001710.1                                                     40.19%    failed      0.00%
+ 178  NC_024377.1                                                     40.06%    failed      0.00%
+ 179  NC_001837.1                                                     39.98%    failed      0.00%
+ 180  NC_074787.1                                                     39.88%    failed      0.00%
+ 181  NC_020902.1                                                     36.85%    failed      0.00%
+ 182  NC_030291.1                                                     41.28%    failed      0.00%
+ 183  NC_038437.1                                                     39.82%    failed      0.00%
+ 184  NC_034442.1                                                     39.08%    failed      0.00%
+ 185  NC_038433.1                                                     37.41%    failed      0.00%
+ 186  NC_038435.1                                                     36.33%    failed      0.00%
+ 187  NC_021154.1                                                     35.08%    failed      0.00%
+ 188  NC_025679.1                                                     40.20%    failed      0.00%
+ 189  NC_038434.1                                                     37.37%    failed      0.00%
+ 190  NC_027998.2                                                     39.86%    failed      0.00%
+ 191  NC_031916.1                                                     45.28%    failed      0.00%
+ 192  NC_038429.1                                                     41.97%    failed      0.00%
+WARNING: 36 sequences contain more than 50% gaps/ambiguity
+****  TOTAL                                                           39.33%  188 sequences failed composition chi2 test (p-value<5%; df=3)
+Checking for duplicate sequences: done in 0.00326395 secs using 2941% CPU
+
+Create initial parsimony tree by phylogenetic likelihood library (PLL)... 0.268 seconds
+Generating 1000 samples for ultrafast bootstrap (seed: 52979)...
+
+NOTE: 385 MB RAM (0 GB) is required!
+Measuring multi-threading efficiency up to 32 CPU cores
+Increase to 10 rounds for branch lengths
+13 trees examined
+Threads: 1 / Time: 32.839 sec / Speedup: 1.000 / Efficiency: 100% / LogL: -1814690
+Threads: 2 / Time: 17.884 sec / Speedup: 1.836 / Efficiency: 92% / LogL: -1814690
+Threads: 3 / Time: 11.882 sec / Speedup: 2.764 / Efficiency: 92% / LogL: -1814690
+Threads: 4 / Time: 10.814 sec / Speedup: 3.037 / Efficiency: 76% / LogL: -1814690
+Threads: 5 / Time: 10.248 sec / Speedup: 3.205 / Efficiency: 64% / LogL: -1814690
+Threads: 6 / Time: 8.595 sec / Speedup: 3.821 / Efficiency: 64% / LogL: -1814690
+Threads: 7 / Time: 9.096 sec / Speedup: 3.610 / Efficiency: 52% / LogL: -1814690
+Threads: 8 / Time: 8.667 sec / Speedup: 3.789 / Efficiency: 47% / LogL: -1814690
+Determining AUTO threadcount: done in 110.091 secs using 349.9% CPU
+BEST NUMBER OF THREADS: 6
+
+Estimate model parameters (epsilon = 0.100)
+Thoroughly optimizing +I+G parameters from 10 start values...
+Init pinv, alpha: 0.000, 1.000 / Estimate: 0.000, 1.639 / LogL: -1447947.857
+Init pinv, alpha: 0.000, 1.000 / Estimate: 0.000, 1.638 / LogL: -1447947.845
+Init pinv, alpha: 0.000, 1.000 / Estimate: 0.000, 1.638 / LogL: -1447947.841
+Init pinv, alpha: 0.000, 1.000 / Estimate: 0.000, 1.638 / LogL: -1447947.839
+Init pinv, alpha: 0.000, 1.000 / Estimate: 0.000, 1.638 / LogL: -1447947.838
+Init pinv, alpha: 0.000, 1.000 / Estimate: 0.000, 1.638 / LogL: -1447947.837
+Init pinv, alpha: 0.000, 1.000 / Estimate: 0.000, 1.638 / LogL: -1447947.836
+Init pinv, alpha: 0.000, 1.000 / Estimate: 0.000, 1.638 / LogL: -1447947.836
+Init pinv, alpha: 0.000, 1.000 / Estimate: 0.000, 1.638 / LogL: -1447947.835
+Init pinv, alpha: 0.000, 1.000 / Estimate: 0.000, 1.638 / LogL: -1447947.835
+Optimal pinv,alpha: 0.000, 1.638 / LogL: -1447947.835
+
+Parameters optimization took 34.950 sec
+Wrote distance file to... 
+Computing ML distances based on estimated model parameters...
+Calculating distance matrix: done in 0.059921 secs using 584.9% CPU
+Computing ML distances took 0.061763 sec (of wall-clock time) 0.358818 sec (of CPU time)
+WARNING: Some pairwise ML distances are too long (saturated)
+Setting up auxiliary I and S matrices: done in 0.000266075 secs using 654.3% CPU
+Constructing RapidNJ tree: done in 0.00372505 secs using 758.8% CPU
+Computing RapidNJ tree took 0.004070 sec (of wall-clock time) 0.031275 sec (of CPU time)
+Log-likelihood of RapidNJ tree: -1450359.241
+--------------------------------------------------------------------
+|             INITIALIZING CANDIDATE TREE SET                      |
+--------------------------------------------------------------------
+Generating 98 parsimony trees... 20.418 second
+Computing log-likelihood of 98 initial trees ... 9.087 seconds
+Current best score: -1447947.835
+
+Do NNI search on 20 best initial trees
+Estimate model parameters (epsilon = 0.100)
+BETTER TREE FOUND at iteration 1: -1447646.412
+Estimate model parameters (epsilon = 0.100)
+UPDATE BEST LOG-LIKELIHOOD: -1447644.042
+Estimate model parameters (epsilon = 0.100)
+BETTER TREE FOUND at iteration 6: -1447640.686
+Estimate model parameters (epsilon = 0.100)
+BETTER TREE FOUND at iteration 7: -1447601.366
+Estimate model parameters (epsilon = 0.100)
+BETTER TREE FOUND at iteration 8: -1447573.244
+Iteration 10 / LogL: -1447652.014 / Time: 0h:3m:28s
+Estimate model parameters (epsilon = 0.100)
+BETTER TREE FOUND at iteration 13: -1447566.902
+Iteration 20 / LogL: -1447664.967 / Time: 0h:3m:54s
+Finish initializing candidate tree set (13)
+Current best tree score: -1447566.902 / CPU time: 88.475
+Number of iterations: 20
+--------------------------------------------------------------------
+|               OPTIMIZING CANDIDATE TREE SET                      |
+--------------------------------------------------------------------
+Iteration 30 / LogL: -1447572.057 / Time: 0h:4m:9s (0h:11m:53s left)
+Iteration 40 / LogL: -1447631.323 / Time: 0h:4m:25s (0h:8m:15s left)
+Iteration 50 / LogL: -1447603.132 / Time: 0h:4m:39s (0h:5m:59s left)
+Log-likelihood cutoff on original alignment: -1447682.646
+Iteration 60 / LogL: -1447569.289 / Time: 0h:4m:56s (0h:4m:26s left)
+Iteration 70 / LogL: -1447604.467 / Time: 0h:5m:11s (0h:3m:14s left)
+Iteration 80 / LogL: -1447579.458 / Time: 0h:5m:26s (0h:2m:16s left)
+Iteration 90 / LogL: -1447642.928 / Time: 0h:5m:41s (0h:1m:28s left)
+Iteration 100 / LogL: -1447684.661 / Time: 0h:5m:55s (0h:0m:46s left)
+Log-likelihood cutoff on original alignment: -1447682.646
+NOTE: Bootstrap correlation coefficient of split occurrence frequencies: 0.999
+Iteration 110 / LogL: -1447578.828 / Time: 0h:6m:12s (0h:5m:7s left)
+TREE SEARCH COMPLETED AFTER 114 ITERATIONS / Time: 0h:6m:19s
+
+--------------------------------------------------------------------
+|                    FINALIZING TREE SEARCH                        |
+--------------------------------------------------------------------
+Performs final model parameters optimization
+Estimate model parameters (epsilon = 0.010)
+1. Initial log-likelihood: -1447566.902
+2. Current log-likelihood: -1447566.845
+3. Current log-likelihood: -1447566.799
+Optimal log-likelihood: -1447566.782
+Rate parameters:  A-C: 1.97309  A-G: 2.84083  A-T: 1.29131  C-G: 1.31850  C-T: 4.12333  G-T: 1.00000
+Base frequencies:  A: 0.268  C: 0.223  G: 0.278  T: 0.231
+Proportion of invariable sites: 0.000
+Gamma shape alpha: 1.632
+Parameters optimization took 3 rounds (0.403 sec)
+BEST SCORE FOUND : -1447566.782
+
+Testing tree branches by SH-like aLRT with 1000 replicates...
+4.747 sec.
+Creating bootstrap support values...
+Split supports printed to NEXUS file /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/OSFV/osfv_tree.splits.nex
+Total tree length: 104.355
+
+Total number of iterations: 114
+CPU time used for tree search: 1382.393 sec (0h:23m:2s)
+Wall-clock time used for tree search: 233.354 sec (0h:3m:53s)
+Total CPU time used: 2035.811 sec (0h:33m:55s)
+Total wall-clock time used: 384.904 sec (0h:6m:24s)
+
+Computing bootstrap consensus tree...
+Reading input file /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/OSFV/osfv_tree.splits.nex...
+192 taxa and 538 splits.
+Consensus tree written to /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/OSFV/osfv_tree.contree
+Reading input trees file /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/OSFV/osfv_tree.contree
+Log-likelihood of consensus tree: -1447569.076
+
+Analysis results written to: 
+  IQ-TREE report:                /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/OSFV/osfv_tree.iqtree
+  Maximum-likelihood tree:       /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/OSFV/osfv_tree.treefile
+  Likelihood distances:          /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/OSFV/osfv_tree.mldist
+
+Ultrafast bootstrap approximation results written to:
+  Split support values:          /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/OSFV/osfv_tree.splits.nex
+  Consensus tree:                /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/OSFV/osfv_tree.contree
+  Screen log file:               /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/OSFV/osfv_tree.log
+
+Date and Time: Sun May 24 23:11:26 2026
