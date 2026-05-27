@@ -5,10 +5,458 @@ Olga Chernomor, Michael Woodhams, Diep Thi Hoang, Heiko Schmidt
 
 Host:    LUMA (AVX512, FMA3, 48 GB RAM)
 Command: /usr/local/bin/iqtree -s /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/TAV_GMMLV/combined_trimmed.fasta -m MFP -bb 1000 -alrt 1000 -nt AUTO -pre /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/TAV_GMMLV/combined_tree
-Seed:    477680 (Using SPRNG - Scalable Parallel Random Number Generator)
-Time:    Sun May 24 23:34:46 2026
+Seed:    840 (Using SPRNG - Scalable Parallel Random Number Generator)
+Time:    Mon May 25 22:33:18 2026
 Kernel:  AVX+FMA - auto-detect threads (32 CPU cores detected)
 
 Reading alignment file /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/TAV_GMMLV/combined_trimmed.fasta ... Fasta format detected
-Reading fasta file: done in 0.000906944 secs
-ERROR: Unknown sequence type.
+Reading fasta file: done in 0.00427699 secs using 51.55% CPU
+Alignment most likely contains protein sequences
+Constructing alignment: done in 0.00542498 secs using 2294% CPU
+Alignment has 203 sequences with 3268 columns, 3265 distinct patterns
+3249 parsimony-informative, 8 singleton sites, 11 constant sites
+                       Gap/Ambiguity  Composition  p-value
+Analyzing sequences: done in 0.000319004 secs using 3013% CPU
+   1  PM2469_S1_923325_orf6   40.70%    passed     66.89%
+   2  PM3183_S6_923339_orf1   99.30%    passed     62.73%
+   3  ref_YP_009094317.1      41.95%    passed     47.52%
+   4  ref_YP_010784557.1      41.89%    failed      4.82%
+   5  ref_YP_010800697.1      42.07%    passed     26.89%
+   6  ref_YP_010800326.1      41.98%    passed     16.62%
+   7  ref_YP_010784554.1      41.77%    failed      3.48%
+   8  ref_YP_010805443.1      41.80%    passed     16.36%
+   9  ref_YP_010798443.1      42.01%    passed     59.61%
+  10  ref_YP_010798255.1      41.95%    passed      8.34%
+  11  ref_YP_010800330.1      41.49%    passed      6.78%
+  12  ref_YP_010797952.1      40.85%    failed      0.82%
+  13  ref_YP_010798254.1      41.22%    failed      2.20%
+  14  ref_YP_010798438.1      41.16%    failed      0.03%
+  15  ref_YP_010805198.1      40.97%    failed      0.00%
+  16  ref_YP_010805197.1      64.66%    passed     10.95%
+  17  ref_YP_010798352.1      41.68%    passed     19.85%
+  18  ref_YP_010798414.1      42.26%    failed      0.00%
+  19  ref_YP_009336595.1      41.22%    failed      0.00%
+  20  ref_YP_010805694.1      41.13%    failed      0.00%
+  21  ref_YP_010797581.1      63.46%    passed     48.22%
+  22  ref_YP_010798256.1      40.76%    failed      0.16%
+  23  ref_YP_010798257.1      40.70%    failed      0.79%
+  24  ref_YP_010798432.1      40.70%    failed      0.23%
+  25  ref_YP_010798441.1      40.48%    passed     26.10%
+  26  ref_YP_010798439.1      40.58%    failed      1.70%
+  27  ref_YP_010805174.1      40.70%    failed      0.00%
+  28  ref_YP_010798433.1      40.42%    failed      1.57%
+  29  ref_YP_010798435.1      40.42%    failed      0.18%
+  30  ref_YP_010802815.1      40.42%    failed      1.78%
+  31  ref_YP_010802814.1      40.48%    passed      6.65%
+  32  ref_YP_010798429.1      40.45%    passed     16.33%
+  33  ref_YP_010798430.1      40.45%    passed      8.54%
+  34  ref_YP_010802816.1      40.30%    failed      0.01%
+  35  ref_YP_010805004.1      40.67%    failed      0.00%
+  36  ref_YP_010796439.1      42.11%    failed      0.00%
+  37  ref_YP_010798568.1      41.34%    passed     10.60%
+  38  ref_YP_010800334.1      41.34%    passed     14.25%
+  39  ref_YP_010800713.1      41.43%    failed      0.00%
+  40  ref_YP_010802319.1      41.31%    failed      0.00%
+  41  ref_YP_009666274.1      40.06%    failed      0.00%
+  42  ref_YP_010784558.1      39.75%    failed      0.00%
+  43  ref_YP_010784559.1      54.31%    failed      0.02%
+  44  ref_YP_009333185.1      37.94%    failed      0.00%
+  45  ref_NP_597914.1         37.79%    passed     30.96%
+  46  ref_YP_009177231.1      37.82%    passed     38.11%
+  47  ref_YP_010086418.1      37.82%    passed      6.63%
+  48  ref_YP_010800863.1      37.36%    failed      0.00%
+  49  ref_YP_010800398.1      37.79%    failed      0.00%
+  50  ref_YP_010802274.1      38.16%    failed      1.42%
+  51  ref_YP_010087157.1      37.06%    failed      2.17%
+  52  ref_YP_009553369.1      37.42%    passed     33.09%
+  53  ref_YP_006576506.2      37.00%    failed      0.00%
+  54  ref_YP_009300875.1      36.78%    failed      0.03%
+  55  ref_YP_010087631.1      37.18%    failed      0.04%
+  56  ref_YP_010802825.1      37.12%    failed      0.40%
+  57  ref_YP_010802287.1      37.42%    failed      0.00%
+  58  ref_YP_010797749.1      36.78%    failed      0.00%
+  59  ref_YP_010798025.1      37.30%    failed      0.12%
+  60  ref_YP_010798481.1      34.73%    failed      0.00%
+  61  ref_YP_010802308.1      39.29%    passed     50.75%
+  62  ref_YP_009444713.1      42.96%    failed      0.43%
+  63  ref_YP_010087201.1      42.96%    passed     47.32%
+  64  ref_YP_010798423.1      42.75%    failed      0.00%
+  65  ref_YP_010086818.1      42.23%    failed      0.13%
+  66  ref_YP_010805763.1      42.50%    failed      0.24%
+  67  ref_YP_009666993.1      48.62%    failed      0.00%
+  68  ref_YP_009976137.1      48.50%    failed      0.01%
+  69  ref_YP_052849.1         47.25%    passed     15.72%
+  70  ref_YP_010796432.1      44.86%    failed      0.00%
+  71  ref_YP_010802256.1      44.92%    failed      0.01%
+  72  ref_YP_009094312.1      36.75%    failed      0.01%
+  73  ref_YP_010798566.1      36.93%    passed     11.68%
+  74  ref_YP_002308576.1      38.68%    failed      0.00%
+  75  ref_YP_010840914.1      39.35%    failed      0.02%
+  76  ref_YP_010840919.1      40.06%    failed      0.07%
+  77  ref_YP_009130620.1      38.89%    failed      0.00%
+  78  ref_YP_010840918.1      38.95%    failed      0.00%
+  79  ref_YP_009259650.1      38.71%    failed      2.37%
+  80  ref_YP_010797554.1      36.93%    failed      0.02%
+  81  ref_YP_010797586.1      36.78%    failed      0.01%
+  82  ref_YP_009304559.1      36.87%    failed      0.00%
+  83  ref_YP_010798551.1      36.90%    failed      1.42%
+  84  ref_YP_010800952.1      36.90%    failed      1.82%
+  85  ref_YP_009336984.1      37.00%    failed      0.07%
+  86  ref_YP_010797908.1      36.47%    failed      3.49%
+  87  ref_YP_010798561.1      36.87%    passed      6.37%
+  88  ref_YP_009336512.1      39.26%    failed      0.23%
+  89  ref_YP_009336589.1      38.28%    failed      0.00%
+  90  ref_YP_010798608.1      38.56%    failed      0.00%
+  91  ref_YP_010800947.1      38.71%    failed      0.16%
+  92  ref_YP_009300674.1      37.12%    failed      0.00%
+  93  ref_YP_009304985.1      36.23%    failed      0.21%
+  94  ref_YP_009304476.1      37.58%    passed      5.76%
+  95  ref_YP_009337635.1      37.06%    failed      0.01%
+  96  ref_YP_009337815.1      36.78%    passed     61.82%
+  97  ref_YP_009289352.1      37.18%    failed      0.03%
+  98  ref_YP_009300677.1      37.82%    failed      0.00%
+  99  ref_YP_009305112.1      51.07%    passed     44.78%
+ 100  ref_YP_009337799.1      36.54%    failed      0.00%
+ 101  ref_YP_009288955.1      36.72%    failed      0.00%
+ 102  ref_YP_010800589.1      35.80%    passed     18.92%
+ 103  ref_YP_010804980.1      35.89%    passed     79.01%
+ 104  ref_YP_010800926.1      35.74%    failed      0.00%
+ 105  ref_YP_010804974.1      35.65%    passed     24.06%
+ 106  ref_YP_010805183.1      35.53%    failed      0.00%
+ 107  ref_YP_010805224.1      36.26%    failed      0.00%
+ 108  ref_YP_009336924.1      36.05%    passed     15.97%
+ 109  ref_YP_009303699.1      35.53%    failed      0.00%
+ 110  ref_YP_010805206.1      35.47%    failed      0.00%
+ 111  ref_YP_010805654.1      35.83%    failed      0.00%
+ 112  ref_YP_010805207.1      35.22%    failed      0.00%
+ 113  ref_YP_010805222.1      35.10%    failed      0.00%
+ 114  ref_YP_009304420.1      37.52%    failed      0.02%
+ 115  ref_YP_010805226.1      35.62%    passed     22.79%
+ 116  ref_YP_009336889.1      38.49%    passed     14.65%
+ 117  ref_YP_010800575.1      37.97%    failed      2.41%
+ 118  ref_YP_010800584.1      37.64%    passed     14.74%
+ 119  ref_YP_010800904.1      37.85%    passed     34.14%
+ 120  ref_YP_010805212.1      37.21%    passed     19.58%
+ 121  ref_YP_010800580.1      37.91%    failed      0.06%
+ 122  ref_YP_010799357.1      38.59%    failed      0.00%
+ 123  ref_YP_010800924.1      38.28%    failed      0.01%
+ 124  ref_YP_010800931.1      37.85%    passed     11.32%
+ 125  ref_YP_010801065.1      37.73%    failed      3.71%
+ 126  ref_YP_010801070.1      36.90%    passed      8.40%
+ 127  ref_YP_010800583.1      37.85%    failed      0.00%
+ 128  ref_YP_009342285.1      39.11%    failed      4.55%
+ 129  ref_YP_010799923.1      37.73%    passed      7.94%
+ 130  ref_YP_009330105.1      37.88%    failed      0.00%
+ 131  ref_YP_009091823.1      39.35%    failed      0.46%
+ 132  ref_YP_009336728.1      45.44%    failed      0.07%
+ 133  ref_YP_009333192.1      44.55%    failed      0.96%
+ 134  ref_YP_009204560.1      39.81%    failed      1.51%
+ 135  ref_YP_002905331.1      41.65%    failed      0.00%
+ 136  ref_YP_002905337.1      41.62%    failed      0.00%
+ 137  ref_YP_009044201.1      42.23%    failed      0.00%
+ 138  ref_YP_010798322.1      41.80%    failed      0.00%
+ 139  ref_YP_010799963.1      41.92%    failed      0.20%
+ 140  ref_YP_010799278.1      41.37%    failed      0.00%
+ 141  ref_YP_009666292.1      49.54%    failed      0.34%
+ 142  ref_YP_009666283.1      46.82%    failed      0.62%
+ 143  ref_YP_010805231.1      42.87%    failed      0.02%
+ 144  ref_YP_010797509.1      42.96%    failed      0.00%
+ 145  ref_YP_010797903.1      42.96%    failed      0.00%
+ 146  ref_YP_010800851.1      43.12%    passed      7.96%
+ 147  ref_YP_010798603.1      42.93%    failed      0.37%
+ 148  ref_YP_010805613.1      42.81%    passed     72.96%
+ 149  ref_YP_010798556.1      42.90%    failed      0.00%
+ 150  ref_YP_009333418.1      44.31%    failed      2.02%
+ 151  ref_YP_009333422.1      42.53%    failed      0.27%
+ 152  ref_YP_009304558.1      46.21%    failed      2.69%
+ 153  ref_YP_009333413.1      45.65%    failed      0.00%
+ 154  ref_YP_009336618.1      47.34%    failed      0.00%
+ 155  ref_YP_009342311.1      42.78%    failed      1.64%
+ 156  ref_YP_009041461.1      47.86%    passed     22.68%
+ 157  ref_YP_009268910.1      47.89%    passed     28.88%
+ 158  ref_YP_009237647.1      47.92%    passed     78.93%
+ 159  ref_YP_009268916.1      47.83%    passed     53.43%
+ 160  ref_YP_009512939.1      47.89%    passed     23.92%
+ 161  ref_YP_009268922.1      47.92%    failed      0.00%
+ 162  ref_YP_009269418.1      47.77%    passed     31.18%
+ 163  ref_YP_009512933.1      47.86%    failed      1.68%
+ 164  ref_YP_009055063.1      47.86%    passed     41.87%
+ 165  ref_YP_010798900.1      47.71%    failed      0.00%
+ 166  ref_YP_010085030.1      47.80%    failed      0.06%
+ 167  ref_YP_009508484.1      47.80%    failed      1.25%
+ 168  ref_YP_009508490.1      47.86%    failed      0.36%
+ 169  ref_YP_006742184.1      38.98%    failed      0.29%
+ 170  ref_YP_009325416.1      38.98%    failed      0.22%
+ 171  ref_YP_009094272.1      38.95%    failed      3.43%
+ 172  ref_YP_010799739.1      38.95%    failed      0.00%
+ 173  ref_YP_010084456.1      39.75%    failed      0.05%
+ 174  ref_YP_009052467.1      40.85%    failed      0.00%
+ 175  ref_YP_009333443.1      39.17%    failed      0.00%
+ 176  ref_YP_009333449.1      39.20%    failed      0.01%
+ 177  ref_YP_010084250.1      38.77%    failed      0.00%
+ 178  ref_YP_009505433.1      39.01%    failed      0.71%
+ 179  ref_YP_010084249.1      39.05%    failed      0.61%
+ 180  ref_YP_010800391.1      39.35%    failed      0.20%
+ 181  ref_YP_010084247.1      41.52%    failed      0.01%
+ 182  ref_YP_010796376.1      39.96%    passed     67.91%
+ 183  ref_YP_009302387.1      41.40%    failed      1.98%
+ 184  ref_YP_010084246.1      41.40%    failed      0.56%
+ 185  ref_YP_010799224.1      41.34%    failed      0.08%
+ 186  ref_YP_010799397.1      41.83%    failed      1.07%
+ 187  ref_YP_010799403.1      41.55%    passed     24.03%
+ 188  ref_YP_010784507.1      40.85%    passed     23.47%
+ 189  ref_YP_009388622.1      39.90%    failed      0.23%
+ 190  ref_YP_010799271.1      39.96%    failed      0.32%
+ 191  ref_YP_009337182.1      40.51%    failed      0.00%
+ 192  ref_YP_010800935.1      40.64%    failed      4.45%
+ 193  ref_YP_010084240.1      42.23%    failed      0.00%
+ 194  ref_YP_009666282.1      38.25%    failed      0.00%
+ 195  ref_YP_009337121.1      42.20%    failed      0.00%
+ 196  ref_YP_010800574.1      41.92%    failed      0.19%
+ 197  ref_YP_009094173.1      37.58%    failed      2.23%
+ 198  ref_YP_009094364.1      37.36%    failed      0.00%
+ 199  ref_YP_010796382.1      37.48%    failed      0.01%
+ 200  ref_YP_009508516.1      37.45%    failed      0.10%
+ 201  ref_YP_009337428.1      39.17%    failed      2.25%
+ 202  ref_YP_010798448.1      39.93%    failed      3.10%
+ 203  ref_YP_010839348.1      38.65%    failed      1.00%
+WARNING: 5 sequences contain more than 50% gaps/ambiguity
+****  TOTAL                   40.98%  149 sequences failed composition chi2 test (p-value<5%; df=19)
+Checking for duplicate sequences: done in 0.000984192 secs using 3128% CPU
+
+
+Create initial parsimony tree by phylogenetic likelihood library (PLL)... 0.291 seconds
+Measuring multi-threading efficiency up to 32 CPU cores
+Increase to 10 rounds for branch lengths
+4 trees examined
+Threads: 1 / Time: 35.426 sec / Speedup: 1.000 / Efficiency: 100% / LogL: -963776
+Threads: 2 / Time: 17.928 sec / Speedup: 1.976 / Efficiency: 99% / LogL: -963776
+Threads: 3 / Time: 12.883 sec / Speedup: 2.750 / Efficiency: 92% / LogL: -963776
+Threads: 4 / Time: 9.614 sec / Speedup: 3.685 / Efficiency: 92% / LogL: -963776
+Threads: 5 / Time: 8.762 sec / Speedup: 4.043 / Efficiency: 81% / LogL: -963776
+Threads: 6 / Time: 7.515 sec / Speedup: 4.714 / Efficiency: 79% / LogL: -963776
+Threads: 7 / Time: 6.349 sec / Speedup: 5.580 / Efficiency: 80% / LogL: -963776
+Threads: 8 / Time: 5.056 sec / Speedup: 7.006 / Efficiency: 88% / LogL: -963776
+Threads: 9 / Time: 6.147 sec / Speedup: 5.763 / Efficiency: 64% / LogL: -963776
+Determining AUTO threadcount: done in 109.768 secs using 349.7% CPU
+BEST NUMBER OF THREADS: 8
+
+Perform fast likelihood tree search using LG+I+G model...
+Estimate model parameters (epsilon = 5.000)
+Perform nearest neighbor interchange...
+Estimate model parameters (epsilon = 1.000)
+1. Initial log-likelihood: -741435.891
+2. Current log-likelihood: -741434.536
+Optimal log-likelihood: -741434.208
+Proportion of invariable sites: 0.003
+Gamma shape alpha: 1.488
+Parameters optimization took 2 rounds (0.902 sec)
+Time for fast ML tree search: 8.245 seconds
+
+NOTE: ModelFinder requires 1043 MB RAM!
+ModelFinder will test up to 1232 protein models (sample size: 3268 epsilon: 0.100) ...
+ No. Model         -LnL         df  AIC          AICc         BIC
+  1  LG            768163.757   403 1537133.515  1537247.210  1539588.564
+  2  LG+I          766941.493   404 1534690.986  1534805.286  1537152.127
+  3  LG+G4         741720.134   404 1484248.268  1484362.567  1486709.409
+  4  LG+I+G4       741433.638   405 1483677.276  1483792.182  1486144.509
+  5  LG+R2         747038.813   405 1494887.626  1495002.532  1497354.859
+  6  LG+R3         742573.553   407 1485961.106  1486077.230  1488440.523
+  7  LG+R4         740954.397   409 1482726.795  1482844.143  1485218.396
+  8  LG+R5         740084.546   411 1480991.093  1481109.672  1483494.877
+  9  LG+R6         739765.811   413 1480357.621  1480477.440  1482873.590
+ 10  LG+R7         739576.908   415 1479983.816  1480104.882  1482511.968
+ 11  LG+R8         739497.206   417 1479828.412  1479950.732  1482368.749
+ 12  LG+R9         739457.420   419 1479752.840  1479876.422  1482305.360
+ 13  LG+R10        739423.640   421 1479689.279  1479814.130  1482253.983
+ 14  LG+I+R2       746471.318   406 1493754.636  1493870.150  1496227.961
+ 15  LG+I+R3       742246.443   408 1485308.886  1485425.620  1487794.395
+ 16  LG+I+R4       740789.054   410 1482398.107  1482516.070  1484895.800
+ 17  LG+I+R5       739998.171   412 1480820.343  1480939.541  1483330.219
+ 18  LG+I+R6       739700.070   414 1480228.140  1480348.582  1482750.201
+ 19  LG+I+R7       739555.246   416 1479942.493  1480064.185  1482476.737
+ 20  LG+I+R8       739482.998   418 1479801.996  1479924.945  1482348.424
+ 21  LG+I+R9       739444.690   420 1479729.379  1479853.594  1482287.991
+ 22  LG+I+R10      739414.484   422 1479672.968  1479798.455  1482243.764
+ 44  LG+F+I+R10    736306.935   441 1473495.869  1473633.818  1476182.412
+ 66  WAG+I+R10     742961.964   422 1486767.928  1486893.415  1489338.724
+ 88  WAG+F+I+R10   738677.531   441 1478237.063  1478375.012  1480923.606
+110  JTT+I+R10     748336.155   422 1497516.311  1497641.798  1500087.107
+132  JTT+F+I+R10   744624.968   441 1490131.935  1490269.884  1492818.478
+154  Q.PFAM+I+R10  739362.615   422 1479569.230  1479694.718  1482140.026
+176  Q.PFAM+F+I+R10 736097.125   441 1473076.250  1473214.199  1475762.793
+198  Q.BIRD+I+R10  761449.563   422 1523743.126  1523868.614  1526313.922
+220  Q.BIRD+F+I+R10 758285.168   441 1517452.335  1517590.285  1520138.878
+242  Q.MAMMAL+I+R10 756238.032   422 1513320.065  1513445.552  1515890.861
+264  Q.MAMMAL+F+I+R10 752721.161   441 1506324.322  1506462.271  1509010.865
+286  Q.INSECT+I+R10 740982.315   422 1482808.631  1482934.118  1485379.427
+308  Q.INSECT+F+I+R10 739996.442   441 1480874.884  1481012.833  1483561.427
+330  Q.PLANT+I+R10 749270.840   422 1499385.680  1499511.168  1501956.476
+352  Q.PLANT+F+I+R10 747303.796   441 1495489.592  1495627.541  1498176.135
+374  Q.YEAST+I+R10 740724.297   422 1482292.593  1482418.081  1484863.389
+396  Q.YEAST+F+I+R10 737675.097   441 1476232.193  1476370.142  1478918.736
+418  JTTDCMUT+I+R10 748406.883   422 1497657.766  1497783.253  1500228.561
+440  JTTDCMUT+F+I+R10 744613.881   441 1490109.761  1490247.710  1492796.304
+462  DCMUT+I+R10   755359.311   422 1511562.621  1511688.109  1514133.417
+484  DCMUT+F+I+R10 746232.984   441 1493347.968  1493485.917  1496034.511
+506  VT+I+R10      740929.839   422 1482703.677  1482829.165  1485274.473
+528  VT+F+I+R10    738155.563   441 1477193.125  1477331.074  1479879.668
+550  PMB+I+R10     741169.182   422 1483182.365  1483307.852  1485753.161
+572  PMB+F+I+R10   739767.923   441 1480417.846  1480555.795  1483104.388
+594  BLOSUM62+I+R10 741219.267   422 1483282.534  1483408.022  1485853.330
+616  BLOSUM62+F+I+R10 738809.525   441 1478501.049  1478638.998  1481187.592
+638  DAYHOFF+I+R10 755400.918   422 1511645.836  1511771.323  1514216.632
+660  DAYHOFF+F+I+R10 746262.758   441 1493407.517  1493545.466  1496094.059
+682  MTREV+I+R10   775449.159   422 1551742.319  1551867.806  1554313.115
+704  MTREV+F+I+R10 751712.401   441 1504306.802  1504444.751  1506993.345
+726  MTART+I+R10   779730.591   422 1560305.182  1560430.670  1562875.978
+748  MTART+F+I+R10 754020.102   441 1508922.203  1509060.152  1511608.746
+770  MTZOA+I+R10   765391.342   422 1531626.684  1531752.172  1534197.480
+792  MTZOA+F+I+R10 747182.949   441 1495247.897  1495385.846  1497934.440
+814  MTMET+I+R10   773487.083   422 1547818.167  1547943.654  1550388.963
+836  MTMET+F+I+R10 750109.893   441 1501101.787  1501239.736  1503788.329
+858  MTVER+I+R10   784036.850   422 1568917.701  1569043.188  1571488.497
+880  MTVER+F+I+R10 761102.437   441 1523086.874  1523224.823  1525773.417
+902  MTINV+I+R10   774880.735   422 1550605.469  1550730.957  1553176.265
+924  MTINV+F+I+R10 744555.581   441 1489993.162  1490131.111  1492679.705
+946  MTMAM+I+R10   790508.357   422 1581860.714  1581986.202  1584431.510
+968  MTMAM+F+I+R10 765960.786   441 1532803.572  1532941.521  1535490.115
+990  FLAVI+I+R10   775306.145   422 1551456.291  1551581.778  1554027.087
+1012  FLAVI+F+I+R10 770048.138   441 1540978.276  1541116.225  1543664.819
+1034  HIVB+I+R10    761141.627   422 1523127.253  1523252.741  1525698.049
+1056  HIVB+F+I+R10  757331.050   441 1515544.100  1515682.049  1518230.643
+1078  HIVW+I+R10    792522.717   422 1585889.433  1586014.921  1588460.229
+1100  HIVW+F+I+R10  776893.539   441 1554669.079  1554807.028  1557355.622
+1122  FLU+I+R10     757631.339   422 1516106.678  1516232.166  1518677.474
+1144  FLU+F+I+R10   753889.168   441 1508660.335  1508798.284  1511346.878
+1166  RTREV+I+R10   744168.645   422 1489181.290  1489306.777  1491752.085
+1188  RTREV+F+I+R10 736889.348   441 1474660.695  1474798.644  1477347.238
+1210  CPREV+I+R10   745978.324   422 1492800.648  1492926.136  1495371.444
+1232  CPREV+F+I+R10 743387.595   441 1487657.190  1487795.139  1490343.733
+Akaike Information Criterion:           Q.PFAM+F+I+R10
+Corrected Akaike Information Criterion: Q.PFAM+F+I+R10
+Bayesian Information Criterion:         Q.PFAM+F+I+R10
+Best-fit model: Q.PFAM+F+I+R10 chosen according to BIC
+
+All model information printed to /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/TAV_GMMLV/combined_tree.model.gz
+CPU time for ModelFinder: 26729.865 seconds (7h:25m:29s)
+Wall-clock time for ModelFinder: 3412.516 seconds (0h:56m:52s)
+Generating 1000 samples for ultrafast bootstrap (seed: 840)...
+
+NOTE: 1043 MB RAM (1 GB) is required!
+Estimate model parameters (epsilon = 0.100)
+1. Initial log-likelihood: -736206.109
+2. Current log-likelihood: -736108.002
+3. Current log-likelihood: -736100.356
+4. Current log-likelihood: -736098.224
+5. Current log-likelihood: -736097.533
+6. Current log-likelihood: -736097.293
+7. Current log-likelihood: -736097.175
+Optimal log-likelihood: -736097.110
+Proportion of invariable sites: 0.003
+Site proportion and rates:  (0.011,0.021) (0.016,0.082) (0.026,0.154) (0.055,0.247) (0.071,0.365) (0.113,0.526) (0.149,0.756) (0.230,1.055) (0.261,1.513) (0.066,2.228)
+Parameters optimization took 7 rounds (58.028 sec)
+Wrote distance file to... 
+Computing ML distances based on estimated model parameters...
+Calculating distance matrix: done in 0.820997 secs using 780% CPU
+Computing ML distances took 0.821550 sec (of wall-clock time) 6.407644 sec (of CPU time)
+Setting up auxiliary I and S matrices: done in 0.000267982 secs using 530.6% CPU
+Constructing RapidNJ tree: done in 0.00917602 secs using 569.6% CPU
+Computing RapidNJ tree took 0.009527 sec (of wall-clock time) 0.056254 sec (of CPU time)
+Log-likelihood of RapidNJ tree: -736497.596
+--------------------------------------------------------------------
+|             INITIALIZING CANDIDATE TREE SET                      |
+--------------------------------------------------------------------
+Generating 98 parsimony trees... 20.076 second
+Computing log-likelihood of 98 initial trees ... 46.723 seconds
+Current best score: -736097.110
+
+Do NNI search on 20 best initial trees
+Estimate model parameters (epsilon = 0.100)
+BETTER TREE FOUND at iteration 1: -736054.067
+Estimate model parameters (epsilon = 0.100)
+BETTER TREE FOUND at iteration 3: -736038.155
+Iteration 10 / LogL: -736049.367 / Time: 1h:1m:26s
+Iteration 20 / LogL: -736041.767 / Time: 1h:3m:30s
+Finish initializing candidate tree set (19)
+Current best tree score: -736038.155 / CPU time: 332.340
+Number of iterations: 20
+--------------------------------------------------------------------
+|               OPTIMIZING CANDIDATE TREE SET                      |
+--------------------------------------------------------------------
+Iteration 30 / LogL: -736043.414 / Time: 1h:5m:22s (0h:21m:22s left)
+Iteration 40 / LogL: -736044.838 / Time: 1h:7m:8s (0h:16m:35s left)
+Estimate model parameters (epsilon = 0.100)
+BETTER TREE FOUND at iteration 43: -736037.532
+Iteration 50 / LogL: -736037.721 / Time: 1h:8m:57s (0h:22m:56s left)
+Log-likelihood cutoff on original alignment: -736109.278
+Iteration 60 / LogL: -736042.461 / Time: 1h:10m:29s (0h:19m:9s left)
+Iteration 70 / LogL: -736047.788 / Time: 1h:12m:1s (0h:16m:2s left)
+Iteration 80 / LogL: -736040.274 / Time: 1h:13m:47s (0h:13m:29s left)
+Iteration 90 / LogL: -736044.397 / Time: 1h:15m:23s (0h:11m:1s left)
+Iteration 100 / LogL: -736039.333 / Time: 1h:17m:8s (0h:8m:48s left)
+Log-likelihood cutoff on original alignment: -736109.278
+NOTE: Bootstrap correlation coefficient of split occurrence frequencies: 0.999
+Iteration 110 / LogL: -736070.731 / Time: 1h:18m:37s (0h:17m:57s left)
+Estimate model parameters (epsilon = 0.100)
+BETTER TREE FOUND at iteration 117: -736036.204
+Iteration 120 / LogL: -736039.691 / Time: 1h:20m:15s (0h:19m:3s left)
+Iteration 130 / LogL: -736044.019 / Time: 1h:21m:48s (0h:16m:49s left)
+Iteration 140 / LogL: -736042.005 / Time: 1h:23m:21s (0h:14m:40s left)
+Iteration 150 / LogL: -736038.587 / Time: 1h:24m:55s (0h:12m:36s left)
+Log-likelihood cutoff on original alignment: -736109.278
+Iteration 160 / LogL: -736068.744 / Time: 1h:26m:41s (0h:10m:41s left)
+Iteration 170 / LogL: -736038.009 / Time: 1h:28m:29s (0h:8m:47s left)
+Iteration 180 / LogL: -736038.928 / Time: 1h:30m:18s (0h:6m:54s left)
+Iteration 190 / LogL: -736039.417 / Time: 1h:32m:7s (0h:5m:2s left)
+Iteration 200 / LogL: -736037.560 / Time: 1h:33m:58s (0h:3m:10s left)
+Log-likelihood cutoff on original alignment: -736106.715
+NOTE: Bootstrap correlation coefficient of split occurrence frequencies: 1.000
+Iteration 210 / LogL: -736051.966 / Time: 1h:35m:42s (0h:16m:43s left)
+TREE SEARCH COMPLETED AFTER 218 ITERATIONS / Time: 1h:37m:6s
+
+--------------------------------------------------------------------
+|                    FINALIZING TREE SEARCH                        |
+--------------------------------------------------------------------
+Performs final model parameters optimization
+Estimate model parameters (epsilon = 0.010)
+1. Initial log-likelihood: -736036.204
+2. Current log-likelihood: -736036.165
+3. Current log-likelihood: -736036.123
+4. Current log-likelihood: -736036.092
+Optimal log-likelihood: -736036.076
+Proportion of invariable sites: 0.003
+Site proportion and rates:  (0.011,0.021) (0.017,0.083) (0.026,0.157) (0.054,0.249) (0.071,0.364) (0.114,0.525) (0.149,0.757) (0.234,1.060) (0.258,1.520) (0.063,2.238)
+Parameters optimization took 4 rounds (7.864 sec)
+BEST SCORE FOUND : -736036.076
+
+Testing tree branches by SH-like aLRT with 1000 replicates...
+2.774 sec.
+Creating bootstrap support values...
+Split supports printed to NEXUS file /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/TAV_GMMLV/combined_tree.splits.nex
+Total tree length: 230.967
+
+Total number of iterations: 218
+CPU time used for tree search: 18714.907 sec (5h:11m:54s)
+Wall-clock time used for tree search: 2347.745 sec (0h:39m:7s)
+Total CPU time used: 46056.424 sec (12h:47m:36s)
+Total wall-clock time used: 5837.272 sec (1h:37m:17s)
+
+Computing bootstrap consensus tree...
+Reading input file /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/TAV_GMMLV/combined_tree.splits.nex...
+203 taxa and 609 splits.
+Consensus tree written to /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/TAV_GMMLV/combined_tree.contree
+Reading input trees file /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/TAV_GMMLV/combined_tree.contree
+Log-likelihood of consensus tree: -736036.280
+
+Analysis results written to: 
+  IQ-TREE report:                /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/TAV_GMMLV/combined_tree.iqtree
+  Maximum-likelihood tree:       /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/TAV_GMMLV/combined_tree.treefile
+  Likelihood distances:          /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/TAV_GMMLV/combined_tree.mldist
+
+Ultrafast bootstrap approximation results written to:
+  Split support values:          /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/TAV_GMMLV/combined_tree.splits.nex
+  Consensus tree:                /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/TAV_GMMLV/combined_tree.contree
+  Screen log file:               /home/parsimony/mosquito_virome_yucatan_LEVE/results/czid/phylogenetics/TAV_GMMLV/combined_tree.log
+
+Date and Time: Tue May 26 00:10:53 2026

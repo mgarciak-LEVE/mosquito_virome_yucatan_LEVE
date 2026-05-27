@@ -125,23 +125,28 @@ if [ ! -s "${COMBINED_OUT}/all_rdrp.fasta" ]; then
     tg_send "ERROR: No RdRp files for combined phylogeny."
 else
     # BLAST the longest RdRp against local viral DB
+    # BLAST each RdRp to get more diverse references
     echo "Finding reference sequences..."
-    apptainer exec "${BLAST_SIF}" blastp \
-        -query "${RDRP_FILES[0]}" \
-        -db "$VIRAL_DB" \
-        -out "${COMBINED_OUT}/combined_blast.tsv" \
-        -outfmt "6 sseqid" \
-        -max_target_seqs 100
+    > "${COMBINED_OUT}/all_accessions.txt"
+    for rdrp_file in "${RDRP_FILES[@]}"; do
+        if [ -f "$rdrp_file" ]; then
+            apptainer exec "${BLAST_SIF}" blastp \
+                -query "$rdrp_file" \
+                -db "$VIRAL_DB" \
+                -outfmt "6 sseqid" \
+                -max_target_seqs 200 \
+                >> "${COMBINED_OUT}/all_accessions.txt"
+        fi
+    done
 
-    cut -f1 "${COMBINED_OUT}/combined_blast.tsv" | sort -u > "${COMBINED_OUT}/accessions.txt"
+    cut -f1 "${COMBINED_OUT}/all_accessions.txt" | sort -u > "${COMBINED_OUT}/accessions.txt"
 
     echo "Downloading reference sequences..."
     > "${COMBINED_OUT}/references.fasta"
     while read acc; do
-        apptainer exec "${BLAST_SIF}" blastdbcmd \
-            -db "$VIRAL_DB" \
-            -entry "$acc" \
-            >> "${COMBINED_OUT}/references.fasta" 2>/dev/null
+        wget -q -O - "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=${acc}&rettype=fasta&retmode=text" \
+            >> "${COMBINED_OUT}/references.fasta"
+        sleep 0.5
     done < "${COMBINED_OUT}/accessions.txt"
 
     # Combine all RdRp + references
@@ -149,7 +154,7 @@ else
         "${COMBINED_OUT}/references.fasta" \
         > "${COMBINED_OUT}/combined_all.fasta"
 
-    # Rename with clear labels
+    # Rename
     awk '/^>/ {
         if ($0 ~ /Consensus_PM/) {
             match($0, /Consensus_(PM[^_]+_[^_]+_[^_]+).*_([0-9]+)/, arr)
@@ -163,12 +168,12 @@ else
     }
     { print }' "${COMBINED_OUT}/combined_all.fasta" > "${COMBINED_OUT}/combined_renamed.fasta"
 
-    # Deduplicate
+    # Deduplicate with lower threshold
     echo "Deduplicating sequences..."
     apptainer exec "${CDHIT_SIF}" cd-hit \
         -i "${COMBINED_OUT}/combined_renamed.fasta" \
         -o "${COMBINED_OUT}/combined_dedup.fasta" \
-        -c 0.95 \
+        -c 0.85 \
         -T "${THREADS}"
 
     echo "Sequences after deduplication: $(grep -c '^>' ${COMBINED_OUT}/combined_dedup.fasta)"
@@ -185,7 +190,7 @@ else
     apptainer exec "${TRIMAL_SIF}" trimal \
         -in "${COMBINED_OUT}/combined_aligned.fasta" \
         -out "${COMBINED_OUT}/combined_trimmed.fasta" \
-        -gappyout
+        -gt 0.1
 
     # Build tree
     echo "Building phylogenetic tree with IQ-TREE..."
