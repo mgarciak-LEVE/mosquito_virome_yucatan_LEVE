@@ -7,6 +7,7 @@
 *.fna
 *.png
 .env
+*.treefile
 
 # mac files
 scripts/individual_analyses/consensus_sequence_generation_mac.sh
