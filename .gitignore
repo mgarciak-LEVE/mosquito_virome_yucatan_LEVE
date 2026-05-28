@@ -16,6 +16,7 @@ scripts/individual_analyses/orf_prediction_mac.sh
 
 # DIRECTORIES
 **/results/aligned/
+results/czid/
 data/references/
 data/czid_raw/
 data/raw 
