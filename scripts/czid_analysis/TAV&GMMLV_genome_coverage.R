@@ -1,0 +1,63 @@
+setwd("C:/Users/troop/GitHub/mosquito_virome_yucatan_LEVE")
+
+# Libraries
+library(ggcoverage)
+library(ggplot2)
+
+#### TAV #####
+
+png("results/czid/Coverage_Plots_PM2469.png", 
+    width = 18, height = 6, units = "in", res = 600, bg = "white")
+
+# Original genome-read mapping PM2528
+PM2469_depth_file <- "data/raw/czid_raw/mapping/TAV/PM2469_S1_923325/PM2469_S1_923325_depth.txt"
+PM2469_before <- read.table(PM2469_depth_file, header=FALSE, col.names=c("contig", "pos", "depth"))
+PM2469_before$stage <- "Before (CZID)"
+
+# Small RNA mapping PM2528
+PM2469_smallrna_file <- "results/czid/tav_complete_genome/PM2469_S1_923325_depth.txt"
+PM2469_after <- read.table(PM2469_smallrna_file, header=FALSE, col.names=c("contig", "pos", "depth"))
+PM2469_after$stage <- "After (small RNA)"
+
+# Combine
+combined <- rbind(PM2469_after, PM2469_before)
+
+# Coverage plots for PM2528
+ggplot(combined, aes(x=pos, y=depth, fill=stage)) +
+  geom_area(alpha=0.5) +
+  facet_wrap(~stage, ncol=1, scales="free_y") +
+  labs(x="Genome Position (bp)", y="Coverage Depth (×)",
+       title="TAV PM2469 Coverage: Before vs After Small RNA Mapping") +
+  theme_minimal()
+
+dev.off()
+
+############################################################################################
+
+#### GMMLV #####
+
+png("results/czid/Coverage_Plots_PM3183.png", 
+    width = 18, height = 6, units = "in", res = 600, bg = "white")
+
+# Original genome-read mapping PM3183
+PM3183_depth_file <- "data/raw/czid_raw/mapping/GMMLV/PM3183_S6_923339/PM3183_S6_923339_depth.txt"
+PM3183_before <- read.table(PM3183_depth_file, header=FALSE, col.names=c("contig", "pos", "depth"))
+PM3183_before$stage <- "Before (CZID)"
+
+# Small RNA mapping PM3183
+PM3183_smallrna_file <- "results/czid/gmmlv_complete_genome/PM3183_S6_923339_depth.txt"
+PM3183_after <- read.table(PM3183_smallrna_file, header=FALSE, col.names=c("contig", "pos", "depth"))
+PM3183_after$stage <- "After (small RNA)"
+
+# Combine
+combined <- rbind(PM3183_after, PM3183_before)
+
+# Coverage plots for PM3183
+ggplot(combined, aes(x=pos, y=depth, fill=stage)) +
+  geom_area(alpha=0.5) +
+  facet_wrap(~stage, ncol=1, scales="free_y") +
+  labs(x="Genome Position (bp)", y="Coverage Depth (×)",
+       title="GMMLV PM3183 Coverage: Before vs After Small RNA Mapping") +
+  theme_minimal()
+
+dev.off()
