@@ -1,8 +1,8 @@
 #!/bin/bash
 # Script: Ochlerotatus scapularis flavivirus (OSFV) RdRp phylogenetics.
 # Author: Jorge Alberto Castro Rodríguez
-# Ver. 1.0.0
-# 30/05/2026
+# Ver. 1.1.0
+# 01/06/2026
 
 ####==================================####
 ####          CONFIGURATION           ####
@@ -110,24 +110,20 @@ echo "Downloading curated flavivirus RdRp references..."
 
 > "${PHYLO_OUT}/references.fasta"
 
-# === CLASSIC INSECT-SPECIFIC FLAVIVIRUSES (cISF) ===
+# === INSECT-SPECIFIC FLAVIVIRUSES (cISF) ===
 ISF_ACCESSIONS=(
     "YP_009350102.1"   # Xishuangbanna aedes flavivirus
     "YP_009351861.1"   # Menghai flavivirus
     "YP_009345035.1"   # Shuangao insect-specific flavivirus
     "YP_009259488.1"   # Hanko flavivirus
     "YP_009164031.1"   # Aedes flavivirus
-    "YP_009222007.1"   # Aedes flavivirus 2
     "YP_009169331.1"   # Culex flavivirus
-    "YP_009026410.1"   # Culex theileri flavivirus
     "YP_009001464.1"   # Anopheles flavivirus
     "YP_009041466.1"   # Culex pipiens flavivirus
     "YP_009056847.1"   # Calbertado virus
     "YP_009388577.1"   # Hubei insect-specific flavivirus
     "YP_009552767.1"   # Hubei insect-specific flavivirus 2
-    "YP_009553376.1"   # Hubei insect-specific flavivirus 3
-    "YP_009552278.1"   # Hubei insect-specific flavivirus 4
-    "BCI56825.1"        # Ochlerotatus scapularis flavivirus (REFERENCE)
+    "BCI56825.1"       # Ochlerotatus scapularis flavivirus (REFERENCE)
 )
 
 # === DUAL-HOST INSECT-SPECIFIC FLAVIVIRUSES (dISF) ===
@@ -147,6 +143,7 @@ MBF_ACCESSIONS=(
     "NP_872627.1"      # Japanese encephalitis virus
     "NP_051124.1"      # Murray Valley encephalitis virus
     "NP_041726.1"      # Saint Louis encephalitis virus
+    "YP_009164031.1"   # Usutu virus (also in ISF, will be deduplicated)
 )
 
 # === TICK-BORNE FLAVIVIRUSES (TBF) ===
