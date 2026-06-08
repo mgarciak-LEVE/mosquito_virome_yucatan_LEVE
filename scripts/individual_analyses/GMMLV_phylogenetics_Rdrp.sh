@@ -1,8 +1,8 @@
 #!/bin/bash
-# Script: Ochlerotatus scapularis flavivirus (OSFV) RdRp phylogenetics.
+# Script: Guadeloupe mosquito mononega-like virus (GMMLV) RdRp phylogenetics.
 # Author: Jorge Alberto Castro Rodríguez
-# Ver. 1.1.0
-# 01/06/2026
+# Ver. 1.0.0
+# 07/06/2026
 
 ####==================================####
 ####          CONFIGURATION           ####
@@ -11,10 +11,10 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-# Input: improved consensus from the completion script
-COMPLETION_DIR="${PROJECT_ROOT}/results/czid/osfv_complete_genome"
-ALL_CONSENSUS="${COMPLETION_DIR}/all_osfv_consensus.fasta"
-PHYLO_OUT="${PROJECT_ROOT}/results/czid/osfv_rdrp/phylogeny"
+# Input directories
+COMPLETION_DIR="${PROJECT_ROOT}/results/czid/gmmlv_complete_genome"
+ALL_CONSENSUS="${COMPLETION_DIR}/all_gmmlv_consensus.fasta"
+PHYLO_OUT="${PROJECT_ROOT}/results/czid/phylogenetics/GMMLV"
 
 # Viral protein database
 VIRAL_DB="${PROJECT_ROOT}/data/databases/viral_refseq_prot"
@@ -28,21 +28,16 @@ CDHIT_SIF="${CONTAINER_DIR}/cd-hit_4.8.1--h5ca1c30_13.sif"
 BLAST_SIF="${CONTAINER_DIR}/blast_2.17.0--h66d330f_0.sif"
 EMBOSS_SIF="${CONTAINER_DIR}/emboss_6.6.0--h0f19ade_14.sif"
 
-# Telegram bot
-source "${SCRIPT_DIR}/bot_telegram.sh"
-
 THREADS=28
 mkdir -p "${PHYLO_OUT}"
 
 echo "=========================================="
-echo "OSFV: RdRp Protein Phylogenetics"
+echo "GMMLV: RdRp Protein Phylogenetics"
 echo "=========================================="
-tg_send "Starting OSFV RdRp phylogenetics..."
 
 # Check if improved consensus exists
 if [ ! -f "$ALL_CONSENSUS" ]; then
     echo "ERROR: ${ALL_CONSENSUS} not found. Run genome completion first."
-    tg_send "ERROR: OSFV consensus not found."
     exit 1
 fi
 
@@ -50,15 +45,15 @@ fi
 ####        Predict ORFs        ####
 ####============================####
 
-echo "Predicting ORFs from OSFV consensus..."
-> "${PHYLO_OUT}/all_osfv_orfs.fasta"
+echo "Predicting ORFs from GMMLV consensus..."
+> "${PHYLO_OUT}/all_gmmlv_orfs.fasta"
 for consensus in "${COMPLETION_DIR}"/*_improved.fa; do
     sample=$(basename "$consensus" _improved.fa)
     apptainer exec "${EMBOSS_SIF}" getorf \
         -sequence "$consensus" \
         -outseq "${PHYLO_OUT}/${sample}_orfs.fasta" \
         -minsize 300 -find 1
-    cat "${PHYLO_OUT}/${sample}_orfs.fasta" >> "${PHYLO_OUT}/all_osfv_orfs.fasta"
+    cat "${PHYLO_OUT}/${sample}_orfs.fasta" >> "${PHYLO_OUT}/all_gmmlv_orfs.fasta"
 done
 
 ####============================####
@@ -67,14 +62,14 @@ done
 
 echo "BLASTing ORFs to find RdRp..."
 apptainer exec "${BLAST_SIF}" blastp \
-    -query "${PHYLO_OUT}/all_osfv_orfs.fasta" \
+    -query "${PHYLO_OUT}/all_gmmlv_orfs.fasta" \
     -db "$VIRAL_DB" \
-    -out "${PHYLO_OUT}/osfv_orfs_blast.tsv" \
+    -out "${PHYLO_OUT}/gmmlv_orfs_blast.tsv" \
     -outfmt "6 qseqid sseqid pident length evalue stitle" \
     -max_target_seqs 10
 
 echo "Top RdRp candidates:"
-grep -i "polymerase\|NS5\|RdRp\|rdrp" "${PHYLO_OUT}/osfv_orfs_blast.tsv" | \
+grep -i "polymerase\|RdRp\|rdrp\|L" "${PHYLO_OUT}/gmmlv_orfs_blast.tsv" | \
     awk '$5 < 1e-10' | head -10
 
 ####============================####
@@ -82,92 +77,56 @@ grep -i "polymerase\|NS5\|RdRp\|rdrp" "${PHYLO_OUT}/osfv_orfs_blast.tsv" | \
 ####============================####
 
 echo "Extracting RdRp ORFs..."
-> "${PHYLO_OUT}/osfv_rdrp_queries.fasta"
+> "${PHYLO_OUT}/gmmlv_rdrp_queries.fasta"
 
 for consensus in "${COMPLETION_DIR}"/*_improved.fa; do
     sample=$(basename "$consensus" _improved.fa)
     
-    best_orf=$(grep "${sample}" "${PHYLO_OUT}/osfv_orfs_blast.tsv" | \
-        grep -i "polymerase\|NS5\|RdRp\|rdrp" | \
+    best_orf=$(grep "${sample}" "${PHYLO_OUT}/gmmlv_orfs_blast.tsv" | \
+        grep -i "polymerase\|RdRp\|rdrp\|L" | \
         sort -k5,5g | head -1 | cut -f1)
     
     if [ -n "$best_orf" ]; then
         awk -v id="$best_orf" '
             /^>/ { keep = ($0 ~ id) }
             { if (keep) print }
-        ' "${PHYLO_OUT}/${sample}_orfs.fasta" >> "${PHYLO_OUT}/osfv_rdrp_queries.fasta"
+        ' "${PHYLO_OUT}/${sample}_orfs.fasta" >> "${PHYLO_OUT}/gmmlv_rdrp_queries.fasta"
         echo "  ${sample}: $best_orf"
     fi
 done
 
-echo "RdRp queries: $(grep -c '^>' ${PHYLO_OUT}/osfv_rdrp_queries.fasta)"
+echo "RdRp queries: $(grep -c '^>' ${PHYLO_OUT}/gmmlv_rdrp_queries.fasta)"
 
 ####============================####
 ####      Get References        ####
 ####============================####
 
-echo "Downloading curated flavivirus RdRp references..."
+echo "Downloading curated mononegavirus RdRp references..."
 
 > "${PHYLO_OUT}/references.fasta"
 
-# === INSECT-SPECIFIC FLAVIVIRUSES (cISF) ===
-ISF_ACCESSIONS=(
-    "YP_009350102.1"   # Xishuangbanna aedes flavivirus
-    "YP_009351861.1"   # Menghai flavivirus
-    "YP_009345035.1"   # Shuangao insect-specific flavivirus
-    "YP_009259488.1"   # Hanko flavivirus
-    "YP_009164031.1"   # Aedes flavivirus
-    "YP_009169331.1"   # Culex flavivirus
-    "YP_009001464.1"   # Anopheles flavivirus
-    "YP_009041466.1"   # Culex pipiens flavivirus
-    "YP_009056847.1"   # Calbertado virus
-    "YP_009388577.1"   # Hubei insect-specific flavivirus
-    "BCI56825.1"       # Ochlerotatus scapularis flavivirus (REFERENCE)
+# GMMLV is a mononega-like virus
+GMMLV_REFERENCES=(
+    "YP_010799271.1"   # Culex tritaeniorhynchus Anphevirus RdRp
+    "YP_009388622.1"   # Culex mononega-like virus 2
+    "YP_010784507.1"   # Aedes aegypti anphevirus
+    "YP_009302387.1"   # Xincheng Mosquito Virus
+    "QEM39171.1"       # Guadeloupe mosquito mononega-like virus (REFERENCE)
+    "XGU11768.1"       # Ferox mosquito mononega-like virus
+    "XXK85565.1"       # Toxorhynchites amboinensis xinmovirus 1
+    "WPR17627.1"       # Hemiptera mononega-like virus (polymerase, partial)
+    "AYN07258.1"       # Tick mononegavirus (polymerase, partial)
+    "QNM37838.1"       # Insect mononegavirales virus 2 (polymerase)
+    "WPR16622.1"       # Millipede mononega-like virus (polymerase, partial)
+    "DBA09009.1"       # Chalcocoris rutilans mononega-like virus 2 (polymerase)
+    "DAZ89733.1"   # Chelostoma florisomne mononega-like virus (polymerase, partial)
 )
 
-# === DUAL-HOST INSECT-SPECIFIC FLAVIVIRUSES (dISF) ===
-DISF_ACCESSIONS=(
-    "YP_009253929.1"   # Kamiti River virus
-    "YP_009483324.1"   # Palm Creek virus
-    "YP_009551951.1"   # Nakiwogo virus
-    "YP_006846328.2"   # Ilomantsi virus
-)
-
-# === MOSQUITO-BORNE FLAVIVIRUSES (MBF) ===
-MBF_ACCESSIONS=(
-    "NP_059433.1"      # Dengue virus 2
-    "NP_041120.1"      # Yellow fever virus
-    "NP_056776.1"      # West Nile virus
-    "NP_619758.1"      # Zika virus
-    "NP_872627.1"      # Japanese encephalitis virus
-    "NP_051124.1"      # Murray Valley encephalitis virus
-    "NP_041726.1"      # Saint Louis encephalitis virus
-    "YP_009164031.1"   # Usutu virus (also in ISF, will be deduplicated)
-)
-
-# === NO KNOWN VECTOR FLAVIVIRUSES (NKV) ===
-NKV_ACCESSIONS=(
-    "NP_891560.1"      # Rio Bravo virus
-    "YP_009345019.1"   # Modoc virus
-    "YP_009126871.1" # Jutiapa virus
-    "YP_009664839.1" # Sal vieja virus (partial NS5)
-)
-
-
-# Download all
-for acc in "${ISF_ACCESSIONS[@]}" "${DISF_ACCESSIONS[@]}" "${MBF_ACCESSIONS[@]}" "${NKV_ACCESSIONS[@]}"; do
+for acc in "${GMMLV_REFERENCES[@]}"; do
     wget -q -O - "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=${acc}&rettype=fasta&retmode=text" \
         >> "${PHYLO_OUT}/references.fasta"
     sleep 0.5
 done
-
-# Remove exact duplicates from references
-apptainer exec "${CDHIT_SIF}" cd-hit \
-    -i "${PHYLO_OUT}/references.fasta" \
-    -o "${PHYLO_OUT}/references_dedup.fasta" \
-    -c 1.0 -T "${THREADS}"
-
-mv "${PHYLO_OUT}/references_dedup.fasta" "${PHYLO_OUT}/references.fasta"
 
 echo "References downloaded: $(grep -c '^>' ${PHYLO_OUT}/references.fasta)"
 
@@ -176,15 +135,14 @@ echo "References downloaded: $(grep -c '^>' ${PHYLO_OUT}/references.fasta)"
 ####============================####
 
 echo "Combining sequences..."
-cat "${PHYLO_OUT}/osfv_rdrp_queries.fasta" \
+cat "${PHYLO_OUT}/gmmlv_rdrp_queries.fasta" \
     "${PHYLO_OUT}/references.fasta" \
     > "${PHYLO_OUT}/combined_all.fasta"
 
-# Rename headers: keep accession + add virus name
 awk '/^>/ {
     if ($0 ~ /Consensus_PM/) {
         match($0, /Consensus_(PM[^_]+_[^_]+_[^_]+).*/)
-        printf ">OSFV_%s\n", substr($1, 1)
+        printf ">GMMLV_%s\n", substr($1, 1)
     } else {
         gsub(/^>/, "")
         acc = $1
@@ -209,11 +167,12 @@ echo "Deduplicating sequences..."
 apptainer exec "${CDHIT_SIF}" cd-hit \
     -i "${PHYLO_OUT}/combined_renamed.fasta" \
     -o "${PHYLO_OUT}/combined_dedup.fasta" \
-    -c 0.90 \
+    -c 0.85 \
     -T "${THREADS}"
 
+# Ensure GMMLV sequences are kept
 cat "${PHYLO_OUT}/combined_dedup.fasta" \
-    "${PHYLO_OUT}/osfv_rdrp_queries.fasta" \
+    "${PHYLO_OUT}/gmmlv_rdrp_queries.fasta" \
     > "${PHYLO_OUT}/combined_final.fasta"
 
 awk '!seen[$0]++' "${PHYLO_OUT}/combined_final.fasta" > "${PHYLO_OUT}/combined_final_clean.fasta"
@@ -228,21 +187,20 @@ echo "Sequences after dedup: $(grep -c '^>' ${PHYLO_OUT}/combined_final.fasta)"
 echo "Aligning with MAFFT..."
 apptainer exec "${MAFFT_SIF}" mafft --auto --reorder \
     "${PHYLO_OUT}/combined_final.fasta" \
-    > "${PHYLO_OUT}/osfv_rdrp_aligned.fasta"
+    > "${PHYLO_OUT}/gmmlv_rdrp_aligned.fasta"
 
 echo "Trimming alignment..."
 apptainer exec "${TRIMAL_SIF}" trimal \
-    -in "${PHYLO_OUT}/osfv_rdrp_aligned.fasta" \
-    -out "${PHYLO_OUT}/osfv_rdrp_trimmed.fasta" \
+    -in "${PHYLO_OUT}/gmmlv_rdrp_aligned.fasta" \
+    -out "${PHYLO_OUT}/gmmlv_rdrp_trimmed.fasta" \
     -gt 0.1
 
 echo "Building tree with IQ-TREE..."
 apptainer exec "${IQTREE_SIF}" iqtree \
-    -s "${PHYLO_OUT}/osfv_rdrp_trimmed.fasta" \
+    -s "${PHYLO_OUT}/gmmlv_rdrp_trimmed.fasta" \
     -m MFP -bb 1000 -alrt 1000 -nt AUTO \
-    -pre "${PHYLO_OUT}/osfv_rdrp_tree"
+    -pre "${PHYLO_OUT}/gmmlv_rdrp_tree"
 
 echo ""
-echo "Tree: ${PHYLO_OUT}/osfv_rdrp_tree.treefile"
+echo "Tree: ${PHYLO_OUT}/gmmlv_rdrp_tree.treefile"
 echo "Complete."
-tg_send "OSFV RdRp phylogeny complete."

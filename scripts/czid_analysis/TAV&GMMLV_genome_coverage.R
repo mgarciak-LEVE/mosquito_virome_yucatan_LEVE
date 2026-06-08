@@ -23,11 +23,11 @@ PM2469_after$stage <- "After (small RNA)"
 combined <- rbind(PM2469_after, PM2469_before)
 
 # Coverage plots for PM2528
-ggplot(combined, aes(x=pos, y=depth, fill=stage)) +
+ggplot(PM2469_after, aes(x=pos, y=depth, fill=stage)) +
   geom_area(alpha=0.5) +
   facet_wrap(~stage, ncol=1, scales="free_y") +
   labs(x="Genome Position (bp)", y="Coverage Depth (×)",
-       title="TAV PM2469 Coverage: Before vs After Small RNA Mapping") +
+       title="TAV PM2469 Coverage After Small RNA Mapping") +
   theme_minimal()
 
 dev.off()
@@ -53,11 +53,11 @@ PM3183_after$stage <- "After (small RNA)"
 combined <- rbind(PM3183_after, PM3183_before)
 
 # Coverage plots for PM3183
-ggplot(combined, aes(x=pos, y=depth, fill=stage)) +
+ggplot(PM3183_after, aes(x=pos, y=depth, fill=stage)) +
   geom_area(alpha=0.5) +
   facet_wrap(~stage, ncol=1, scales="free_y") +
   labs(x="Genome Position (bp)", y="Coverage Depth (×)",
-       title="GMMLV PM3183 Coverage: Before vs After Small RNA Mapping") +
+       title="GMMLV PM3183 Coverage After Small RNA Mapping") +
   theme_minimal()
 
 dev.off()

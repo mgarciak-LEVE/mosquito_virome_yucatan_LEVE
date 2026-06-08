@@ -238,7 +238,7 @@ nmds_plot <- ggplot(nmds_scores, aes(x = NMDS1, y = NMDS2)) +
        color = "Habitat", shape = "Species", fill = "Habitat Centroid")
 
 print(nmds_plot)
-dev.off
+dev.off()
 
 # B.2.2.PCOA ----
 
