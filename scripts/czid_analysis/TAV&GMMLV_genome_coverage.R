@@ -20,10 +20,10 @@ PM2469_after <- read.table(PM2469_smallrna_file, header=FALSE, col.names=c("cont
 PM2469_after$stage <- "After (small RNA)"
 
 # Combine
-combined <- rbind(PM2469_after, PM2469_before)
+combined <- rbind(PM2469_before, PM2469_after)
 
 # Coverage plots for PM2528
-ggplot(PM2469_after, aes(x=pos, y=depth, fill=stage)) +
+ggplot(combined, aes(x=pos, y=depth, fill=stage)) +
   geom_area(alpha=0.5) +
   facet_wrap(~stage, ncol=1, scales="free_y") +
   labs(x="Genome Position (bp)", y="Coverage Depth (×)",
@@ -36,28 +36,29 @@ dev.off()
 
 #### GMMLV #####
 
-png("results/czid/Coverage_Plots_PM3183.png", 
+png("results/czid/Coverage_Plots_PM2622_GMMLV.png", 
     width = 18, height = 6, units = "in", res = 600, bg = "white")
 
 # Original genome-read mapping PM3183
-PM3183_depth_file <- "data/raw/czid_raw/mapping/GMMLV/PM3183_S6_923339/PM3183_S6_923339_depth.txt"
-PM3183_before <- read.table(PM3183_depth_file, header=FALSE, col.names=c("contig", "pos", "depth"))
-PM3183_before$stage <- "Before (CZID)"
+PM2622_depth_file <- "data/raw/czid_raw/mapping/GMMLV/PM2622_S32_923335/PM2622_S32_923335_depth.txt"
+PM2622_before <- read.table(PM2622_depth_file, header=FALSE, col.names=c("contig", "pos", "depth"))
+PM2622_before$stage <- "Before (CZID)"
 
 # Small RNA mapping PM3183
-PM3183_smallrna_file <- "results/czid/gmmlv_complete_genome/PM3183_S6_923339_depth.txt"
-PM3183_after <- read.table(PM3183_smallrna_file, header=FALSE, col.names=c("contig", "pos", "depth"))
-PM3183_after$stage <- "After (small RNA)"
+PM2622_smallrna_file <- "results/czid/gmmlv_complete_genome/PM2622_S32_923335_depth.txt"
+PM2622_after <- read.table(PM2622_smallrna_file, header=FALSE, col.names=c("contig", "pos", "depth"))
+PM2622_after$stage <- "After (small RNA)"
 
 # Combine
-combined <- rbind(PM3183_after, PM3183_before)
+combined <- rbind(PM2622_after, PM2622_before)
 
 # Coverage plots for PM3183
-ggplot(PM3183_after, aes(x=pos, y=depth, fill=stage)) +
+ggplot(combined, aes(x=pos, y=depth, fill=stage)) +
   geom_area(alpha=0.5) +
   facet_wrap(~stage, ncol=1, scales="free_y") +
   labs(x="Genome Position (bp)", y="Coverage Depth (×)",
-       title="GMMLV PM3183 Coverage After Small RNA Mapping") +
+       title="GMMLV PM2622 Coverage After Small RNA Mapping") +
   theme_minimal()
 
 dev.off()
+

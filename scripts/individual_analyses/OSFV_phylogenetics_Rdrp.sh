@@ -142,7 +142,7 @@ MBF_ACCESSIONS=(
     "NP_872627.1"      # Japanese encephalitis virus
     "NP_051124.1"      # Murray Valley encephalitis virus
     "NP_041726.1"      # Saint Louis encephalitis virus
-    "YP_009164031.1"   # Usutu virus (also in ISF, will be deduplicated)
+    "YP_009164031.1"   # Usutu virus 
 )
 
 # === NO KNOWN VECTOR FLAVIVIRUSES (NKV) ===
