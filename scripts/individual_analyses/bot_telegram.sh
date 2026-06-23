@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Autor: Jorge Alberto Castro Rodríguez
-# Script para utilizar bot de telegram
+# Author: Jorge Alberto Castro Rodríguez
+# Script bot messaging through Telegram
 
 ####==================================####
 ####          Bot  Telegram           ####
