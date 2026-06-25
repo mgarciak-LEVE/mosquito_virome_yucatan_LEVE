@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Author: Jorge Alberto Castro Rodríguez
-# Script para generar directorios y verificar que existan.
+# Script to generate direcotries and verify their existence.
 # 23/06/2026
 # Version 2.0.0
 
@@ -14,7 +14,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Directorio 
 
 # Telegram bot function
-source "${SCRIPT_DIR}/bot_telegram.sh"  # Asumimos el mismo directorio
+source "${SCRIPT_DIR}/bot_telegram.sh" 
 
 # Proyect configuration 
 PROJECT_NAME="${1:-mosquito_virome_yucatan_LEVE}"
@@ -48,7 +48,7 @@ create_dir_validation() {
 
 
 ####==================================####
-####    CREACIÓN DE DIRECTORIOS       ####
+####       DIRECTORY CREATION         ####
 ####==================================####
 
 create_directory_structure() {

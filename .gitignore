@@ -9,13 +9,12 @@
 .env
 *.treefile
 
-# mac files
+# MAC SCRIPTS
 scripts/individual_analyses/consensus_sequence_generation_mac.sh
 scripts/individual_analyses/contig_coverage_mac.sh
 scripts/individual_analyses/orf_prediction_mac.sh
 scripts/individual_analyses/OSFV_consensus_completion_mac.sh
-scripts/individual_analyses/OSFV_consensus_completion_mac.sh
-
+scripts/individual_analyses/OSFV_phylogenetics_Rdrp_mac.sh
 
 # DIRECTORIES
 **/results/aligned/
