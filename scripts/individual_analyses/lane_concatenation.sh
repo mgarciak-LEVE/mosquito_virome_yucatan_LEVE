@@ -58,9 +58,9 @@ echo "FASTQ file check completed."
 tg_send "FASTQ file check completed."
 
 
-####==================================####
-####   Lane Concatenation             ####
-####==================================####
+####======================####
+####  Lane Concatenation  ####
+####======================####
 
 # Get unique sample names (PMXXXX_SXX)
 for sample in $(ls *.fastq | grep -E '_L00[12]_' | sed 's/_L00[12]_.*//' | sort -u); do
