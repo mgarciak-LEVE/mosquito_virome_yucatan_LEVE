@@ -1,28 +1,28 @@
-# FILES
-*.fasta
-*.fastq
-*.zip 
-*.pdf
-*.gz
-*.fna
-*.png
-.env
-*.treefile
+# ~/git_repos/mosquito_virome_pipeline/.gitignore
 
-# MAC SCRIPTS
-scripts/individual_analyses/consensus_sequence_generation_mac.sh
-scripts/individual_analyses/contig_coverage_mac.sh
-scripts/individual_analyses/orf_prediction_mac.sh
-scripts/individual_analyses/OSFV_consensus_completion_mac.sh
-scripts/individual_analyses/OSFV_phylogenetics_Rdrp_mac.sh
+# Large data directories (on Lustre)
+/data/
+/results/
+/logs/
+/temp/
+/scratch/
 
-# DIRECTORIES
-**/results/aligned/
-results/czid/
-data/references/
-data/czid_raw/
-data/raw 
-containers/
-docs/czid_sequence_reports/
-docs/czid_sequence_reports_provisional/
-scripts/czid_analysis/sequence_analysis_aedes_aegypti.ipynb
+# LSF output files
+*.out
+*.err
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
