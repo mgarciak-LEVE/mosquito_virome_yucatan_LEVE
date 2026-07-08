@@ -3,40 +3,29 @@
 
 # Author: Jorge Alberto Castro Rodríguez
 # Script to generate directories and verify their existence.
-# 29/06/2026
-# Version 2.1.1 (farm-ready)
+# 08/07/2026
+# Version 3.1.0 (farm-ready)
 
 ####==================================####
 ####          CONFIGURATION           ####
 ####==================================####
 
-# Directory where scripts are located
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 # Project configuration
-PROJECT_NAME="${1:-mosquito_virome_pipeline}"  # Default project name if not provided as an argument
+PROJECT_NAME="${1:-mosquito_virome_yucatan_LEVE}"
 
-# --------- STORAGE LOCATIONS ---------
-
+# --- STORAGE LOCATIONS ---
 # Permanent storage
-PERMANENT_BASE="/nfs/team222/projects"
+PERMANENT_BASE="/nfs/users/nfs_j/jr46"
 
 # Scratch storage
-SCRATCH_BASE="/lustre/scratch126/tol/teams/lawniczak/users/jr46"
+SCRATCH_BASE="/lustre/scratch126/tol/teams/lawniczak/users/jr46/projects"
 
-# --------- PROJECT DIRECTORIES ---------
-
-# Working directory on Lustre 
+# --- PROJECT DIRECTORIES ---
+# Working directory on Lustre
 PROJECT_SCRATCH="${SCRATCH_BASE}/${PROJECT_NAME}"
-
-# Permanent results directory
-PERMANENT_RESULTS="${PERMANENT_BASE}/${PROJECT_NAME}/results"
 
 # LSF output directory
 LSF_LOGS="${HOME}/lsf_logs/${DATE}"
-
-# Scripts directory
-SCRIPTS_NFS="${HOME}/git_repos/${PROJECT_NAME}/scripts/individual_analyses"
 
 ####==================================####
 ####  FUNCTION FOR DIRECTORY CREATION ####
@@ -80,6 +69,7 @@ create_directory_structure() {
     
     # === Data directories ===
     create_dir_validation "${base}/data/raw/total_RNA" "data/raw/total_RNA"
+    create_dir_validation "${base}/data/raw/total_RNA/cat_files" "Concatenated raw files: data/raw/total_RNA/cat_files"
     create_dir_validation "${base}/data/raw/small_RNA" "data/raw/small_RNA"
     create_dir_validation "${base}/data/metadata" "data/metadata"
     
@@ -87,9 +77,6 @@ create_directory_structure() {
     create_dir_validation "${base}/data/references/mosquito_genomes/aedes_super_index" "References: Aedes supergenome"
     create_dir_validation "${base}/data/references/databases/BLAST" "References: BLAST DB"
     create_dir_validation "${base}/data/references/databases/DIAMOND" "References: DIAMOND DB"
-    
-    # === Permanent results directory ===
-    create_dir_validation "${PERMANENT_RESULTS}" "Permanent results storage"
 
     # === Results directories ===
     create_dir_validation "${base}/results/untrimmed_qc/fastqc" "Results: FastQC (before trimming)"
@@ -112,12 +99,21 @@ create_directory_structure() {
     create_dir_validation "${base}/logs/mapping" "Logs: STAR alignment"
     create_dir_validation "${base}/logs/assembly" "Logs: Assembly"
     create_dir_validation "${base}/logs/blast" "Logs: BLAST/DIAMOND"
-    
-    
+
+    # === Permanent results directories ===
+    create_dir_validation "${PERMANENT_BASE}/git_repos" "GitHub repositories (NFS)"
+    create_dir_validation "${PERMANENT_BASE}/git_repos/${PROJECT_NAME}" "Mosquito virome pipeline repository"
+    create_dir_validation "${PERMANENT_BASE}/git_repos/${PROJECT_NAME}/containers" "Mosquito virome containers"
+    create_dir_validation "${PERMANENT_BASE}/git_repos/${PROJECT_NAME}/docs" "Mosquito virome important documents"
+    create_dir_validation "${PERMANENT_BASE}/git_repos/${PROJECT_NAME}/results" "Mosquito virome permanent results"
+    create_dir_validation "${PERMANENT_BASE}/git_repos/${PROJECT_NAME}/scripts" "Mosquito virome permanent results"
+
+
+
     echo "========================================="
     echo "Directory structure completed"
     echo "Project location (Lustre): ${base}"
-    echo "Permanent results: ${PERMANENT_RESULTS}"
+    echo "Permanent results: ${PERMANENT_BASE}/"
     echo "LSF logs: ${LSF_LOGS}"
     echo "========================================="
 }
@@ -127,7 +123,8 @@ create_directory_structure "$PROJECT_SCRATCH"
 
 echo ""
 echo "   - Work: ${PROJECT_SCRATCH}"
-echo "   - Copy final results to: ${PERMANENT_RESULTS}"
+echo "   - Copy final results to: ${PERMANENT_BASE}"
 echo "   - LSF logs: ${LSF_LOGS}"
-echo "   - Symlink: ${HOME}/git_repos/mosquito_virome_pipeline/project_data"
+echo "   - Project data symlink: ${HOME}/git_repos/mosquito_virome_pipeline/project_data"
+echo "   - Raw data symlink: ${HOME}/git_repos/mosquito_virome_pipeline/raw_data"
 echo ""
