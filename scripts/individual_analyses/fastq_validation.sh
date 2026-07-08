@@ -2,7 +2,7 @@
 
 # Author: Jorge Alberto Castro Rodríguez
 # Script to validate fastq files.
-# 02/07/2026
+# 08/07/2026
 # Version 2.2.1 (farm-ready)
 
 ####==================================####
@@ -13,28 +13,27 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Project configuration
-PROJECT_NAME="${1:-mosquito_virome_pipeline}"
+PROJECT_NAME="${1:-mosquito_virome_yucatan_LEVE}"
 
 # --- STORAGE LOCATIONS ---
 # Permanent storage
 PERMANENT_BASE="/nfs/team222/projects"
 
 # Scratch storage
-SCRATCH_BASE="/lustre/scratch126/tol/teams/lawniczak/users/jr46"
+SCRATCH_BASE="/lustre/scratch126/tol/teams/lawniczak/users/jr46/projects"
 
 # --- PROJECT DIRECTORIES ---
 # Working directory on Lustre
 PROJECT_SCRATCH="${SCRATCH_BASE}/${PROJECT_NAME}"
 
 # Input directory - where FASTQ files are
-# Uses symlink by default, or can be overridden with $2
-INPUT_DIR="${2:-${HOME}/git_repos/mosquito_virome_pipeline/raw_data}"
+INPUT_DIR="${PROJECT_SCRATCH}/data/raw/total_RNA/cat_files"
 
 # Output directory for validation results (on Lustre)
-OUTDIR="${PROJECT_SCRATCH}/results/untrimmed_qc"
+OUTPUT_DIR="${PROJECT_SCRATCH}/results/untrimmed_qc/stats"
 
-# Permanent results directory (backed up - copy final results here)
-PERMANENT_RESULTS="${PERMANENT_BASE}/${PROJECT_NAME}/results"
+# Permanent results directory
+PERMANENT_RESULTS="${PERMANENT_BASE}/${PROJECT_NAME}/docs/fastq_validation"
 
 # Scripts directory (on NFS)
 SCRIPTS_NFS="${HOME}/git_repos/${PROJECT_NAME}/scripts/individual_analyses"
@@ -47,7 +46,7 @@ echo "========================================="
 echo "  FASTQ Validation"
 echo "  Project: ${PROJECT_NAME}"
 echo "  Input directory: ${INPUT_DIR}"
-echo "  Output directory: ${OUTDIR}"
+echo "  Output directory: ${OUTPUT_DIR}"
 echo "  Date: $(date)"
 echo "========================================="
 
@@ -65,7 +64,7 @@ fastq_val() {
     local bases_total=0
     local total_n=0
 
-    stats_file="${OUTDIR}/stats/stats_validation.csv"
+    stats_file="${OUTPUT_DIR}/stats_validation.csv"
 
     # Stats 
     mkdir -p "$(dirname "$stats_file")"
@@ -134,7 +133,6 @@ fastq_val() {
     echo "${file_name}: $reads reads, $lines lines, errors=$errors, GC=${gc_percentage}%, N=${total_n}, size=${size_mb}MB"
     tg_send "${file_name}: $reads reads, $lines lines, errors=$errors, GC=${gc_percentage}%, N=${total_n}, size=${size_mb}MB" 2>/dev/null || true
 
-    # Fixed: gc_percenatge -> gc_percentage
     echo "${file_name},${reads},${lines},${errors},${gc_percentage},${total_n},${size_mb}" >> "$stats_file"
     return $errors
 }
@@ -153,15 +151,19 @@ else
     tg_send "Starting FASTQ validation for ${INPUT_DIR}" 2>/dev/null || true
 fi
 
+echo "Files to process:"
+ls -la *.fastq.gz 2>/dev/null || ls -la *.fastq 2>/dev/null
+
 # Create output directories
-mkdir -p "${OUTDIR}/fastqc"
-mkdir -p "${OUTDIR}/multiqc"
-mkdir -p "${OUTDIR}/stats"
+mkdir -p "${OUTPUT_DIR}"
 
 # Initialize counters
 total_files=0
 valid_files=0
 error_files=0
+
+# Stats file for validation results on Lustre
+STATS_FILE="${OUTPUT_DIR}/stats_validation.csv"
 
 # Verification for all fastq files
 for file in "$INPUT_DIR"/*.fastq "$INPUT_DIR"/*.fastq.gz; do
@@ -232,22 +234,25 @@ echo "  Date: $(date)"
 echo "  Total files processed: ${total_files}"
 echo "  Valid files: ${valid_files}"
 echo "  Files with errors: ${error_files}"
-echo "  Results saved to: ${OUTDIR}/stats/stats_validation.csv"
+echo "  Results saved to: ${OUTPUT_DIR}/stats/stats_validation.csv"
 echo "========================================="
 
 tg_send "FASTQ Validation Summary: ${total_files} files, ${valid_files} valid, ${error_files} errors" 2>/dev/null || true
 
 # Copy results to permanent storage (NFS)
-if [[ -f "${OUTDIR}/stats/stats_validation.csv" ]]; then
+if [[ -f "${STATS_FILE}" ]]; then
     echo "Copying results to permanent storage..."
-    mkdir -p "${PERMANENT_RESULTS}/untrimmed_qc/stats/"
-    cp "${OUTDIR}/stats/stats_validation.csv" "${PERMANENT_RESULTS}/untrimmed_qc/stats/"
-    echo "Results copied to: ${PERMANENT_RESULTS}/untrimmed_qc/stats/"
+    mkdir -p "${PERMANENT_RESULTS}"
+    cp "${STATS_FILE}" "${PERMANENT_RESULTS}/"
+    echo "Results copied to: ${PERMANENT_RESULTS}/stats_validation.csv"
+    tg_send "Results copied to NFS: ${PERMANENT_RESULTS}" 2>/dev/null || true
+else
+    echo "WARNING: No stats file found to copy to permanent storage"
 fi
 
 echo ""
 echo "   - Input data: ${INPUT_DIR}"
-echo "   - Results (Lustre): ${OUTDIR}"
+echo "   - Results (Lustre): ${OUTPUT_DIR}"
 echo "   - Permanent storage (NFS): ${PERMANENT_RESULTS}"
 echo "   - LSF logs: ~/lsf_logs/$(date +%d_%m_%Y)/"
 echo ""

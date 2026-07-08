@@ -13,12 +13,12 @@ Characterize viral diversity in Ae. serratus and Ae. taeniorhynchus mosquitoes f
 
 ### NFS Storage (Git Repository)
 
-**Location:** `~/git_repos/mosquito_virome_pipeline/`
+**Location:** `~/git_repos/mosquito_virome_yucatan_LEVE/`
 
 This directory contains **only code, small files, and documentation**. All large data files are stored on Lustre.
 
 ```
-mosquito_virome_pipeline/
+mosquito_virome_yucatan_LEVE
 │
 ├── containers/ # Container images (Apptainer/Singularity)
 │
@@ -35,7 +35,11 @@ mosquito_virome_pipeline/
 │ ├── individual_analyses/ # Standalone analysis scripts
 │ └── pipeline_whole/ # Complete pipeline integration
 │
-└── project_data/ # SYMLINK to Lustre data directory
+│── project_data / SYMLINK to Lustre directory
+│
+│── raw_data/ # SYMLINK to Lustre raw data directory
+│
+└── cat_files/ # SYMLINK to concatenated raw files directory
 ```
 
 ### Lustre
@@ -52,7 +56,7 @@ mosquito_virome_yucatan_LEVE/
 │ │ ├── metadata/ # Sample metadata
 │ │ ├── small_RNA/ # Small RNA sequencing data
 │ │ └── total_RNA/ # Total RNA sequencing data
-│ │ └── cat_files/ # Concatenated files
+│ │   └── cat_files/ # Concatenated files
 │ │
 │ └── references/ # Reference genomes and databases
 │ ├── aedes_super_index/ # Aedes supergenome index
@@ -69,23 +73,25 @@ mosquito_virome_yucatan_LEVE/
 │ └── trimming/
 │
 └── results/ # Analysis results
-├── aligned/ # Alignment files (BAM/SAM)
-├── assembly/ # Assembly results
-│ ├── MEGAhit/
-│ ├── metaSPAdes/
-│ ├── rnaSPAdes/
-│ └── statistics/
-├── blast/ # BLAST results
-├── czid/ # CZID analysis outputs
-│ └── coverage/ # Coverage statistics
-├── orf_predicition/ # ORF prediction results
-│ └── czid/
-├── trimmed/ # Trimmed sequences
-├── trimmed_qc/ # QC after trimming
-│ ├── fastqc/
-│ └── multiqc/
-└── untrimmed_qc/ # QC before trimming
-├── fastqc/
-└── multiqc/
+  ├── aligned/ # Alignment files (BAM/SAM)
+  ├── assembly/ # Assembly results
+  │ ├── MEGAhit/
+  │ ├── metaSPAdes/
+  │ ├── rnaSPAdes/
+  │ └── statistics/
+  ├── blast/ # BLAST results
+  ├── czid/ # CZID analysis outputs
+  │ └── coverage/ # Coverage statistics
+  ├── orf_predicition/ # ORF prediction results
+  │ └── czid/
+  ├── trimmed/ # Trimmed sequences
+  ├── trimmed_qc/ # QC after trimming
+  │ ├── fastqc/
+  │ ├── multiqc/ 
+  │ └── stats/
+  └── untrimmed_qc/ # QC before trimming
+    ├── fastqc/
+    ├── multiqc/ 
+    └── stats/
 ```
 

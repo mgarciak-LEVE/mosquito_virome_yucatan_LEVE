@@ -8,7 +8,7 @@
 ####==================================####
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/.env" # Cargar variables de entorno para bot de Telegram.
+source "${SCRIPT_DIR}/.env"
 
 tg_send() {
   local msg="$1"
