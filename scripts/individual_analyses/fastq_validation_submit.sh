@@ -10,8 +10,8 @@ mkdir -p "${DATE_DIR}"
 
 bsub -o "${DATE_DIR}/fastq_validation_%J.out" \
      -e "${DATE_DIR}/fastq_validation_%J.err" \
-     -q normal \
-     -n 1 \
+     -q long \
+     -n 8 \
      -M 16000 \
      -R "select[mem>16000] rusage[mem=16000] span[hosts=1]" \
      -G team222 \

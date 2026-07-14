@@ -2,8 +2,8 @@
 
 # Author: Jorge Alberto Castro Rodríguez
 # Script to validate fastq files.
-# 08/07/2026
-# Version 2.2.1 (farm-ready)
+# 13/07/2026
+# Version 2.3.5 (farm-ready)
 
 ####==================================####
 ####           CONFIGURATION          ####
@@ -43,12 +43,14 @@ source "${SCRIPTS_NFS}/bot_telegram.sh" 2>/dev/null || echo "Telegram bot not av
 
 # Print configuration
 echo "========================================="
-echo "  FASTQ Validation"
+echo "  FASTQ Validation (OPTIMIZED)"
 echo "  Project: ${PROJECT_NAME}"
 echo "  Input directory: ${INPUT_DIR}"
 echo "  Output directory: ${OUTPUT_DIR}"
 echo "  Date: $(date)"
 echo "========================================="
+
+tg_send "Starting FASTQ validation (optimized) for ${PROJECT_NAME}" 2>/dev/null || true
 
 ####==================================####
 ####     FASTQ INTEGRITY FUNCTION     ####
@@ -57,84 +59,98 @@ echo "========================================="
 fastq_val() {
     local file="$1"
     local file_name=$(basename "$file")
-    local lines=0
-    local reads=0
-    local errors=0
-    local gc_total=0
-    local bases_total=0
-    local total_n=0
-
+    
+    # Stats file
     stats_file="${OUTPUT_DIR}/stats_validation.csv"
-
-    # Stats 
+    
+    # Create directory if it doesn't exist
     mkdir -p "$(dirname "$stats_file")"
-
-    # CSV with headers only one time
+    
+    # Create CSV with headers only once
     if [[ ! -f "$stats_file" ]]; then
         echo "file,reads,lines,errors,gc_percentage,total_n,size_mb" > "$stats_file"
     fi
-
+    
     # File size
     local bytes=$(stat -c%s "$file" 2>/dev/null || echo "0")
     local size_mb=$(echo "scale=2; $bytes / 1048576" | bc 2>/dev/null || echo "0")
+    
 
-    while IFS= read -r line; do
-        ((lines++))
-        local pos=$((lines % 4))
+    awk_script=$(cat <<'EOF'
+BEGIN {
+    lines=0; reads=0; errors=0; gc_total=0; bases_total=0; total_n=0; seq_len=0
+}
+{
+    lines++
+    pos = lines % 4
+    
+    if (pos == 1) {
+        if ($0 !~ /^@/) {
+            print fname " - Line " lines ": Must start with '@'" > "/dev/stderr"
+            errors++
+        }
+    }
+    else if (pos == 2) {
+        if ($0 !~ /^[ATGCNRYSWKMBDHV]+$/) {
+            print fname " - Line " lines ": Invalid characters in sequence" > "/dev/stderr"
+            errors++
+        }
+        seq_len = length($0)
+        bases_total += seq_len
         
-        case $pos in
-            1)  # ID line
-                if [[ ! "$line" =~ ^@ ]]; then
-                    echo "${file_name} - Line $lines: Must start with '@'"
-                    ((errors++))
-                fi
-                ;;
-            2)  # Sequence line
-                if [[ ! "$line" =~ ^[ATGCNRYSWKMBDHV]+$ ]]; then
-                    echo "${file_name} - Line $lines: No valid characters on sequence"
-                    ((errors++))
-                fi
-                seq_len=${#line}
-                ((bases_total += seq_len))
-                
-                # GC content
-                gc_count=$(echo "$line" | tr -cd 'GC' | wc -c)
-                ((gc_total += gc_count))
-                
-                # Amount of N's
-                n_count=$(echo "$line" | tr -cd 'N' | wc -c)
-                ((total_n += n_count))
-                ;;
-            3)  # Separator
-                if [[ ! "$line" =~ ^\+ ]]; then
-                    echo "${file_name} - Line $lines: Must have '+' (separator)"
-                fi
-                ;;
-            0)  # Quality line
-                if [[ ${#line} -ne $seq_len ]]; then
-                    echo "${file_name} -Line $lines: Quality (${#line}) doesn't match sequence length ($seq_len)"
-                    ((errors++))
-                fi
-                ((reads++))
-                ;;
-        esac
-    done < "$file"
+        gc_count = 0
+        n_count = 0
+        for (i = 1; i <= seq_len; i++) {
+            char = substr($0, i, 1)
+            if (char == "G" || char == "C") gc_count++
+            if (char == "N") n_count++
+        }
+        gc_total += gc_count
+        total_n += n_count
+    }
+    else if (pos == 3) {
+        if ($0 !~ /^\+/) {
+            print fname " - Line " lines ": Must have '+' (separator)" > "/dev/stderr"
+        }
+    }
+    else if (pos == 0) {
+        if (length($0) != seq_len) {
+            print fname " - Line " lines ": Quality length " length($0) " doesn't match sequence " seq_len > "/dev/stderr"
+            errors++
+        }
+        reads++
+    }
+}
+END {
+    if (lines % 4 != 0) {
+        printf "%s: Corrupt - %d lines is not a multiple of 4\n", fname, lines > "/dev/stderr"
+        errors++
+    }
     
-    # Final validation
-    if [[ $((lines % 4)) -ne 0 ]]; then
-        echo "${file_name}: Corrupt - $lines lines (is not a multiple of 4)"
-        ((errors++))
+    gc_percentage = (bases_total > 0) ? (gc_total * 100 / bases_total) : 0
+    
+    printf "%s: %d reads, %d lines, errors=%d, GC=%.2f%%, N=%d, size=%.2fMB\n",
+           fname, reads, lines, errors, gc_percentage, total_n, size
+    
+    printf "%s,%d,%d,%d,%.2f,%d,%.2f\n",
+           fname, reads, lines, errors, gc_percentage, total_n, size >> stats
+}
+EOF
+)
+    
+    # Execute awk with the script
+    awk -v fname="$file_name" -v size="$size_mb" -v stats="$stats_file" "$awk_script" "$file" 2>&1
+    
+    # Return error count
+    local error_count=$(tail -n1 "$stats_file" 2>/dev/null | cut -d',' -f4 || echo "0")
+    
+    # Send Telegram notification with summary
+    local last_line=$(tail -n1 "$stats_file" 2>/dev/null)
+    if [[ -n "$last_line" ]]; then
+        tg_send "${file_name}: $(echo "$last_line" | cut -d',' -f2-7 | tr ',' ' ')" 2>/dev/null || true
     fi
-
-    # GC content 
-    local gc_percentage=0
-    [[ $bases_total -gt 0 ]] && gc_percentage=$(echo "scale=2; $gc_total * 100 / $bases_total" | bc 2>/dev/null || echo "0")
     
-    echo "${file_name}: $reads reads, $lines lines, errors=$errors, GC=${gc_percentage}%, N=${total_n}, size=${size_mb}MB"
-    tg_send "${file_name}: $reads reads, $lines lines, errors=$errors, GC=${gc_percentage}%, N=${total_n}, size=${size_mb}MB" 2>/dev/null || true
-
-    echo "${file_name},${reads},${lines},${errors},${gc_percentage},${total_n},${size_mb}" >> "$stats_file"
-    return $errors
+    return ${error_count:-0}
 }
 
 ####=====================================####
@@ -148,13 +164,23 @@ if [[ ! -d "$INPUT_DIR" ]]; then
     exit 1
 else 
     echo "Input directory: ${INPUT_DIR}"
-    tg_send "Starting FASTQ validation for ${INPUT_DIR}" 2>/dev/null || true
+    tg_send "Input directory: ${INPUT_DIR}" 2>/dev/null || true
+fi
+
+# Change to input directory
+cd "$INPUT_DIR" || exit 1
+
+# Check if there are files to process
+if ! ls *.fastq.gz *.fastq 2>/dev/null | grep -q .; then
+    echo "No FASTQ files found in ${INPUT_DIR}"
+    tg_send "No FASTQ files found in ${INPUT_DIR}" 2>/dev/null || true
+    exit 1
 fi
 
 echo "Files to process:"
 ls -la *.fastq.gz 2>/dev/null || ls -la *.fastq 2>/dev/null
 
-# Create output directories
+# Create output directory
 mkdir -p "${OUTPUT_DIR}"
 
 # Initialize counters
@@ -165,54 +191,55 @@ error_files=0
 # Stats file for validation results on Lustre
 STATS_FILE="${OUTPUT_DIR}/stats_validation.csv"
 
-# Verification for all fastq files
-for file in "$INPUT_DIR"/*.fastq "$INPUT_DIR"/*.fastq.gz; do
-    [[ ! -f "$file" ]] && continue  # Ignores if it is not a file
+# Process all FASTQ files
+for file in *.fastq.gz *.fastq; do
+    [[ ! -f "$file" ]] && continue
     
     ((total_files++))
     file_name=$(basename "$file")
-    compressed=0  
+    compressed=0
     
+    echo "-----------------------------------------"
     echo "Processing: ${file_name}"
     tg_send "Processing: ${file_name}" 2>/dev/null || true
-
-    if [[ -s $file ]]; then 
+    
+    if [[ -s $file ]]; then
         echo "  File ${file_name} is not empty"
-
+        
         # If file is compressed...
         if [[ "$file_name" == *.gz ]]; then
             echo "  Decompressing ${file_name}..."
             tg_send "  Decompressing ${file_name}..." 2>/dev/null || true
-
+            
             gunzip "$file"
             file="${file%.gz}"
             file_name=$(basename "$file")
             compressed=1
-
+            
             echo "  Decompression done: ${file_name}"
             tg_send "  Decompression done: ${file_name}" 2>/dev/null || true
         fi
-
+        
         # Validate filename pattern
         if [[ $file_name =~ ^PM[0-9]{4}_S[0-9]{1,2}_R[12]\.fastq$ ]]; then
             echo "  File ${file_name} name format is valid"
             
             echo "  Validating content: ${file_name}..."
-            fastq_val "$file"
-            if [[ $? -eq 0 ]]; then
+            if fastq_val "$file"; then
                 ((valid_files++))
-                echo "  Validation PASSED for ${file_name}"
-                tg_send "${file_name} validation PASSED" 2>/dev/null || true
+                echo "   Validation PASSED for ${file_name}"
+                tg_send " ${file_name} validation PASSED" 2>/dev/null || true
             else
                 ((error_files++))
-                echo "Validation FAILED for ${file_name} with errors"
-                tg_send "${file_name} validation FAILED" 2>/dev/null || true
+                echo "   Validation FAILED for ${file_name} with errors"
+                tg_send " ${file_name} validation FAILED" 2>/dev/null || true
             fi
         else
-            echo "WARNING: ${file_name} filename pattern is not valid"
+            echo "   WARNING: ${file_name} filename pattern is not valid"
             ((error_files++))
         fi
-
+        
+        # Re-compress if it was compressed
         if [[ $compressed -eq 1 ]]; then
             echo "  Compressing ${file_name}..."
             tg_send "  Compressing ${file_name}..." 2>/dev/null || true
@@ -220,9 +247,9 @@ for file in "$INPUT_DIR"/*.fastq "$INPUT_DIR"/*.fastq.gz; do
             echo "  Compression done: ${file_name}.gz"
             tg_send "  Compression done: ${file_name}.gz" 2>/dev/null || true
         fi
-
-    else 
-        echo "File ${file_name} is empty"
+        
+    else
+        echo "   File ${file_name} is empty"
         ((error_files++))
     fi
 done
@@ -234,7 +261,7 @@ echo "  Date: $(date)"
 echo "  Total files processed: ${total_files}"
 echo "  Valid files: ${valid_files}"
 echo "  Files with errors: ${error_files}"
-echo "  Results saved to: ${OUTPUT_DIR}/stats/stats_validation.csv"
+echo "  Results saved to: ${STATS_FILE}"
 echo "========================================="
 
 tg_send "FASTQ Validation Summary: ${total_files} files, ${valid_files} valid, ${error_files} errors" 2>/dev/null || true
@@ -249,10 +276,3 @@ if [[ -f "${STATS_FILE}" ]]; then
 else
     echo "WARNING: No stats file found to copy to permanent storage"
 fi
-
-echo ""
-echo "   - Input data: ${INPUT_DIR}"
-echo "   - Results (Lustre): ${OUTPUT_DIR}"
-echo "   - Permanent storage (NFS): ${PERMANENT_RESULTS}"
-echo "   - LSF logs: ~/lsf_logs/$(date +%d_%m_%Y)/"
-echo ""
