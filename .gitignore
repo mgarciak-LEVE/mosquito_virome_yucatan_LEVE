@@ -6,6 +6,7 @@
 /logs/
 /temp/
 /scratch/
+/containers/
 
 # LSF output files
 *.out
