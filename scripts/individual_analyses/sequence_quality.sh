@@ -1,4 +1,3 @@
-  GNU nano 6.2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              sequence_quality.sh                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
 #!/bin/bash
 # Sequence Quality Module
 # Author: Jorge Alberto Castro Rodríguez
@@ -17,7 +16,7 @@ PROJECT_NAME="${1:-mosquito_virome_yucatan_LEVE}"
 
 # --- STORAGE LOCATIONS ---
 # Permanent storage
-PERMANENT_BASE="/nfs/team222/projects"
+PERMANENT_BASE="/nfs/users/nfs_j/jr46"
 
 # Scratch storage
 SCRATCH_BASE="/lustre/scratch126/tol/teams/lawniczak/users/jr46/projects"

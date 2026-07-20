@@ -1,12 +1,14 @@
 # ~/git_repos/mosquito_virome_pipeline/.gitignore
 
-# Large data directories (on Lustre)
+# Large data directories
 /data/
 /results/
 /logs/
 /temp/
 /scratch/
-containers/*.sif
+/docs/czid_sequence_reports/
+/docs/czid_sequence_reports_provisional/
+/containers/*.sif
 
 # LSF output files
 *.out

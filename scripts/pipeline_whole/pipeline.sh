@@ -3,9 +3,6 @@
 # ver 15.0.0
 # General Desciption:
 
-
-
-
 source "$(conda info --base)/etc/profile.d/conda.sh" 
 
 SECONDS=0

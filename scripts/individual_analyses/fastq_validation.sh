@@ -17,7 +17,7 @@ PROJECT_NAME="${1:-mosquito_virome_yucatan_LEVE}"
 
 # --- STORAGE LOCATIONS ---
 # Permanent storage
-PERMANENT_BASE="/nfs/team222/projects"
+PERMANENT_BASE="/nfs/users/nfs_j/jr46"
 
 # Scratch storage
 SCRATCH_BASE="/lustre/scratch126/tol/teams/lawniczak/users/jr46/projects"
@@ -33,7 +33,7 @@ INPUT_DIR="${PROJECT_SCRATCH}/data/raw/total_RNA/cat_files"
 OUTPUT_DIR="${PROJECT_SCRATCH}/results/untrimmed_qc/stats"
 
 # Permanent results directory
-PERMANENT_RESULTS="${PERMANENT_BASE}/${PROJECT_NAME}/docs/fastq_validation"
+PERMANENT_RESULTS="${PERMANENT_BASE}/git_repos/${PROJECT_NAME}/docs/fastq_validation"
 
 # Scripts directory (on NFS)
 SCRIPTS_NFS="${HOME}/git_repos/${PROJECT_NAME}/scripts/individual_analyses"

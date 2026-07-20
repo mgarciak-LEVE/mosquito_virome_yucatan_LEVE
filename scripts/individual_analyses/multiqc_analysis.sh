@@ -15,10 +15,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_NAME="${1:-mosquito_virome_yucatan_LEVE}"
 
 # --- STORAGE LOCATIONS ---
-PERMANENT_BASE="/nfs/team222/projects"
+PERMANENT_BASE="/nfs/users/nfs_j/jr46"
 SCRATCH_BASE="/lustre/scratch126/tol/teams/lawniczak/users/jr46/projects"
 # Permanent results directory
-PERMANENT_RESULTS="${PERMANENT_BASE}/${PROJECT_NAME}/results/untrimmed_qc"
+PERMANENT_RESULTS="${PERMANENT_BASE}/git_repos/${PROJECT_NAME}/results/untrimmed_qc"
 
 # --- PROJECT DIRECTORIES ---
 PROJECT_SCRATCH="${SCRATCH_BASE}/${PROJECT_NAME}"
