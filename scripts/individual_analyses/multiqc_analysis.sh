@@ -120,6 +120,9 @@ echo "========================================="
 echo "  Copying results to permanent storage"
 echo "========================================="
 
+mkdir -p "${PERMANENT_RESULTS}"
+mkdir -p "${PERMANENT_RESULTS}/multiqc"
+
 if [[ -d "$OUTPUT_MULTIQC" ]]; then
     echo "Copying MultiQC results..."
     mkdir -p "${PERMANENT_RESULTS}/multiqc"
