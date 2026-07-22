@@ -22,6 +22,8 @@ INPUT_DIR="${PROJECT_SCRATCH}/data/references/mosquito_genomes/genomic_files"
 # Output directory for validation results (on Lustre)
 OUTPUT_DIR="${PROJECT_SCRATCH}/data/references/mosquito_genomes/aedes_super_index"
 
+mkdir -p "${INPUT_DIR}" "${OUTPUT_DIR}" "${STATS_DIR}"
+
 # Genome statistics output directory
 STATS_DIR="${PROJECT_SCRATCH}/docs/aedes_genomes_specs"
 
@@ -35,7 +37,8 @@ source "${SCRIPTS_NFS}/bot_telegram.sh" 2>/dev/null || echo "Telegram bot not av
 ####          LOAD MODULES            ####
 ####==================================####
 
-module load entrez-direct/21.6--he881be0_0 2>/dev/null || echo "Apptainer module not available"
+module load entrez-direct/21.6--he881be0_0 2>/dev/null || echo "entrez-direct not loaded"
+module load samtools/1.20--h50ea8bc_0 2>/dev/null || echo "samtools not loaded"
 
 ####==================================####
 ####          PRINT CONFIG            ####
