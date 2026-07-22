@@ -6,4 +6,4 @@ bsub -o ${HOME}/lsf_logs/%D/genome_concat_%J.out \
      -q normal -n 1 -M 8000 \
      -R "select[mem>8000] rusage[mem=8000]" \
      -G team222 \
-     < ~/git_repos/mosquito_virome_yucatan_LEVE/scripts/individual_analyses/genome_concat.sh
+     < ~/git_repos/mosquito_virome_yucatan_LEVE/scripts/aedes_reference_genomes/genome_concat.sh
