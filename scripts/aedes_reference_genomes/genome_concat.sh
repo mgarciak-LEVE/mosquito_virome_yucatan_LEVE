@@ -21,13 +21,11 @@ PROJECT_SCRATCH="${SCRATCH_BASE}/${PROJECT_NAME}"
 INPUT_DIR="${PROJECT_SCRATCH}/data/references/mosquito_genomes/genomic_files"
 # Output directory for validation results (on Lustre)
 OUTPUT_DIR="${PROJECT_SCRATCH}/data/references/mosquito_genomes/aedes_super_index"
-
-mkdir -p "${INPUT_DIR}" "${OUTPUT_DIR}" "${STATS_DIR}"
-
 # Genome statistics output directory
 STATS_DIR="${PROJECT_SCRATCH}/docs/aedes_genomes_specs"
 
 mkdir -p "${INPUT_DIR}" "${OUTPUT_DIR}" "${STATS_DIR}"
+
 
 # Scripts directory (on NFS)
 SCRIPTS_NFS="${HOME}/git_repos/${PROJECT_NAME}/scripts/individual_analyses"
@@ -70,12 +68,56 @@ GENOMES=(
     "GCA_024533555.2" # Aedes koreicus
 )
 
-for genome in "${GENOMES[@]}"; do
-    echo "Downloading genome: $genome"
-    tg_send "Downloading genome: $genome" 2>/dev/null || true
-    # Use NCBI's efetch to download the genomic FASTA file
-    wget -q "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/.../${genome}_*_genomic.fna.gz" -O "${INPUT_DIR}/${genome}.fna.gz"
-    gunzip -f "${INPUT_DIR}/${genome}.fna.gz"
+# Map of assembly names for each genome accession
+declare -A ASSEMBLY_NAMES=(
+    ["GCF_002204515.2"]="AaegL5.0"
+    ["GCF_035046485.1"]="AalbF5"
+    ["GCA_052575835.1"]="Am_MascCH02_pri1.0"
+    ["GCA_044231785.1"]="Aedes_sierrensis_1"
+    ["GCA_052815935.1"]="ASM5281593v1"
+    ["GCA_040801935.1"]="CSIRO_AGI_Anoto_v1"
+    ["GCA_024533555.2"]="Akor_1.1"
+)
+
+# For each accession, construct the URL
+for accession in "${GENOMES[@]}"; do
+    echo "Downloading genome: $accession"
+    tg_send "Downloading genome: $accession" 2>/dev/null || true
+
+    # Get assembly name from lookup table
+    assembly_name="${ASSEMBLY_NAMES[$accession]}"
+
+    # Determine prefix
+    prefix=$(echo "$accession" | cut -d'_' -f1)
+    
+    # Remove version
+    base=$(echo "$accession" | cut -d'.' -f1)
+    
+    # Get the numeric part
+    num=$(echo "$base" | cut -d'_' -f2)
+    
+    # Split into 3 parts
+    part1=$(echo "$num" | cut -c1-3)
+    part2=$(echo "$num" | cut -c4-6)
+    part3=$(echo "$num" | cut -c7-9)
+    
+    url="https://ftp.ncbi.nlm.nih.gov/genomes/all/${prefix}/${part1}/${part2}/${part3}/${accession}_${assembly_name}/${accession}_${assembly_name}_genomic.fna.gz"
+    
+    echo " URL: $url"
+    
+    # Download
+    wget -q "$url" -O "${INPUT_DIR}/${accession}.fna.gz"
+    
+    # Verify download
+    if [[ -f "${INPUT_DIR}/${accession}.fna.gz" ]] && [[ -s "${INPUT_DIR}/${accession}.fna.gz" ]]; then
+        gunzip -f "${INPUT_DIR}/${accession}.fna.gz"
+        echo "  Downloaded: $accession"
+        tg_send "Downloaded: $accession" 2>/dev/null || true
+    else
+        echo "  Failed to download: $accession"
+        tg_send "Failed to download: $accession" 2>/dev/null || true
+        rm -f "${INPUT_DIR}/${accession}.fna.gz"
+    fi
 done
 
 echo "Download completed!"
