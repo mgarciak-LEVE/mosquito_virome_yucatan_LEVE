@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Author: Jorge Alberto Castro Rodríguez
+# Script for concatenation genome files of Aedes species into a superreference genome.
+# 23/07/2026
+# Version 2.0.0 (farm-ready)
+
 ####==================================####
 ####           CONFIGURATION          ####
 ####==================================####
@@ -23,22 +28,16 @@ INPUT_DIR="${PROJECT_SCRATCH}/data/references/mosquito_genomes/genomic_files"
 OUTPUT_DIR="${PROJECT_SCRATCH}/data/references/mosquito_genomes/aedes_super_index"
 # Genome statistics output directory
 STATS_DIR="${PROJECT_SCRATCH}/docs/aedes_genomes_specs"
+# NFS directory for permanent storage
+PERMANENT_RESULTS="${PERMANENT_BASE}/git_repos/${PROJECT_NAME}/docs/aedes_genomes_specs"
 
 mkdir -p "${INPUT_DIR}" "${OUTPUT_DIR}" "${STATS_DIR}"
-
 
 # Scripts directory (on NFS)
 SCRIPTS_NFS="${HOME}/git_repos/${PROJECT_NAME}/scripts/individual_analyses"
 
 # Telegram bot (source from NFS)
 source "${SCRIPTS_NFS}/bot_telegram.sh" 2>/dev/null || echo "Telegram bot not available"
-
-####==================================####
-####          LOAD MODULES            ####
-####==================================####
-
-module load entrez-direct/21.6--he881be0_0 2>/dev/null || echo "entrez-direct not loaded"
-module load samtools/1.20--h50ea8bc_0 2>/dev/null || echo "samtools not loaded"
 
 ####==================================####
 ####          PRINT CONFIG            ####
@@ -276,6 +275,25 @@ echo "Stats saved to: ${STATS_FILE}"
 tg_send "Stats saved to: ${STATS_FILE}" 2>/dev/null || true
 
 ####==================================####
+####       COPY RESULTS TO NFS        ####
+####==================================####
+
+echo ""
+echo "========================================="
+echo "  Copying results to permanent storage"
+echo "========================================="
+
+mkdir -p "${PERMANENT_RESULTS}"
+
+if [[ -d "$OUTPUT_DIR" ]]; then
+    echo "Copying genome stats..."
+    cp -r "${OUTPUT_MULTIQC}"/* "${PERMANENT_RESULTS}" 2>/dev/null || true
+    echo "Stats copied to: ${PERMANENT_RESULTS}"
+    tg_send "Results copied to NFS: ${PERMANENT_RESULTS}" 2>/dev/null || true
+fi
+
+
+####==================================####
 ####              SUMMARY             ####
 ####==================================####
 
@@ -288,3 +306,6 @@ echo "  Date: $(date)"
 echo "========================================="
 
 tg_send "Genome concatenation complete for ${PROJECT_NAME}" 2>/dev/null || true
+
+
+
