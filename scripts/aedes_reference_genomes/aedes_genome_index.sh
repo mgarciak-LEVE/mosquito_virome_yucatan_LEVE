@@ -25,7 +25,7 @@ SCRATCH_BASE="/lustre/scratch126/tol/teams/lawniczak/users/jr46/projects"
 # Working directory on Lustre
 PROJECT_SCRATCH="${SCRATCH_BASE}/${PROJECT_NAME}"
 # Input directory - where mosquito superreference is
-SUPER_REF="${PROJECT_SCRATCH}/data/references/mosquito_genomes/genomic_files/superreference_temp.fna"
+SUPER_REF="${PROJECT_SCRATCH}/data/references/mosquito_genomes/genomic_files/aedes_super_index/superreference.fna"
 # Output directory for validation results (on Lustre)
 INDEX_DIR="${PROJECT_SCRATCH}/data/references/mosquito_genomes/aedes_super_index"
 
