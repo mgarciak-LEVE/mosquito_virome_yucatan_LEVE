@@ -27,6 +27,8 @@ mkdir -p "${INPUT_DIR}" "${OUTPUT_DIR}" "${STATS_DIR}"
 # Genome statistics output directory
 STATS_DIR="${PROJECT_SCRATCH}/docs/aedes_genomes_specs"
 
+mkdir -p "${INPUT_DIR}" "${OUTPUT_DIR}" "${STATS_DIR}"
+
 # Scripts directory (on NFS)
 SCRIPTS_NFS="${HOME}/git_repos/${PROJECT_NAME}/scripts/individual_analyses"
 
@@ -72,7 +74,8 @@ for genome in "${GENOMES[@]}"; do
     echo "Downloading genome: $genome"
     tg_send "Downloading genome: $genome" 2>/dev/null || true
     # Use NCBI's efetch to download the genomic FASTA file
-    efetch -db assembly -id "$genome" -format fasta > "${INPUT_DIR}/${genome}.fna"
+    wget -q "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/.../${genome}_*_genomic.fna.gz" -O "${INPUT_DIR}/${genome}.fna.gz"
+    gunzip -f "${INPUT_DIR}/${genome}.fna.gz"
 done
 
 echo "Download completed!"
