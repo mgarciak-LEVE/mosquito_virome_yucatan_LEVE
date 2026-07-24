@@ -25,7 +25,7 @@ PROJECT_SCRATCH="${SCRATCH_BASE}/${PROJECT_NAME}"
 # Input directory - where FASTQ files are
 INPUT_DIR="${PROJECT_SCRATCH}/data/references/mosquito_genomes/genomic_files"
 # Output directory for validation results (on Lustre)
-OUTPUT_DIR="${PROJECT_SCRATCH}/data/references/mosquito_genomes/aedes_super_index"
+OUTPUT_DIR="${PROJECT_SCRATCH}/data/references/aedes_super_index"
 # Genome statistics output directory
 STATS_DIR="${PROJECT_SCRATCH}/docs/aedes_genomes_specs"
 # NFS directory for permanent storage
