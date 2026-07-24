@@ -27,7 +27,7 @@ PROJECT_SCRATCH="${SCRATCH_BASE}/${PROJECT_NAME}"
 # Input directory - where mosquito superreference is
 SUPER_REF="${PROJECT_SCRATCH}/data/references/aedes_super_index/superreference.fna"
 # Output directory for results
-INDEX_DIR="${PROJECT_SCRATCH}/data/references/mosquito_genomes/aedes_super_index"
+INDEX_DIR="${PROJECT_SCRATCH}/data/references/aedes_super_index/STAR_index"
 
 mkdir -p "$(dirname "${SUPER_REF}")" "${INDEX_DIR}"
 
