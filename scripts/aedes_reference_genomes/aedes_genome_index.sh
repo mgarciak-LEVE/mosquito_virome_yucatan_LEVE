@@ -85,9 +85,9 @@ echo "Superreference file found and not empty"
 ####==================================####
 
 GENOME_CHR_BIN_BITS=14
-SA_INDEX_BASES=13
-THREADS=8
-STAR_RAM=64000000000  # 64GB in bytes
+SA_INDEX_BASES=14
+THREADS=16
+STAR_RAM=128000000000  # 128GB in bytes
 
 # Remove any previous incomplete index
 rm -rf "$INDEX_DIR"/*
@@ -95,7 +95,7 @@ rm -rf "$INDEX_DIR"/*
 echo "Building STAR index..."
 echo "Parameters:"
 echo "  • Threads: $THREADS"
-echo "  • RAM limit: $STAR_RAM bytes (64GB)"
+echo "  • RAM limit: $STAR_RAM bytes (128GB)"
 echo "  • GenomeChrBinNbits: $GENOME_CHR_BIN_BITS"
 echo "  • SAindexNbases: $SA_INDEX_BASES"
 
