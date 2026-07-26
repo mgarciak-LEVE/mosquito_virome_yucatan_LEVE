@@ -27,7 +27,7 @@ OUTPUT_BASE="${PROJECT_SCRATCH}/results"
 OUTPUT_MULTIQC="${OUTPUT_BASE}/untrimmed_qc/multiqc"
 
 # Container configuration
-CONTAINERS="${HOME}/git_repos/${PROJECT_NAME}/containers"
+CONTAINERS="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers"
 MULTIQC_CONTAINER="${CONTAINERS}/multiqc_1.35.sif"
 
 # Scripts directory

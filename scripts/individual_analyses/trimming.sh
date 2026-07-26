@@ -28,7 +28,7 @@ INPUT_DIR="${PROJECT_SCRATCH}/data/raw/total_RNA/cat_files"
 OUTPUT_DIR="${PROJECT_SCRATCH}/results/trimmed"
 
 # Container configuration
-CONTAINERS="${HOME}/git_repos/${PROJECT_NAME}/containers"
+CONTAINERS="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers"
 TRIMMOMATIC_CONTAINER="${CONTAINERS}/trimmomatic_0.39.sif"
 
 # Scripts directory (on NFS)

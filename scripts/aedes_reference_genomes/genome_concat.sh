@@ -285,13 +285,13 @@ echo "========================================="
 
 mkdir -p "${PERMANENT_RESULTS}"
 
-if [[ -d "$OUTPUT_DIR" ]]; then
-    echo "Copying genome stats..."
-    cp -r "${OUTPUT_MULTIQC}"/* "${PERMANENT_RESULTS}" 2>/dev/null || true
-    echo "Stats copied to: ${PERMANENT_RESULTS}"
-    tg_send "Results copied to NFS: ${PERMANENT_RESULTS}" 2>/dev/null || true
+if [[ -f "${STATS_FILE}" ]]; then
+    echo "Copying genome stats to NFS..."
+    mkdir -p "${PERMANENT_RESULTS}"
+    cp "${STATS_FILE}" "${PERMANENT_RESULTS}/"
+    echo "Stats copied to: ${PERMANENT_RESULTS}/genome_stats.txt"
+    tg_send "Stats copied to NFS" 2>/dev/null || true
 fi
-
 
 ####==================================####
 ####              SUMMARY             ####

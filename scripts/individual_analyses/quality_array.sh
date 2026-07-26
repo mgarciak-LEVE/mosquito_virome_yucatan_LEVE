@@ -25,7 +25,7 @@ OUTPUT_BASE="${PROJECT_SCRATCH}/results"
 OUTPUT_FASTQC="${OUTPUT_BASE}/untrimmed_qc/fastqc"
 
 # Container configuration
-CONTAINERS="${HOME}/git_repos/${PROJECT_NAME}/containers"
+CONTAINERS="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers"
 FASTQC_CONTAINER="${CONTAINERS}/fastqc_staphb.sif"
 
 # Scripts directory

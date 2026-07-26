@@ -34,7 +34,7 @@ OUTPUT_FASTQC="${OUTPUT_BASE}/untrimmed_qc/fastqc" # FastQC output directory
 OUTPUT_MULTIQC="${OUTPUT_BASE}/untrimmed_qc/multiqc" # MultiQC output directory
 
 # Container configuration
-CONTAINERS="${HOME}/git_repos/${PROJECT_NAME}/containers"
+CONTAINERS="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers"
 FASTQC_CONTAINER="${CONTAINERS}/fastqc_0.11.2.sif"
 MULTIQC_CONTAINER="${CONTAINERS}/multiqc_1.35.sif"
 

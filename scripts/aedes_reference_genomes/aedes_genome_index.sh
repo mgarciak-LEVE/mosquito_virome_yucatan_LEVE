@@ -32,7 +32,7 @@ INDEX_DIR="${PROJECT_SCRATCH}/data/references/aedes_super_index/STAR_index"
 mkdir -p "$(dirname "${SUPER_REF}")" "${INDEX_DIR}"
 
 # Container configuration
-CONTAINERS="${HOME}/git_repos/${PROJECT_NAME}/containers"
+CONTAINERS="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers"
 STAR_CONTAINER="${CONTAINERS}/star_2.7.10a.sif"
 
 # Scripts directory (on NFS)
