@@ -20,7 +20,6 @@ This directory contains **only code, small files, and documentation**. All large
 ```
 mosquito_virome_yucatan_LEVE
 │
-├── containers/ # Container images (Apptainer/Singularity)
 │
 ├── docs/ # Documentation and reports
 │ ├── aedes_genomes_specs/ # Aedes genome specifications
@@ -95,3 +94,5 @@ mosquito_virome_yucatan_LEVE/
     └── stats/
 ```
 
+### Containers 
+**Location:** `/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers`

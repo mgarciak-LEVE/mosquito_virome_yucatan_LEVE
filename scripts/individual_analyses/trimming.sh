@@ -164,12 +164,17 @@ if apptainer exec \
     "/output/${sample_name}_R1_unpaired.fastq" \
     "/output/${sample_name}_R2_paired.fastq" \
     "/output/${sample_name}_R2_unpaired.fastq" \
-    ILLUMINACLIP:/usr/local/share/trimmomatic-0.39-2/adapters/TruSeq3-PE.fa:2:30:10:2:keepBothReads \
-    LEADING:20 \
+    ILLUMINACLIP:/usr/local/share/trimmomatic-0.39-2/adapters/TruSeq3-PE.fa:2:30:8:2:keepBothReads \
+    EADING:20 \
     TRAILING:20 \
-    SLIDINGWINDOW:3:25 \
-    MINLEN:50 2>&1; then
+    SLIDINGWINDOW:4:15 \
+    MINLEN:36 2>&1; then
     
+    # ILLUMINACLIP 2:30:10:2 simple clip threshold to catch adapters on short inserts [<seedMismatches>:<palindromeClipThreshold>:<simpleClipThreshold>:<minAdapterLength>]
+    # TRAILING 3 since quality drops below 3 in the last 97 nucleotides
+    # SLIDINGWINDOW 4:15 to remove reads below 15 quality under a 4 nt window
+    # MINLEN 36 to capture some small RNAs and remove degradation products
+
     echo "Trimmomatic completed for ${sample_name}"
     tg_send "rimmomatic: ${sample_name} complete" 2>/dev/null || true
     
