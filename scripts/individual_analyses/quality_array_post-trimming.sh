@@ -68,10 +68,12 @@ fi
 
 file="${files[$FILE_INDEX]}"
 file_name=$(basename "$file")
+file_dir=$(dirname "$file")
 
 echo "========================================="
 echo "  Post-trimming FastQC Array Task ${LSB_JOBINDEX}/${#files[@]}"
 echo "  File: ${file_name}"
+echo "  Directory: ${file_dir}"
 echo "  Date: $(date)"
 echo "========================================="
 
@@ -102,7 +104,7 @@ if apptainer exec \
     --bind /usr/share/fontconfig:/usr/share/fontconfig:ro \
     --bind /etc/fonts:/etc/fonts:ro \
     "$FASTQC_CONTAINER" \
-    fastqc "/input/${file_name}" -o "/output" 2>&1; then
+    fastqc "/input/${file}" -o "/output" 2>&1; then
     echo "FastQC completed for ${file_name}"
     tg_send "FastQC: ${file_name} complete" 2>/dev/null || true
 else
