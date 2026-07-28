@@ -1,0 +1,234 @@
+#!/bin/bash
+
+# Author: Jorge Alberto Castro Rodríguez
+# Script to map trimmed sequences to mosquito genome superreference
+# 28/07/2026
+# Ver. 1.0.1 (farm-ready)
+
+####==================================####
+####           CONFIGURATION          ####
+####==================================####
+
+# Directory where scripts are.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Project configuration
+PROJECT_NAME="${1:-mosquito_virome_yucatan_LEVE}"
+
+# --- STORAGE LOCATIONS ---
+PERMANENT_BASE="/nfs/users/nfs_j/jr46"
+SCRATCH_BASE="/lustre/scratch126/tol/teams/lawniczak/users/jr46/projects"
+
+# --- PROJECT DIRECTORIES ---
+PROJECT_SCRATCH="${SCRATCH_BASE}/${PROJECT_NAME}"
+
+# STAR index directory
+SUPER_REF_DIR="${PROJECT_SCRATCH}/data/references/aedes_super_index/STAR_index"
+
+# Input: trimmed FASTQ files (in sample subdirectories)
+INPUT_DIR="${PROJECT_SCRATCH}/results/trimmed"
+
+# Output: alignment results
+OUTPUT_DIR="${PROJECT_SCRATCH}/results/aligned"
+
+# Container configuration
+CONTAINERS="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers"
+STAR_CONTAINER="${CONTAINERS}/star_2.7.10a.sif"
+
+# Scripts directory
+SCRIPTS_NFS="${HOME}/git_repos/${PROJECT_NAME}/scripts/individual_analyses"
+
+# Telegram bot
+source "${SCRIPTS_NFS}/bot_telegram.sh" 2>/dev/null || echo "Telegram bot not available"
+
+####==================================####
+####          LOAD MODULES            ####
+####==================================####
+
+module load ISG/apptainer/1.4.0 2>/dev/null || echo "Apptainer module not available"
+
+####==================================####
+####          PRINT CONFIG            ####
+####==================================####
+
+echo "========================================="
+echo "  Sequence Mapping to Superreference Module"
+echo "  Project: ${PROJECT_NAME}"
+echo "  Superreference: ${SUPER_REF_DIR}"
+echo "  Input: ${INPUT_DIR}"
+echo "  Output: ${OUTPUT_DIR}"
+echo "  Container: ${STAR_CONTAINER}"
+echo "  Date: $(date)"
+echo "========================================="
+
+tg_send "Starting mapping for ${PROJECT_NAME}" 2>/dev/null || true
+
+####==================================####
+####            CHECK INPUT           ####
+####==================================####
+
+# Check if input directories exist
+if [[ ! -d "$INPUT_DIR" ]]; then
+    echo "ERROR: Input directory ${INPUT_DIR} does not exist"
+    tg_send "ERROR: Input directory not found" 2>/dev/null || true
+    exit 1
+fi
+
+if [[ ! -d "$SUPER_REF_DIR" ]]; then
+    echo "ERROR: Superreference directory ${SUPER_REF_DIR} does not exist"
+    tg_send "ERROR: Superreference directory not found" 2>/dev/null || true
+    exit 1
+fi
+
+####==================================####
+####          GET SAMPLE LIST         ####
+####==================================####
+
+cd "$INPUT_DIR" || exit 1
+
+# Get list of sample directories (e.g., PM2486, PM2494, etc.)
+samples=()
+while IFS= read -r line; do
+    samples+=("$line")
+done < <(find . -maxdepth 1 -type d -name "PM*" | sed 's/\.\///' | sort)
+
+# Check if samples exist
+if [[ ${#samples[@]} -eq 0 ]]; then
+    echo "No sample directories found in ${INPUT_DIR}"
+    tg_send "No sample directories found" 2>/dev/null || true
+    exit 1
+fi
+
+echo "Found ${#samples[@]} samples"
+
+# Get the sample for this array task
+SAMPLE_INDEX=$((LSB_JOBINDEX - 1))
+
+if [[ $SAMPLE_INDEX -ge ${#samples[@]} ]]; then
+    echo "ERROR: Invalid job index ${LSB_JOBINDEX} (max ${#samples[@]})"
+    exit 1
+fi
+
+sample="${samples[$SAMPLE_INDEX]}"
+
+echo "========================================="
+echo "  Sequence STAR Mapping Array Task ${LSB_JOBINDEX}/${#samples[@]}"
+echo "  Sample: ${sample}"
+echo "  Date: $(date)"
+echo "========================================="
+
+tg_send "Mapping: ${sample} (${LSB_JOBINDEX}/${#samples[@]})" 2>/dev/null || true
+
+####================================####
+####     RUN MAPPING WITH STAR      ####
+####================================####
+
+# Create STAR output directory
+mkdir -p "${OUTPUT_DIR}"
+
+# Check if container exists
+if [[ ! -f "$STAR_CONTAINER" ]]; then
+    echo "ERROR: Container ${STAR_CONTAINER} not found"
+    tg_send "ERROR: STAR container not found" 2>/dev/null || true
+    exit 1
+fi
+
+# Get R1 paired file
+R1_PAIRED="${INPUT_DIR}/${sample}/${sample}_R1_paired.fastq"
+R2_PAIRED="${INPUT_DIR}/${sample}/${sample}_R2_paired.fastq"
+R1_UNPAIRED="${INPUT_DIR}/${sample}/${sample}_R1_unpaired.fastq"
+R2_UNPAIRED="${INPUT_DIR}/${sample}/${sample}_R2_unpaired.fastq"
+
+# Parameters
+THREADS=8
+STAR_RAM=32000000000  # 32GB
+
+echo "Aligning sample: ${sample}"
+tg_send "Aligning ${sample} with STAR" 2>/dev/null || true
+
+# Check if paired files exist
+if [[ -f "$R1_PAIRED" ]] && [[ -f "$R2_PAIRED" ]]; then
+    echo "Found paired-end files:"
+    echo "  R1: ${R1_PAIRED}"
+    echo "  R2: ${R2_PAIRED}"
+    
+    # Paired-end alignment
+    if apptainer exec \
+        --bind "${INPUT_DIR}:/input:ro" \
+        --bind "${OUTPUT_DIR}:/output" \
+        "$STAR_CONTAINER" \
+        STAR \
+        --runMode alignReads \
+        --genomeDir "${SUPER_REF_DIR}" \
+        --readFilesIn "/input/${sample}/${sample}_R1_paired.fastq" "/input/${sample}/${sample}_R2_paired.fastq" \
+        --outFileNamePrefix "/output/${sample}_paired_" \
+        --outSAMtype BAM SortedByCoordinate \
+        --outReadsUnmapped Fastx \
+        --outFilterMismatchNoverLmax 0.1 \
+        --runThreadN "$THREADS" \
+        --limitBAMsortRAM "$STAR_RAM" 2>&1; then
+        echo "STAR paired-end alignment completed for ${sample}"
+        tg_send "STAR paired-end: ${sample} complete" 2>/dev/null || true
+    else
+        echo "STAR paired-end alignment FAILED for ${sample}"
+        tg_send "STAR paired-end: ${sample} FAILED" 2>/dev/null || true
+    fi
+fi
+
+# Single-end alignment for unpaired reads
+if [[ -f "$R1_UNPAIRED" ]]; then
+    echo "Found R1 unpaired file: ${R1_UNPAIRED}"
+    
+    if apptainer exec \
+        --bind "${INPUT_DIR}:/input:ro" \
+        --bind "${OUTPUT_DIR}:/output" \
+        "$STAR_CONTAINER" \
+        STAR \
+        --runMode alignReads \
+        --genomeDir "${SUPER_REF_DIR}" \
+        --readFilesIn "/input/${sample}/${sample}_R1_unpaired.fastq" \
+        --outFileNamePrefix "/output/${sample}_R1_unpaired_" \
+        --outSAMtype BAM SortedByCoordinate \
+        --outReadsUnmapped Fastx \
+        --outFilterMismatchNoverLmax 0.1 \
+        --runThreadN "$THREADS" \
+        --limitBAMsortRAM "$STAR_RAM" 2>&1; then
+        echo "STAR R1 unpaired alignment completed for ${sample}"
+    else
+        echo "STAR R1 unpaired alignment FAILED for ${sample}"
+    fi
+fi
+
+if [[ -f "$R2_UNPAIRED" ]]; then
+    echo "Found R2 unpaired file: ${R2_UNPAIRED}"
+    
+    if apptainer exec \
+        --bind "${INPUT_DIR}:/input:ro" \
+        --bind "${OUTPUT_DIR}:/output" \
+        "$STAR_CONTAINER" \
+        STAR \
+        --runMode alignReads \
+        --genomeDir "${SUPER_REF_DIR}" \
+        --readFilesIn "/input/${sample}/${sample}_R2_unpaired.fastq" \
+        --outFileNamePrefix "/output/${sample}_R2_unpaired_" \
+        --outSAMtype BAM SortedByCoordinate \
+        --outReadsUnmapped Fastx \
+        --outFilterMismatchNoverLmax 0.1 \
+        --runThreadN "$THREADS" \
+        --limitBAMsortRAM "$STAR_RAM" 2>&1; then
+        echo "STAR R2 unpaired alignment completed for ${sample}"
+    else
+        echo "STAR R2 unpaired alignment FAILED for ${sample}"
+    fi
+fi
+
+echo "Done STAR processing: ${sample}"
+
+# List output files
+echo ""
+echo "STAR output files for ${sample}:"
+ls -la "${OUTPUT_DIR}"/*"${sample}"* 2>/dev/null || echo "No output files found"
+
+####===================================####
+####     RUN MAPPING WITH BOWTIE2      ####
+####===================================####
