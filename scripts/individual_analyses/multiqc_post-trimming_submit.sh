@@ -12,6 +12,6 @@ bsub -o "${DATE_DIR}/multiqc_%J.out" \
      -M 2000 \
      -R "select[mem>2000] rusage[mem=2000]" \
      -G team222 \
-     < "${HOME}/git_repos/mosquito_virome_yucatan_LEVE/scripts/individual_analyses/multiqc_post-trimming_analysis.sh"
+     < "${HOME}/git_repos/mosquito_virome_yucatan_LEVE/scripts/individual_analyses/multiqc_post-trimming.sh"
 
 echo "Post-trimming MultiQC job submitted!"
