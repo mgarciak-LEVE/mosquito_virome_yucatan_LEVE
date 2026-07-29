@@ -82,12 +82,12 @@ if [[ ! -d "$SUPER_REF_DIR" ]]; then
     exit 1
 fi
 
-if [[ ! -d "${BOWTIE2_SUPER_REF}" ]]; then
-    echo "ERROR: Bowtie2 superreference directory not found at ${BOWTIE2_INDEX}"
-    tg_send "ERROR: Bowtie2 superreference directory not found" 2>/dev/null || true
+if [[ ! -f "${BOWTIE_SUPER_REF}.1.bt2" ]] && [[ ! -f "${BOWTIE_SUPER_REF}.1.bt2l" ]]; then
+    echo "ERROR: Bowtie2 superreference index files not found at ${BOWTIE_SUPER_REF}"
+    echo "Expected files: ${BOWTIE_SUPER_REF}.1.bt2[1] or .1.bt2"
+    tg_send "ERROR: Bowtie2 superreference index files not found" 2>/dev/null || true
     exit 1
 fi
-
 ####==================================####
 ####          GET SAMPLE LIST         ####
 ####==================================####
