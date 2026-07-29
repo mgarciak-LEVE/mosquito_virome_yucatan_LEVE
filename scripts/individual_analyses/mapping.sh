@@ -3,7 +3,7 @@
 # Author: Jorge Alberto Castro Rodríguez
 # Script to map trimmed sequences to mosquito genome superreference
 # 28/07/2026
-# Ver. 1.0.1 (farm-ready)
+# Ver. 1.0.2 (farm-ready)
 
 ####==================================####
 ####           CONFIGURATION          ####
@@ -23,7 +23,7 @@ SCRATCH_BASE="/lustre/scratch126/tol/teams/lawniczak/users/jr46/projects"
 PROJECT_SCRATCH="${SCRATCH_BASE}/${PROJECT_NAME}"
 
 # STAR index directory
-SUPER_REF_DIR="${PROJECT_SCRATCH}/data/references/aedes_super_index/STAR_index"
+STAR_SUPER_REF_DIR="${PROJECT_SCRATCH}/data/references/aedes_super_index/STAR_index/superreference.fna"
 BOWTIE_SUPER_REF="${PROJECT_SCRATCH}/data/references/aedes_super_index/bowtie2_index/superreference"
 
 # Input: trimmed FASTQ files (in sample subdirectories)
@@ -76,9 +76,9 @@ if [[ ! -d "$INPUT_DIR" ]]; then
     exit 1
 fi
 
-if [[ ! -d "$SUPER_REF_DIR" ]]; then
-    echo "ERROR: Superreference directory ${SUPER_REF_DIR} does not exist"
-    tg_send "ERROR: Superreference directory not found" 2>/dev/null || true
+if [[ ! -f "$STAR_SUPER_REF" ]]; then
+    echo "ERROR: Star superreference ${STAR_SUPER_REF} does not exist"
+    tg_send "ERROR: Star superreference not found" 2>/dev/null || true
     exit 1
 fi
 
@@ -167,7 +167,7 @@ if [[ -f "$R1_PAIRED" ]] && [[ -f "$R2_PAIRED" ]]; then
         "$STAR_CONTAINER" \
         STAR \
         --runMode alignReads \
-        --genomeDir "${SUPER_REF_DIR}" \
+        --genomeDir "${STAR_SUPER_REF}" \
         --readFilesIn "/input/${sample}/${sample}_R1_paired.fastq" "/input/${sample}/${sample}_R2_paired.fastq" \
         --outFileNamePrefix "/output/${sample}_paired_" \
         --outSAMtype BAM SortedByCoordinate \
@@ -193,7 +193,7 @@ if [[ -f "$R1_UNPAIRED" ]]; then
         "$STAR_CONTAINER" \
         STAR \
         --runMode alignReads \
-        --genomeDir "${SUPER_REF_DIR}" \
+        --genomeDir "${STAR_SUPER_REF}" \
         --readFilesIn "/input/${sample}/${sample}_R1_unpaired.fastq" \
         --outFileNamePrefix "/output/${sample}_R1_unpaired_" \
         --outSAMtype BAM SortedByCoordinate \
@@ -216,7 +216,7 @@ if [[ -f "$R2_UNPAIRED" ]]; then
         "$STAR_CONTAINER" \
         STAR \
         --runMode alignReads \
-        --genomeDir "${SUPER_REF_DIR}" \
+        --genomeDir "${STAR_SUPER_REF}" \
         --readFilesIn "/input/${sample}/${sample}_R2_unpaired.fastq" \
         --outFileNamePrefix "/output/${sample}_R2_unpaired_" \
         --outSAMtype BAM SortedByCoordinate \
