@@ -24,7 +24,7 @@ PROJECT_SCRATCH="${SCRATCH_BASE}/${PROJECT_NAME}"
 
 # STAR index directory
 SUPER_REF_DIR="${PROJECT_SCRATCH}/data/references/aedes_super_index/STAR_index"
-BOWTIE_SUPER_REF_DIR="${PROJECT_SCRATCH}/data/references/aedes_super_index/bowtie2_index/superreference"
+BOWTIE_SUPER_REF="${PROJECT_SCRATCH}/data/references/aedes_super_index/bowtie2_index/superreference"
 
 # Input: trimmed FASTQ files (in sample subdirectories)
 INPUT_DIR="${PROJECT_SCRATCH}/results/trimmed"
@@ -82,9 +82,9 @@ if [[ ! -d "$SUPER_REF_DIR" ]]; then
     exit 1
 fi
 
-if [[ ! -f "${BOWTIE2_SUPER_REF_DIR}.1.bt2" ]]; then
-    echo "ERROR: Bowtie2 superreference not found at ${BOWTIE2_INDEX}"
-    tg_send "ERROR: Bowtie2 superreference not found" 2>/dev/null || true
+if [[ ! -d "${BOWTIE2_SUPER_REF}" ]]; then
+    echo "ERROR: Bowtie2 superreference directory not found at ${BOWTIE2_INDEX}"
+    tg_send "ERROR: Bowtie2 superreference directory not found" 2>/dev/null || true
     exit 1
 fi
 
@@ -251,7 +251,6 @@ if [[ ! -f "$BOWTIE2_CONTAINER" ]]; then
     exit 1
 fi
 
-BOWTIE2_INDEX="${PROJECT_SCRATCH}/data/references/aedes_super_index/bowtie2_index/superreference"
 
 echo "Aligning sample with Bowtie2: ${sample}"
 tg_send "Aligning ${sample} with Bowtie2" 2>/dev/null || true
