@@ -2,8 +2,8 @@
 
 # Author: Jorge Alberto Castro Rodríguez
 # Script to validate fastq files.
-# 21/07/2026
-# Version 2.3.5 (farm-ready)
+# 29/07/2026
+# Version 2.4.0 (farm-ready)
 
 ####==================================####
 ####           CONFIGURATION          ####
@@ -120,6 +120,36 @@ echo "========================================="
 
 tg_send "Trimmomatic: ${R1_NAME} and ${R2_NAME} (${LSB_JOBINDEX}/${#r1_files[@]})" 2>/dev/null || true
 
+####==================================####
+####        DECOMPRESS INPUT         ####
+####==================================####
+
+echo "Checking for compressed input files..."
+
+# Decompress R1 if it's compressed
+if [[ "$R1_NAME" == *.gz ]]; then
+    echo "Decompressing: ${R1_NAME}"
+    gunzip "$R1_FILE"
+    # Update R1_NAME to the decompressed file
+    R1_NAME="${R1_NAME%.gz}"
+    R1_FILE="${INPUT_DIR}/${R1_NAME}"
+    echo "Decompressed to: ${R1_NAME}"
+fi
+
+# Decompress R2 if it's compressed
+if [[ "$R2_NAME" == *.gz ]]; then
+    echo "Decompressing: ${R2_NAME}"
+    gunzip "$R2_FILE"
+    # Update R2_NAME to the decompressed file
+    R2_NAME="${R2_NAME%.gz}"
+    R2_FILE="${INPUT_DIR}/${R2_NAME}"
+    echo "Decompressed to: ${R2_NAME}"
+fi
+
+echo "Input files ready for trimming:"
+echo "  R1: ${R1_NAME}"
+echo "  R2: ${R2_NAME}"
+
 ####=========================####
 ####         TRIMMING        ####
 ####=========================####
@@ -138,7 +168,7 @@ fi
 sample_name=$(basename "$R1_FILE" | sed 's/_.*//')
 echo "Sample: ${sample_name}"
 
-# Output file names
+# Output directory for this sample
 trimmed_dir="${OUTPUT_DIR}/${sample_name}"
 mkdir -p "$trimmed_dir"
 
@@ -176,7 +206,7 @@ if apptainer exec \
     # MINLEN 36 to capture some small RNAs and remove degradation products
 
     echo "Trimmomatic completed for ${sample_name}"
-    tg_send "rimmomatic: ${sample_name} complete" 2>/dev/null || true
+    tg_send "Trimmomatic: ${sample_name} complete" 2>/dev/null || true
     
     # Count reads in output files
     if [[ -f "$R1_PAIRED" ]]; then
@@ -190,4 +220,72 @@ else
     exit 1
 fi
 
-echo "Done processing: ${sample_name}"
+####==================================####
+####        COMPRESS OUTPUT          ####
+####==================================####
+
+echo "Compressing output files..."
+
+# Compress paired-end output files
+if [[ -f "$R1_PAIRED" ]]; then
+    echo "  Compressing: ${sample_name}_R1_paired.fastq"
+    gzip "$R1_PAIRED"
+fi
+
+if [[ -f "$R2_PAIRED" ]]; then
+    echo "  Compressing: ${sample_name}_R2_paired.fastq"
+    gzip "$R2_PAIRED"
+fi
+
+# Compress unpaired output files if they exist and are not empty
+if [[ -f "$R1_UNPAIRED" ]]; then
+    if [[ -s "$R1_UNPAIRED" ]]; then
+        echo "  Compressing: ${sample_name}_R1_unpaired.fastq"
+        gzip "$R1_UNPAIRED"
+    else
+        echo "  Removing empty file: ${sample_name}_R1_unpaired.fastq"
+        rm "$R1_UNPAIRED"
+    fi
+fi
+
+if [[ -f "$R2_UNPAIRED" ]]; then
+    if [[ -s "$R2_UNPAIRED" ]]; then
+        echo "  Compressing: ${sample_name}_R2_unpaired.fastq"
+        gzip "$R2_UNPAIRED"
+    else
+        echo "  Removing empty file: ${sample_name}_R2_unpaired.fastq"
+        rm "$R2_UNPAIRED"
+    fi
+fi
+
+####==================================####
+####        RECOMPRESS INPUT         ####
+####==================================####
+
+echo "Recompressing input files..."
+
+# Recompress R1 if it was decompressed
+if [[ -f "$R1_FILE" ]] && [[ ! -f "${R1_FILE}.gz" ]]; then
+    echo "  Recompressing: ${R1_NAME}"
+    gzip "$R1_FILE"
+fi
+
+# Recompress R2 if it was decompressed
+if [[ -f "$R2_FILE" ]] && [[ ! -f "${R2_FILE}.gz" ]]; then
+    echo "  Recompressing: ${R2_NAME}"
+    gzip "$R2_FILE"
+fi
+
+echo ""
+echo "========================================="
+echo "  Processing complete for: ${sample_name}"
+echo "  Output files in: ${trimmed_dir}"
+echo "  End time: $(date)"
+echo "========================================="
+
+# List final output files
+echo ""
+echo "Final output files:"
+ls -la "${trimmed_dir}"/* 2>/dev/null || echo "No output files found"
+
+tg_send "Trimmomatic completed: ${sample_name}" 2>/dev/null || true
