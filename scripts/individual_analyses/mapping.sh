@@ -24,6 +24,7 @@ PROJECT_SCRATCH="${SCRATCH_BASE}/${PROJECT_NAME}"
 
 # STAR index directory
 SUPER_REF_DIR="${PROJECT_SCRATCH}/data/references/aedes_super_index/STAR_index"
+BOWTIE_SUPER_REF_DIR="${PROJECT_SCRATCH}/data/references/aedes_super_index/bowtie2_index/superreference"
 
 # Input: trimmed FASTQ files (in sample subdirectories)
 INPUT_DIR="${PROJECT_SCRATCH}/results/trimmed"
@@ -34,6 +35,7 @@ OUTPUT_DIR="${PROJECT_SCRATCH}/results/aligned"
 # Container configuration
 CONTAINERS="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers"
 STAR_CONTAINER="${CONTAINERS}/star_2.7.10a.sif"
+BOWTIE2_CONTAINER="${CONTAINERS}/bowtie2_2.5.5.sif"
 
 # Scripts directory
 SCRIPTS_NFS="${HOME}/git_repos/${PROJECT_NAME}/scripts/individual_analyses"
@@ -57,7 +59,7 @@ echo "  Project: ${PROJECT_NAME}"
 echo "  Superreference: ${SUPER_REF_DIR}"
 echo "  Input: ${INPUT_DIR}"
 echo "  Output: ${OUTPUT_DIR}"
-echo "  Container: ${STAR_CONTAINER}"
+echo "  Containers: ${STAR_CONTAINER} & ${BOWTIE2_CONTAINER}"
 echo "  Date: $(date)"
 echo "========================================="
 
@@ -77,6 +79,12 @@ fi
 if [[ ! -d "$SUPER_REF_DIR" ]]; then
     echo "ERROR: Superreference directory ${SUPER_REF_DIR} does not exist"
     tg_send "ERROR: Superreference directory not found" 2>/dev/null || true
+    exit 1
+fi
+
+if [[ ! -f "${BOWTIE2_SUPER_REF_DIR}.1.bt2" ]]; then
+    echo "ERROR: Bowtie2 superreference not found at ${BOWTIE2_INDEX}"
+    tg_send "ERROR: Bowtie2 superreference not found" 2>/dev/null || true
     exit 1
 fi
 
@@ -124,7 +132,7 @@ tg_send "Mapping: ${sample} (${LSB_JOBINDEX}/${#samples[@]})" 2>/dev/null || tru
 ####================================####
 
 # Create STAR output directory
-mkdir -p "${OUTPUT_DIR}"
+mkdir -p "${OUTPUT_DIR}/STAR_alignment"
 
 # Check if container exists
 if [[ ! -f "$STAR_CONTAINER" ]]; then
@@ -141,9 +149,9 @@ R2_UNPAIRED="${INPUT_DIR}/${sample}/${sample}_R2_unpaired.fastq"
 
 # Parameters
 THREADS=8
-STAR_RAM=32000000000  # 32GB
+RAM=32000000000  # 32GB
 
-echo "Aligning sample: ${sample}"
+echo "Aligning sample with STAR: ${sample}"
 tg_send "Aligning ${sample} with STAR" 2>/dev/null || true
 
 # Check if paired files exist
@@ -155,7 +163,7 @@ if [[ -f "$R1_PAIRED" ]] && [[ -f "$R2_PAIRED" ]]; then
     # Paired-end alignment
     if apptainer exec \
         --bind "${INPUT_DIR}:/input:ro" \
-        --bind "${OUTPUT_DIR}:/output" \
+        --bind "${OUTPUT_DIR}/STAR_alignment:/output" \
         "$STAR_CONTAINER" \
         STAR \
         --runMode alignReads \
@@ -166,7 +174,7 @@ if [[ -f "$R1_PAIRED" ]] && [[ -f "$R2_PAIRED" ]]; then
         --outReadsUnmapped Fastx \
         --outFilterMismatchNoverLmax 0.1 \
         --runThreadN "$THREADS" \
-        --limitBAMsortRAM "$STAR_RAM" 2>&1; then
+        --limitBAMsortRAM "$RAM" 2>&1; then
         echo "STAR paired-end alignment completed for ${sample}"
         tg_send "STAR paired-end: ${sample} complete" 2>/dev/null || true
     else
@@ -181,7 +189,7 @@ if [[ -f "$R1_UNPAIRED" ]]; then
     
     if apptainer exec \
         --bind "${INPUT_DIR}:/input:ro" \
-        --bind "${OUTPUT_DIR}:/output" \
+        --bind "${OUTPUT_DIR}/STAR_alignment:/output" \
         "$STAR_CONTAINER" \
         STAR \
         --runMode alignReads \
@@ -192,7 +200,7 @@ if [[ -f "$R1_UNPAIRED" ]]; then
         --outReadsUnmapped Fastx \
         --outFilterMismatchNoverLmax 0.1 \
         --runThreadN "$THREADS" \
-        --limitBAMsortRAM "$STAR_RAM" 2>&1; then
+        --limitBAMsortRAM "$RAM" 2>&1; then
         echo "STAR R1 unpaired alignment completed for ${sample}"
     else
         echo "STAR R1 unpaired alignment FAILED for ${sample}"
@@ -204,7 +212,7 @@ if [[ -f "$R2_UNPAIRED" ]]; then
     
     if apptainer exec \
         --bind "${INPUT_DIR}:/input:ro" \
-        --bind "${OUTPUT_DIR}:/output" \
+        --bind "${OUTPUT_DIR}/STAR_alignment:/output" \
         "$STAR_CONTAINER" \
         STAR \
         --runMode alignReads \
@@ -215,7 +223,7 @@ if [[ -f "$R2_UNPAIRED" ]]; then
         --outReadsUnmapped Fastx \
         --outFilterMismatchNoverLmax 0.1 \
         --runThreadN "$THREADS" \
-        --limitBAMsortRAM "$STAR_RAM" 2>&1; then
+        --limitBAMsortRAM "$RAM" 2>&1; then
         echo "STAR R2 unpaired alignment completed for ${sample}"
     else
         echo "STAR R2 unpaired alignment FAILED for ${sample}"
@@ -227,8 +235,107 @@ echo "Done STAR processing: ${sample}"
 # List output files
 echo ""
 echo "STAR output files for ${sample}:"
-ls -la "${OUTPUT_DIR}"/*"${sample}"* 2>/dev/null || echo "No output files found"
+ls -la "${OUTPUT_DIR}"/STAR_alignment/*"${sample}"* 2>/dev/null || echo "No output files found"
 
 ####===================================####
 ####     RUN MAPPING WITH BOWTIE2      ####
 ####===================================####
+
+# Create Bowtie2 output directory
+mkdir -p "${OUTPUT_DIR}/Bowtie2_alignment"
+
+# Check if container exists
+if [[ ! -f "$BOWTIE2_CONTAINER" ]]; then
+    echo "ERROR: Container ${BOWTIE2_CONTAINER} not found"
+    tg_send "ERROR: Bowtie2 container not found" 2>/dev/null || true
+    exit 1
+fi
+
+BOWTIE2_INDEX="${PROJECT_SCRATCH}/data/references/aedes_super_index/bowtie2_index/superreference"
+
+echo "Aligning sample with Bowtie2: ${sample}"
+tg_send "Aligning ${sample} with Bowtie2" 2>/dev/null || true
+
+# Check if paired files exist
+if [[ -f "$R1_PAIRED" ]] && [[ -f "$R2_PAIRED" ]]; then
+    echo "Found paired-end files:"
+    echo "  R1: ${R1_PAIRED}"
+    echo "  R2: ${R2_PAIRED}"
+    
+    # Paired-end alignment
+    if apptainer exec \
+        --bind "${INPUT_DIR}:/input:ro" \
+        --bind "${OUTPUT_DIR}/Bowtie2_alignment:/output" \
+        "$BOWTIE2_CONTAINER" \
+        bowtie2 \
+        -x "${BOWTIE_SUPER_REF}" \
+        -1 "/input/${sample}/${sample}_R1_paired.fastq" \
+        -2 "/input/${sample}/${sample}_R2_paired.fastq" \
+        -S "/output/${sample}_paired.sam" \
+        --threads "$THREADS" \
+        --sensitive \
+        --rg-id "${sample}" \
+        --rg "SM:${sample}" \
+        --rg "PL:ILLUMINA" \
+        2>&1; then
+        echo "Bowtie2 paired-end alignment completed for ${sample}"
+        tg_send "Bowtie2 paired-end: ${sample} complete" 2>/dev/null || true
+    else
+        echo "Bowtie2 paired-end alignment FAILED for ${sample}"
+        tg_send "Bowtie2 paired-end: ${sample} FAILED" 2>/dev/null || true
+    fi
+fi
+
+# Single-end alignment for unpaired reads
+if [[ -f "$R1_UNPAIRED" ]]; then
+    echo "Found R1 unpaired file: ${R1_UNPAIRED}"
+    
+    if apptainer exec \
+        --bind "${INPUT_DIR}:/input:ro" \
+        --bind "${OUTPUT_DIR}/Bowtie2_alignment:/output" \
+        "$BOWTIE2_CONTAINER" \
+        bowtie2 \
+        -x "${BOWTIE_SUPER_REF}" \
+        -U "/input/${sample}/${sample}_R1_unpaired.fastq" \
+        -S "/output/${sample}_R1_unpaired.sam" \
+        --threads "$THREADS" \
+        --sensitive \
+        --rg-id "${sample}_R1_unpaired" \
+        --rg "SM:${sample}" \
+        --rg "PL:ILLUMINA" \
+        2>&1; then
+        echo "Bowtie2 R1 unpaired alignment completed for ${sample}"
+    else
+        echo "Bowtie2 R1 unpaired alignment FAILED for ${sample}"
+    fi
+fi
+
+if [[ -f "$R2_UNPAIRED" ]]; then
+    echo "Found R2 unpaired file: ${R2_UNPAIRED}"
+    
+    if apptainer exec \
+        --bind "${INPUT_DIR}:/input:ro" \
+        --bind "${OUTPUT_DIR}/Bowtie2_alignment:/output" \
+        "$BOWTIE2_CONTAINER" \
+        bowtie2 \
+        -x "${BOWTIE_SUPER_REF}" \
+        -U "/input/${sample}/${sample}_R2_unpaired.fastq" \
+        -S "/output/${sample}_R2_unpaired.sam" \
+        --threads "$THREADS" \
+        --sensitive \
+        --rg-id "${sample}_R2_unpaired" \
+        --rg "SM:${sample}" \
+        --rg "PL:ILLUMINA" \
+        2>&1; then
+        echo "Bowtie2 R2 unpaired alignment completed for ${sample}"
+    else
+        echo "Bowtie2 R2 unpaired alignment FAILED for ${sample}"
+    fi
+fi
+
+echo "Done Bowtie2 processing: ${sample}"
+
+# List output files
+echo ""
+echo "Bowtie2 output files for ${sample}:"
+ls -la "${OUTPUT_DIR}/Bowtie2_alignment/"*"${sample}"* 2>/dev/null || echo "No output files found"

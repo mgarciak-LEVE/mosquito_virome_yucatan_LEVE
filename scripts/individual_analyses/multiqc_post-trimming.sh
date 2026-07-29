@@ -2,7 +2,7 @@
 # MultiQC after trimming process
 # Author: Jorge Alberto Castro Rodríguez
 # Ver. 1.0.0
-# 20/07/2026
+# 27/07/2026
 
 ####==================================####
 ####          CONFIGURATION           ####
@@ -47,7 +47,7 @@ module load ISG/apptainer/1.4.0 2>/dev/null || echo "Apptainer module not availa
 ####==================================####
 
 echo "========================================="
-echo "  MultiQC Analysis"
+echo "  MultiQC Post-trimming Analysis"
 echo "  Project: ${PROJECT_NAME}"
 echo "  Input (Post-trimming FastQC reports): ${INPUT_MULTIQC}"
 echo "  Output: ${OUTPUT_MULTIQC}"
@@ -103,8 +103,8 @@ if apptainer exec \
     --bind "${OUTPUT_MULTIQC}:/output" \
     "$MULTIQC_CONTAINER" \
     multiqc "/input" -o "/output" 2>&1; then
-    echo "MultiQC completed"
-    tg_send "MultiQC completed" 2>/dev/null || true
+    echo "MultiQC Post-trimming completed"
+    tg_send "MultiQC Post-trimming completed" 2>/dev/null || true
 else
     echo "Post-trimming MultiQC FAILED"
     tg_send "Post-trimming MultiQC FAILED" 2>/dev/null || true
