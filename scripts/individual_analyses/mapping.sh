@@ -76,9 +76,16 @@ if [[ ! -d "$INPUT_DIR" ]]; then
     exit 1
 fi
 
-if [[ ! -f "$STAR_SUPER_REF" ]]; then
-    echo "ERROR: Star superreference ${STAR_SUPER_REF} does not exist"
-    tg_send "ERROR: Star superreference not found" 2>/dev/null || true
+if [[ ! -d "$STAR_SUPER_REF" ]]; then
+    echo "ERROR: Star superreference directory ${STAR_SUPER_REF} does not exist"
+    tg_send "ERROR: Star superreference directory not found" 2>/dev/null || true
+    exit 1
+fi
+
+if [[ ! -f "${STAR_SUPER_REF}/Genome" ]] || [[ ! -f "${STAR_SUPER_REF}/SA" ]]; then
+    echo "ERROR: STAR index files not found in ${STAR_SUPER_REF}"
+    echo "Expected files: Genome, SA, SAindex, chrLength.txt ..."
+    tg_send "ERROR: STAR index files not found" 2>/dev/null || true
     exit 1
 fi
 
