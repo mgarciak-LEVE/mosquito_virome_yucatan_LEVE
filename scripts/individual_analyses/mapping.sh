@@ -187,7 +187,7 @@ R2_UNPAIRED="${INPUT_DIR}/${sample}/${sample}_R2_unpaired.fastq"
 
 # Parameters
 THREADS=8
-RAM=32000000000  # 32GB
+RAM=64000000000  # 32GB
 
 echo "Aligning sample with STAR: ${sample}"
 tg_send "Aligning ${sample} with STAR" 2>/dev/null || true

@@ -29,8 +29,8 @@ bsub -o "${DATE_DIR}/mapping_%J_%I.out" \
      -e "${DATE_DIR}/mapping_%J_%I.err" \
      -q normal \
      -n 8 \
-     -M 32000 \
-     -R "select[mem>32000] rusage[mem=32000]" \
+     -M 64000 \
+     -R "select[mem>64000] rusage[mem=64000]" \
      -G team222 \
      -J "mapping[1-${file_count}]%4" \
      "${HOME}/git_repos/mosquito_virome_yucatan_LEVE/scripts/individual_analyses/mapping.sh"
