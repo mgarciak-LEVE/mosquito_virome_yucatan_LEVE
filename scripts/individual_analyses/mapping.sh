@@ -23,7 +23,7 @@ SCRATCH_BASE="/lustre/scratch126/tol/teams/lawniczak/users/jr46/projects"
 PROJECT_SCRATCH="${SCRATCH_BASE}/${PROJECT_NAME}"
 
 # STAR index directory
-STAR_SUPER_REF="${PROJECT_SCRATCH}/data/references/aedes_super_index/STAR_index/superreference.fna"
+STAR_SUPER_REF="${PROJECT_SCRATCH}/data/references/aedes_super_index/STAR_index"
 BOWTIE_SUPER_REF="${PROJECT_SCRATCH}/data/references/aedes_super_index/bowtie2_index/superreference"
 
 # Input: trimmed FASTQ files (in sample subdirectories)
@@ -56,7 +56,7 @@ module load ISG/apptainer/1.4.0 2>/dev/null || echo "Apptainer module not availa
 echo "========================================="
 echo "  Sequence Mapping to Superreference Module"
 echo "  Project: ${PROJECT_NAME}"
-echo "  Superreference: ${SUPER_REF_DIR}"
+echo "  Superreference: ${STAR_SUPER_REF}"
 echo "  Input: ${INPUT_DIR}"
 echo "  Output: ${OUTPUT_DIR}"
 echo "  Containers: ${STAR_CONTAINER} & ${BOWTIE2_CONTAINER}"
@@ -195,10 +195,11 @@ if [[ -f "$R1_PAIRED" ]] && [[ -f "$R2_PAIRED" ]]; then
     if apptainer exec \
         --bind "${INPUT_DIR}:/input:ro" \
         --bind "${OUTPUT_DIR}/STAR_alignment:/output" \
+        --bind "${STAR_SUPER_REF}:/genome:ro" \
         "$STAR_CONTAINER" \
         STAR \
         --runMode alignReads \
-        --genomeDir "${STAR_SUPER_REF}" \
+        --genomeDir "/genome" \
         --readFilesIn "/input/${sample}/${sample}_R1_paired.fastq" "/input/${sample}/${sample}_R2_paired.fastq" \
         --outFileNamePrefix "/output/${sample}_paired_" \
         --outSAMtype BAM SortedByCoordinate \
@@ -221,10 +222,11 @@ if [[ -f "$R1_UNPAIRED" ]]; then
     if apptainer exec \
         --bind "${INPUT_DIR}:/input:ro" \
         --bind "${OUTPUT_DIR}/STAR_alignment:/output" \
+        --bind "${STAR_SUPER_REF}:/genome:ro" \
         "$STAR_CONTAINER" \
         STAR \
         --runMode alignReads \
-        --genomeDir "${STAR_SUPER_REF}" \
+        --genomeDir "/genome" \
         --readFilesIn "/input/${sample}/${sample}_R1_unpaired.fastq" \
         --outFileNamePrefix "/output/${sample}_R1_unpaired_" \
         --outSAMtype BAM SortedByCoordinate \
@@ -244,10 +246,11 @@ if [[ -f "$R2_UNPAIRED" ]]; then
     if apptainer exec \
         --bind "${INPUT_DIR}:/input:ro" \
         --bind "${OUTPUT_DIR}/STAR_alignment:/output" \
+        --bind "${STAR_SUPER_REF}:/genome:ro" \
         "$STAR_CONTAINER" \
         STAR \
         --runMode alignReads \
-        --genomeDir "${STAR_SUPER_REF}" \
+        --genomeDir "/genome" \
         --readFilesIn "/input/${sample}/${sample}_R2_unpaired.fastq" \
         --outFileNamePrefix "/output/${sample}_R2_unpaired_" \
         --outSAMtype BAM SortedByCoordinate \
