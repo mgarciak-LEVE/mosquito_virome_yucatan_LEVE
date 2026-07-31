@@ -56,8 +56,78 @@ echo "========================================="
 
 tg_send "Starting unampped reads assembly" 2>/dev/null || true
 
+####===================================================####
+####          GET SAMPLE LIST FOR STAR ASSEMBLY        ####
+####===================================================####
+
+cd "$STAR_INPUT_DIR" || exit 1
+
+# Get list of samples
+samples=()
+while IFS= read -r line; do
+    samples+=("$line")
+done < <(find . -maxdepth 1 -type d -name "PM[0-9]{4}_paired_Unmapped.out.mate[12]" | sed 's/\.\///' | sort)
+
+# Check if samples exist
+if [[ ${#samples[@]} -eq 0 ]]; then
+    echo "No samples found in ${STAR_INPUT_DIR}"
+    tg_send "No samples found" 2>/dev/null || true
+    exit 1
+fi
+
+echo "Found ${#samples[@]} samples"
+
+# Get the sample for this array task
+SAMPLE_INDEX=$((LSB_JOBINDEX - 1))
+
+if [[ $SAMPLE_INDEX -ge ${#samples[@]} ]]; then
+    echo "ERROR: Invalid job index ${LSB_JOBINDEX} (max ${#samples[@]})"
+    exit 1
+fi
+
+sample="${samples[$SAMPLE_INDEX]}"
+
+echo "========================================="
+echo "  Sequence Assembly Array ${LSB_JOBINDEX}/${#samples[@]}"
+echo "  Sample: ${sample}"
+echo "  Date: $(date)"
+echo "========================================="
+
+tg_send "Assembly: ${sample} (${LSB_JOBINDEX}/${#samples[@]})" 2>/dev/null || true
+
+
+####================================####
+####     DECOMPRESS INPUT FILES      ####
+####================================####
+
+echo "Checking for compressed input files..."
+
+# Decompress R1 paired if compressed
+if [[ -f "${STAR_INPUT_DIR}/${sample}_Unmapped.out.mate1.gz" ]]; then
+    echo "Decompressing: ${sample}_Unmapped.out.mate1.gz"
+    gzip -d "${INPUT_DIR}/${sample}_Unmapped.out.mate1.gz"
+fi
+
+# Decompress R2 paired if compressed
+if [[ -f "${STAR_INPUT_DIR}/${sample}_Unmapped.out.mate2.gz" ]] && [[ ! -f "${INPUT_DIR}/${sample}/${sample}_R2_paired.fastq" ]]; then
+    echo "Decompressing: ${sample}_R2_paired.fastq.gz"
+    gzip -d "${INPUT_DIR}/${sample}/${sample}_R2_paired.fastq.gz"
+fi
+
+# Decompress R1 unpaired if compressed
+if [[ -f "${INPUT_DIR}/${sample}/${sample}_R1_unpaired.fastq.gz" ]] && [[ ! -f "${INPUT_DIR}/${sample}/${sample}_R1_unpaired.fastq" ]]; then
+    echo "Decompressing: ${sample}_R1_unpaired.fastq.gz"
+    gzip -d "${INPUT_DIR}/${sample}/${sample}_R1_unpaired.fastq.gz"
+fi
+
+# Decompress R2 unpaired if compressed
+if [[ -f "${INPUT_DIR}/${sample}/${sample}_R2_unpaired.fastq.gz" ]] && [[ ! -f "${INPUT_DIR}/${sample}/${sample}_R2_unpaired.fastq" ]]; then
+    echo "Decompressing: ${sample}_R2_unpaired.fastq.gz"
+    gzip -d "${INPUT_DIR}/${sample}/${sample}_R2_unpaired.fastq.gz"
+fi
+
 # Create output directory
-mkdir -p "${OUTPUT_DIR}/statistics"
+mkdir -p "${OUTPUT_DIR}"
 
     echo "Starting assembly process..."
     mkdir -p "${ASSEMBLY_DIR}/fastq" # Output directory for assembly

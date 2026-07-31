@@ -343,6 +343,9 @@ if [[ -f "$R1_PAIRED" ]] && [[ -f "$R2_PAIRED" ]]; then
         -1 "/input/${sample}/${sample}_R1_paired.fastq" \
         -2 "/input/${sample}/${sample}_R2_paired.fastq" \
         -S "/output/${sample}_paired.sam" \
+        --un-conc "/output/${sample}_both_unmapped.fastq" \
+        --un "/output/${sample}_unmapped_mixed.fastq" \
+        --al "/output/${sample}_aligned_concordant.fastq" \
         --threads "$THREADS" \
         --sensitive \
         --rg-id "${sample}" \
@@ -370,6 +373,7 @@ if [[ -f "$R1_UNPAIRED" ]]; then
         -x "/bowtie_index/$(basename "${BOWTIE_SUPER_REF}")" \
         -U "/input/${sample}/${sample}_R1_unpaired.fastq" \
         -S "/output/${sample}_R1_unpaired.sam" \
+        --un "/output/${sample}_R1_unpaired_unmapped.fastq" \
         --threads "$THREADS" \
         --sensitive \
         --rg-id "${sample}_R1_unpaired" \
@@ -394,6 +398,7 @@ if [[ -f "$R2_UNPAIRED" ]]; then
         -x "/bowtie_index/$(basename "${BOWTIE_SUPER_REF}")" \
         -U "/input/${sample}/${sample}_R2_unpaired.fastq" \
         -S "/output/${sample}_R2_unpaired.sam" \
+        --un "/output/${sample}_R2_unpaired_unmapped.fastq" \
         --threads "$THREADS" \
         --sensitive \
         --rg-id "${sample}_R2_unpaired" \
