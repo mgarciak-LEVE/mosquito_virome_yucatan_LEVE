@@ -1,3 +1,4 @@
+
 #!/bin/bash
 # ~/git_repos/mosquito_virome_yucatan_LEVE/scripts/individual_analyses/mapping_submit.sh
 # Submit mapping as a job array
@@ -27,10 +28,10 @@ echo "========================================="
 # Submit array job
 bsub -o "${DATE_DIR}/mapping_%J_%I.out" \
      -e "${DATE_DIR}/mapping_%J_%I.err" \
-     -q normal \
-     -n 8 \
-     -M 64000 \
-     -R "select[mem>64000] rusage[mem=64000]" \
+     -q long \
+     -n 16 \
+     -M 128000 \
+     -R "select[mem>128000] rusage[mem=128000]" \
      -G team222 \
      -J "mapping[1-${file_count}]%4" \
      "${HOME}/git_repos/mosquito_virome_yucatan_LEVE/scripts/individual_analyses/mapping.sh"

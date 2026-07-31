@@ -324,7 +324,6 @@ if [[ ! -f "$BOWTIE2_CONTAINER" ]]; then
     exit 1
 fi
 
-
 echo "Aligning sample with Bowtie2: ${sample}"
 tg_send "Aligning ${sample} with Bowtie2" 2>/dev/null || true
 
@@ -334,13 +333,13 @@ if [[ -f "$R1_PAIRED" ]] && [[ -f "$R2_PAIRED" ]]; then
     echo "  R1: ${R1_PAIRED}"
     echo "  R2: ${R2_PAIRED}"
     
-    # Paired-end alignment
     if apptainer exec \
         --bind "${INPUT_DIR}:/input:ro" \
         --bind "${OUTPUT_DIR}/Bowtie2_alignment:/output" \
+        --bind "$(dirname "${BOWTIE_SUPER_REF}"):/bowtie_index:ro" \
         "$BOWTIE2_CONTAINER" \
         bowtie2 \
-        -x "${BOWTIE_SUPER_REF}" \
+        -x "/bowtie_index/$(basename "${BOWTIE_SUPER_REF}")" \
         -1 "/input/${sample}/${sample}_R1_paired.fastq" \
         -2 "/input/${sample}/${sample}_R2_paired.fastq" \
         -S "/output/${sample}_paired.sam" \
@@ -365,9 +364,10 @@ if [[ -f "$R1_UNPAIRED" ]]; then
     if apptainer exec \
         --bind "${INPUT_DIR}:/input:ro" \
         --bind "${OUTPUT_DIR}/Bowtie2_alignment:/output" \
+        --bind "$(dirname "${BOWTIE_SUPER_REF}"):/bowtie_index:ro" \
         "$BOWTIE2_CONTAINER" \
         bowtie2 \
-        -x "${BOWTIE_SUPER_REF}" \
+        -x "/bowtie_index/$(basename "${BOWTIE_SUPER_REF}")" \
         -U "/input/${sample}/${sample}_R1_unpaired.fastq" \
         -S "/output/${sample}_R1_unpaired.sam" \
         --threads "$THREADS" \
@@ -384,13 +384,14 @@ fi
 
 if [[ -f "$R2_UNPAIRED" ]]; then
     echo "Found R2 unpaired file: ${R2_UNPAIRED}"
-    
+
     if apptainer exec \
         --bind "${INPUT_DIR}:/input:ro" \
         --bind "${OUTPUT_DIR}/Bowtie2_alignment:/output" \
+        --bind "$(dirname "${BOWTIE_SUPER_REF}"):/bowtie_index:ro" \
         "$BOWTIE2_CONTAINER" \
         bowtie2 \
-        -x "${BOWTIE_SUPER_REF}" \
+        -x "/bowtie_index/$(basename "${BOWTIE_SUPER_REF}")" \
         -U "/input/${sample}/${sample}_R2_unpaired.fastq" \
         -S "/output/${sample}_R2_unpaired.sam" \
         --threads "$THREADS" \
@@ -406,35 +407,6 @@ if [[ -f "$R2_UNPAIRED" ]]; then
 fi
 
 echo "Done Bowtie2 processing: ${sample}"
-
-# Compress Bowtie2 output files
-echo "Compressing Bowtie2 output files..."
-
-# Compress Bowtie2 SAM files to BAM if samtools available, else gzip
-if command -v samtools &> /dev/null; then
-    for sam_file in "${OUTPUT_DIR}/Bowtie2_alignment/${sample}"*.sam; do
-        if [[ -f "$sam_file" ]]; then
-            bam_file="${sam_file%.sam}.bam"
-            if [[ ! -f "$bam_file" ]] || [[ "$sam_file" -nt "$bam_file" ]]; then
-                echo "  Converting to BAM: $(basename $sam_file)"
-                samtools view -bS "$sam_file" > "$bam_file" && rm "$sam_file"
-            fi
-        fi
-    done
-else
-    # If samtools not available, gzip SAM files
-    for sam_file in "${OUTPUT_DIR}/Bowtie2_alignment/${sample}"*.sam; do
-        if [[ -f "$sam_file" ]] && [[ ! -f "${sam_file}.gz" ]]; then
-            echo "  Compressing: $(basename $sam_file)"
-            gzip "$sam_file"
-        fi
-    done
-fi
-
-# List output files
-echo ""
-echo "Bowtie2 output files for ${sample}:"
-ls -la "${OUTPUT_DIR}/Bowtie2_alignment/"*"${sample}"* 2>/dev/null || echo "No output files found"
 
 ####================================####
 ####     RECOMPRESS INPUT FILES      ####
