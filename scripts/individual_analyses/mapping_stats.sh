@@ -136,32 +136,86 @@ echo "=== Bowtie2 Mapping Statistics ==="
 BOWTIE_STATS_FILE="${OUTPUT_DIR}/statistics/bowtie2_mapping_summary.csv"
 echo "Sample,Read_Type,Total_Reads,Aligned_Concordantly_0,Aligned_Concordantly_1,Aligned_Concordantly_1_Percent,Aligned_Concordantly_GT1,Overall_Alignment_Rate" > "$BOWTIE_STATS_FILE"
 
-# For this example, we assume Bowtie2 logs are in the BOWTIE_LSF_LOG_DIR and have a specific naming pattern according to the LSF job output. Adjust the pattern as necessary based on your actual log filenames.
 for bowtie_log in "${BOWTIE_LSF_LOG_DIR}"/mapping_*_*.out; do
-        if [[ -f "$bowtie_log" ]] && grep -q "overall alignment rate" "$bowtie_log"; then
-        # Extract sample name from the file
-        sample=$(grep -E "Sample:|Processing:" "$bowtie_log" | head -1 | sed 's/.*Sample: //' || echo "unknown")
-        
-        # Determine read type
-        if grep -q "R1_unpaired" "$bowtie_log"; then
-            read_type="R1_unpaired"
-        elif grep -q "R2_unpaired" "$bowtie_log"; then
-            read_type="R2_unpaired"
-        elif grep -q "paired" "$bowtie_log"; then
-            read_type="paired"
-        else
-            read_type="unknown"
+    if [[ ! -f "$bowtie_log" ]]; then
+        continue
+    fi
+    
+    # Extract sample name
+    sample=$(grep "Sample:" "$bowtie_log" | head -1 | sed 's/.*Sample: //' || echo "unknown")
+    
+    # Skip if no sample found
+    if [[ "$sample" == "unknown" ]]; then
+        continue
+    fi
+    
+    echo "Processing: $bowtie_log (Sample: $sample)"
+    
+    # Parse each stats block using a state machine approach
+    total_reads=""
+    aligned_0=""
+    aligned_1=""
+    aligned_gt1=""
+    overall_rate=""
+    read_type=""
+    stats_block_started=0
+    
+    while IFS= read -r line; do
+        # Detect start of a stats block
+        if echo "$line" | grep -q "reads; of these:"; then
+            # If we have data from previous block, save it
+            if [[ -n "$total_reads" ]] && [[ -n "$read_type" ]]; then
+                echo "$sample,$read_type,$total_reads,$aligned_0,$aligned_1,$aligned_gt1,$overall_rate" >> "$BOWTIE_STATS_FILE"
+            fi
+            
+            # Reset for new block
+            total_reads=""
+            aligned_0=""
+            aligned_1=""
+            aligned_gt1=""
+            overall_rate=""
+            read_type=""
+            stats_block_started=1
+            
+            # Get total reads
+            total_reads=$(echo "$line" | awk '{print $1}' | sed 's/,//g')
         fi
         
-        # Parse statistics
-        total_reads=$(grep "reads; of these:" "$bowtie_log" | head -1 | awk '{print $1}' | sed 's/,//g')
-        aligned_0=$(grep "aligned concordantly 0 times" "$bowtie_log" | head -1 | awk '{print $1}' | sed 's/,//g')
-        aligned_1=$(grep "aligned concordantly exactly 1 time" "$bowtie_log" | head -1 | awk '{print $1}' | sed 's/,//g')
-        aligned_gt1=$(grep "aligned concordantly >1 times" "$bowtie_log" | head -1 | awk '{print $1}' | sed 's/,//g')
-        overall_rate=$(grep "overall alignment rate" "$bowtie_log" | head -1 | awk '{print $1}' | sed 's/%//')
+        # Detect read type
+        if echo "$line" | grep -q "were paired"; then
+            read_type="paired"
+        elif echo "$line" | grep -q "were unpaired"; then
+            # Determine if R1 or R2 unpaired by looking at the surrounding context
+            if echo "$line" | grep -q "R1_unpaired"; then
+                read_type="R1_unpaired"
+            elif echo "$line" | grep -q "R2_unpaired"; then
+                read_type="R2_unpaired"
+            else
+                read_type="unpaired"
+            fi
+        fi
         
+        # Parse alignment statistics
+        if echo "$line" | grep -q "aligned 0 times"; then
+            aligned_0=$(echo "$line" | awk '{print $1}' | sed 's/,//g')
+        fi
+        if echo "$line" | grep -q "aligned exactly 1 time"; then
+            aligned_1=$(echo "$line" | awk '{print $1}' | sed 's/,//g')
+        fi
+        if echo "$line" | grep -q "aligned >1 times"; then
+            aligned_gt1=$(echo "$line" | awk '{print $1}' | sed 's/,//g')
+        fi
+        if echo "$line" | grep -q "overall alignment rate"; then
+            overall_rate=$(echo "$line" | awk '{print $1}' | sed 's/%//')
+        fi
+        
+    done < "$bowtie_log"
+    
+    # Save the last block
+    if [[ -n "$total_reads" ]] && [[ -n "$read_type" ]]; then
         echo "$sample,$read_type,$total_reads,$aligned_0,$aligned_1,$aligned_gt1,$overall_rate" >> "$BOWTIE_STATS_FILE"
     fi
+    
 done
 
 echo "Bowtie2 statistics saved to: $BOWTIE_STATS_FILE"
