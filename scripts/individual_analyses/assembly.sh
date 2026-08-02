@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Author: Jorge Alberto Castro Rodríguez
-# Script to assemble 
-# 30/07/2026
-# Ver. 1.1.0 (farm-ready)
+# Script to assemble unmapped reads from STAR and Bowtie2
+# 31/07/2026
+# Ver. 1.2.0 (farm-ready)
 
 ####==================================####
 ####           CONFIGURATION          ####
@@ -29,6 +29,11 @@ BOWTIE_INPUT_DIR="${PROJECT_SCRATCH}/results/aligned/Bowtie2_alignment"
 # Output directory
 OUTPUT_DIR="${PROJECT_SCRATCH}/assembly"
 
+# Container configuration
+CONTAINERS="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers"
+SPADES_CONTAINER="${CONTAINERS}/spades_3.15.5.sif"
+MEGAHIT_CONTAINER="${CONTAINERS}/megahit_1.2.9.sif"
+
 # Scripts directory
 SCRIPTS_NFS="${HOME}/git_repos/${PROJECT_NAME}/scripts/individual_analyses"
 
@@ -48,157 +53,399 @@ module load ISG/apptainer/1.4.0 2>/dev/null || echo "Apptainer module not availa
 echo "========================================="
 echo "  Unmapped Reads Assembly Module"
 echo "  Project: ${PROJECT_NAME}"
-echo "  STAR unmapped reads input: ${STAR_INPUT_DIR}"
-echo "  Bowtie unmapped reads input: ${BOWTIE_INPUT_DIR}"
-echo "  Output directory: ${OUTPUT_DIR}"
+echo "  STAR input: ${STAR_INPUT_DIR}"
+echo "  Bowtie input: ${BOWTIE_INPUT_DIR}"
+echo "  Output: ${OUTPUT_DIR}"
 echo "  Date: $(date)"
 echo "========================================="
 
-tg_send "Starting unampped reads assembly" 2>/dev/null || true
+tg_send "Starting unmapped reads assembly" 2>/dev/null || true
 
-####===================================================####
-####          GET SAMPLE LIST FOR STAR ASSEMBLY        ####
-####===================================================####
+####===================================####
+####     GET SAMPLES FROM STAR         ####
+####===================================####
 
 cd "$STAR_INPUT_DIR" || exit 1
 
-# Get list of samples
-samples=()
+# STAR paired samples
+star_paired_samples=()
 while IFS= read -r line; do
-    samples+=("$line")
-done < <(find . -maxdepth 1 -type d -name "PM[0-9]{4}_paired_Unmapped.out.mate[12]" | sed 's/\.\///' | sort)
+    sample_name=$(basename "$line" "_paired_Unmapped.out.mate1")
+    star_paired_samples+=("$sample_name")
+done < <(ls -1 *_paired_Unmapped.out.mate1 2>/dev/null | sort)
 
-# Check if samples exist
-if [[ ${#samples[@]} -eq 0 ]]; then
-    echo "No samples found in ${STAR_INPUT_DIR}"
-    tg_send "No samples found" 2>/dev/null || true
+# STAR R1 unpaired samples
+star_r1_unpaired_samples=()
+while IFS= read -r line; do
+    sample_name=$(basename "$line" "_R1_unpaired_Unmapped.out.mate1")
+    star_r1_unpaired_samples+=("$sample_name")
+done < <(ls -1 *_R1_unpaired_Unmapped.out.mate1 2>/dev/null | sort)
+
+# STAR R2 unpaired samples
+star_r2_unpaired_samples=()
+while IFS= read -r line; do
+    sample_name=$(basename "$line" "_R2_unpaired_Unmapped.out.mate1")
+    star_r2_unpaired_samples+=("$sample_name")
+done < <(ls -1 *_R2_unpaired_Unmapped.out.mate1 2>/dev/null | sort)
+
+# Count STAR samples
+star_total=$(( ${#star_paired_samples[@]} + ${#star_r1_unpaired_samples[@]} + ${#star_r2_unpaired_samples[@]} ))
+
+####==================================####
+####     GET SAMPLES FROM BOWTIE      ####
+####==================================####
+
+cd "$BOWTIE_INPUT_DIR" || exit 1
+
+# Bowtie paired samples (interleaved file with both reads)
+bowtie_paired_samples=()
+while IFS= read -r line; do
+    sample_name=$(basename "$line" "_unmapped_mixed.fastq")
+    bowtie_paired_samples+=("$sample_name")
+done < <(ls -1 *_unmapped_mixed.fastq 2>/dev/null | sort)
+
+# Bowtie R1 unpaired samples
+bowtie_r1_unpaired_samples=()
+while IFS= read -r line; do
+    sample_name=$(basename "$line" "_R1_unpaired_unmapped.fastq")
+    bowtie_r1_unpaired_samples+=("$sample_name")
+done < <(ls -1 *_R1_unpaired_unmapped.fastq 2>/dev/null | sort)
+
+# Bowtie R2 unpaired samples
+bowtie_r2_unpaired_samples=()
+while IFS= read -r line; do
+    sample_name=$(basename "$line" "_R2_unpaired_unmapped.fastq")
+    bowtie_r2_unpaired_samples+=("$sample_name")
+done < <(ls -1 *_R2_unpaired_unmapped.fastq 2>/dev/null | sort)
+
+# Count Bowtie samples
+bowtie_total=$(( ${#bowtie_paired_samples[@]} + ${#bowtie_r1_unpaired_samples[@]} + ${#bowtie_r2_unpaired_samples[@]} ))
+
+####===================================================####
+####          COMBINE ALL SAMPLES INTO ONE ARRAY       ####
+####===================================================####
+
+all_samples=()
+all_types=()
+all_sources=()
+
+# Add STAR paired samples
+for sample in "${star_paired_samples[@]}"; do
+    all_samples+=("$sample")
+    all_types+=("paired")
+    all_sources+=("STAR")
+done
+
+# Add STAR R1 unpaired samples
+for sample in "${star_r1_unpaired_samples[@]}"; do
+    all_samples+=("$sample")
+    all_types+=("R1_unpaired")
+    all_sources+=("STAR")
+done
+
+# Add STAR R2 unpaired samples
+for sample in "${star_r2_unpaired_samples[@]}"; do
+    all_samples+=("$sample")
+    all_types+=("R2_unpaired")
+    all_sources+=("STAR")
+done
+
+# Add Bowtie paired samples
+for sample in "${bowtie_paired_samples[@]}"; do
+    all_samples+=("$sample")
+    all_types+=("paired_interleaved")
+    all_sources+=("Bowtie")
+done
+
+# Add Bowtie R1 unpaired samples
+for sample in "${bowtie_r1_unpaired_samples[@]}"; do
+    all_samples+=("$sample")
+    all_types+=("R1_unpaired")
+    all_sources+=("Bowtie")
+done
+
+# Add Bowtie R2 unpaired samples
+for sample in "${bowtie_r2_unpaired_samples[@]}"; do
+    all_samples+=("$sample")
+    all_types+=("R2_unpaired")
+    all_sources+=("Bowtie")
+done
+
+total_samples=${#all_samples[@]}
+
+if [[ $total_samples -eq 0 ]]; then
+    echo "No unmapped samples found"
+    tg_send "No unmapped samples found" 2>/dev/null || true
     exit 1
 fi
 
-echo "Found ${#samples[@]} samples"
+echo ""
+echo "Summary:"
+echo "  - STAR samples: ${star_total}"
+echo "    - Paired: ${#star_paired_samples[@]}"
+echo "    - R1 unpaired: ${#star_r1_unpaired_samples[@]}"
+echo "    - R2 unpaired: ${#star_r2_unpaired_samples[@]}"
+echo "  - Bowtie samples: ${bowtie_total}"
+echo "    - Paired (interleaved): ${#bowtie_paired_samples[@]}"
+echo "    - R1 unpaired: ${#bowtie_r1_unpaired_samples[@]}"
+echo "    - R2 unpaired: ${#bowtie_r2_unpaired_samples[@]}"
+echo "  - Total: ${total_samples}"
 
-# Get the sample for this array task
+####===================================================####
+####          GET ARRAY TASK SAMPLE                    ####
+####===================================================####
+
 SAMPLE_INDEX=$((LSB_JOBINDEX - 1))
 
-if [[ $SAMPLE_INDEX -ge ${#samples[@]} ]]; then
-    echo "ERROR: Invalid job index ${LSB_JOBINDEX} (max ${#samples[@]})"
+if [[ $SAMPLE_INDEX -ge ${#all_samples[@]} ]]; then
+    echo "ERROR: Invalid job index ${LSB_JOBINDEX} (max ${#all_samples[@]})"
     exit 1
 fi
 
-sample="${samples[$SAMPLE_INDEX]}"
+sample="${all_samples[$SAMPLE_INDEX]}"
+sample_type="${all_types[$SAMPLE_INDEX]}"
+sample_source="${all_sources[$SAMPLE_INDEX]}"
 
 echo "========================================="
-echo "  Sequence Assembly Array ${LSB_JOBINDEX}/${#samples[@]}"
-echo "  Sample: ${sample}"
+echo "  Processing sample: ${sample}"
+echo "  Type: ${sample_type}"
+echo "  Source: ${sample_source}"
+echo "  Array task: ${LSB_JOBINDEX}/${#all_samples[@]}"
 echo "  Date: $(date)"
 echo "========================================="
 
-tg_send "Assembly: ${sample} (${LSB_JOBINDEX}/${#samples[@]})" 2>/dev/null || true
+tg_send "Processing: ${sample} (${sample_type}) from ${sample_source} (${LSB_JOBINDEX}/${#all_samples[@]})" 2>/dev/null || true
 
+####===================================================####
+####          DETERMINE INPUT FILES                    ####
+####===================================================####
+
+case "${sample_source}_${sample_type}" in
+    "STAR_paired")
+        R1_UNMAPPED="${STAR_INPUT_DIR}/${sample}_paired_Unmapped.out.mate1"
+        R2_UNMAPPED="${STAR_INPUT_DIR}/${sample}_paired_Unmapped.out.mate2"
+        INPUT_DIR_FOR_BIND="${STAR_INPUT_DIR}"
+        echo "STAR paired-end unmapped reads:"
+        echo "  R1: $(basename "$R1_UNMAPPED")"
+        echo "  R2: $(basename "$R2_UNMAPPED")"
+        ;;
+    "STAR_R1_unpaired")
+        R1_UNMAPPED="${STAR_INPUT_DIR}/${sample}_R1_unpaired_Unmapped.out.mate1"
+        INPUT_DIR_FOR_BIND="${STAR_INPUT_DIR}"
+        echo "STAR R1 unpaired unmapped reads:"
+        echo "  R1: $(basename "$R1_UNMAPPED")"
+        ;;
+    "STAR_R2_unpaired")
+        R2_UNMAPPED="${STAR_INPUT_DIR}/${sample}_R2_unpaired_Unmapped.out.mate1"
+        INPUT_DIR_FOR_BIND="${STAR_INPUT_DIR}"
+        echo "STAR R2 unpaired unmapped reads:"
+        echo "  R2: $(basename "$R2_UNMAPPED")"
+        ;;
+    "Bowtie_paired_interleaved")
+        R1_UNMAPPED="${BOWTIE_INPUT_DIR}/${sample}_unmapped_mixed.fastq"
+        R2_UNMAPPED=""  # Interleaved file contains both reads
+        INPUT_DIR_FOR_BIND="${BOWTIE_INPUT_DIR}"
+        echo "Bowtie paired-end unmapped reads (interleaved):"
+        echo "  File: $(basename "$R1_UNMAPPED")"
+        ;;
+    "Bowtie_R1_unpaired")
+        R1_UNMAPPED="${BOWTIE_INPUT_DIR}/${sample}_R1_unpaired_unmapped.fastq"
+        INPUT_DIR_FOR_BIND="${BOWTIE_INPUT_DIR}"
+        echo "Bowtie R1 unpaired unmapped reads:"
+        echo "  R1: $(basename "$R1_UNMAPPED")"
+        ;;
+    "Bowtie_R2_unpaired")
+        R2_UNMAPPED="${BOWTIE_INPUT_DIR}/${sample}_R2_unpaired_unmapped.fastq"
+        INPUT_DIR_FOR_BIND="${BOWTIE_INPUT_DIR}"
+        echo "Bowtie R2 unpaired unmapped reads:"
+        echo "  R2: $(basename "$R2_UNMAPPED")"
+        ;;
+    *)
+        echo "ERROR: Unknown combination: ${sample_source}_${sample_type}"
+        exit 1
+        ;;
+esac
+
+# Check if input files exist
+if [[ "$sample_type" == "paired" ]] || [[ "$sample_type" == "paired_interleaved" ]]; then
+    if [[ ! -f "$R1_UNMAPPED" ]]; then
+        echo "ERROR: Input file not found: ${R1_UNMAPPED}"
+        exit 1
+    fi
+    if [[ "$sample_type" == "paired" ]] && [[ ! -f "$R2_UNMAPPED" ]]; then
+        echo "ERROR: Input file not found: ${R2_UNMAPPED}"
+        exit 1
+    fi
+else
+    if [[ ! -f "$R1_UNMAPPED" ]] && [[ ! -f "$R2_UNMAPPED" ]]; then
+        echo "ERROR: Input file not found"
+        exit 1
+    fi
+fi
 
 ####================================####
-####     DECOMPRESS INPUT FILES      ####
+####          RUN ASSEMBLY          ####
 ####================================####
 
-echo "Checking for compressed input files..."
+# Parameters
+THREADS=32
+MEMORY=128  # GB for MEGAhit
 
-# Decompress R1 paired if compressed
-if [[ -f "${STAR_INPUT_DIR}/${sample}_Unmapped.out.mate1.gz" ]]; then
-    echo "Decompressing: ${sample}_Unmapped.out.mate1.gz"
-    gzip -d "${INPUT_DIR}/${sample}_Unmapped.out.mate1.gz"
-fi
+# Create output directories
+mkdir -p "${OUTPUT_DIR}/rnaSPAdes/${sample}"
+mkdir -p "${OUTPUT_DIR}/metaSPAdes/${sample}"
+mkdir -p "${OUTPUT_DIR}/MEGAhit/${sample}"
 
-# Decompress R2 paired if compressed
-if [[ -f "${STAR_INPUT_DIR}/${sample}_Unmapped.out.mate2.gz" ]] && [[ ! -f "${INPUT_DIR}/${sample}/${sample}_R2_paired.fastq" ]]; then
-    echo "Decompressing: ${sample}_R2_paired.fastq.gz"
-    gzip -d "${INPUT_DIR}/${sample}/${sample}_R2_paired.fastq.gz"
-fi
+echo "Starting assembly process for ${sample} (${sample_type}) from ${sample_source}..."
+tg_send "Starting assembly for ${sample}" 2>/dev/null || true
 
-# Decompress R1 unpaired if compressed
-if [[ -f "${INPUT_DIR}/${sample}/${sample}_R1_unpaired.fastq.gz" ]] && [[ ! -f "${INPUT_DIR}/${sample}/${sample}_R1_unpaired.fastq" ]]; then
-    echo "Decompressing: ${sample}_R1_unpaired.fastq.gz"
-    gzip -d "${INPUT_DIR}/${sample}/${sample}_R1_unpaired.fastq.gz"
-fi
+####================================####
+####        rnaSPAdes Assembly       ####
+####================================####
 
-# Decompress R2 unpaired if compressed
-if [[ -f "${INPUT_DIR}/${sample}/${sample}_R2_unpaired.fastq.gz" ]] && [[ ! -f "${INPUT_DIR}/${sample}/${sample}_R2_unpaired.fastq" ]]; then
-    echo "Decompressing: ${sample}_R2_unpaired.fastq.gz"
-    gzip -d "${INPUT_DIR}/${sample}/${sample}_R2_unpaired.fastq.gz"
-fi
+echo "Starting rnaSPAdes assembly for sample ${sample}..."
 
-# Create output directory
-mkdir -p "${OUTPUT_DIR}"
-
-    echo "Starting assembly process..."
-    mkdir -p "${ASSEMBLY_DIR}/fastq" # Output directory for assembly
-
-    for R1 in "${ALIGNED_DIR}"/*_Unmapped.out.mate1; do
-        R2="${R1/_Unmapped.out.mate1/_Unmapped.out.mate2}"
-        sample=$(basename $R1 | cut -d'_' -f1)
-
-        # Sample specific output directories
-        mkdir -p "${ASSEMBLY_DIR}/rnaSPAdes/${sample}"
-        mkdir -p "${ASSEMBLY_DIR}/metaSPAdes/${sample}"
-
-        echo "Cleaning up previous MEGAhit results for $sample..."
-        rm -rf "$OUTDIR/assembly/MEGAhit/$sample" 2>/dev/null
-        
-
-        R1_fastq="${ASSEMBLY_DIR}/fastq/${sample}_R1.fastq"
-        R2_fastq="${ASSEMBLY_DIR}/fastq/${sample}_R2.fastq"
-
-        echo "Extracting unmapped reads from BAM format to FASTQ"
-        
-        conda activate samtools_env
-        samtools fastq "$R1" > "$R1_fastq"
-        samtools fastq "$R2" > "$R2_fastq"
-        conda deactivate
-
-        # rnaSPAdes --------
-        # rnaSPAdes is good for transcriptome analyses.
-        echo "Starting assembly through rnaSPAdes..."
-        # Input data as every corresponding unmapped read file.
-
-        echo "Starting rnaSPAdes assembly for sample $sample..."
-        conda activate SPADES_env
+if [[ "$sample_type" == "paired" ]]; then
+    # STAR paired-end (two separate files)
+    apptainer exec \
+        --bind "${INPUT_DIR_FOR_BIND}:/input:ro" \
+        --bind "${OUTPUT_DIR}:/output" \
+        "$SPADES_CONTAINER" \
         rnaspades.py \
-        -1 "$R1_fastq" \
-        -2 "$R2_fastq" \
-        -o "$OUTDIR"/assembly/rnaSPAdes/$sample \
-        -t $threads
-        conda deactivate
-        echo "rnaSPAdes assembly finished for sample $sample"
+        -1 "/input/$(basename "$R1_UNMAPPED")" \
+        -2 "/input/$(basename "$R2_UNMAPPED")" \
+        -o "/output/rnaSPAdes/${sample}" \
+        -t "$THREADS"
+elif [[ "$sample_type" == "paired_interleaved" ]]; then
+    # Bowtie paired-end (interleaved file)
+    apptainer exec \
+        --bind "${INPUT_DIR_FOR_BIND}:/input:ro" \
+        --bind "${OUTPUT_DIR}:/output" \
+        "$SPADES_CONTAINER" \
+        rnaspades.py \
+        --interleaved "/input/$(basename "$R1_UNMAPPED")" \
+        -o "/output/rnaSPAdes/${sample}" \
+        -t "$THREADS"
+else
+    # Single-end
+    apptainer exec \
+        --bind "${INPUT_DIR_FOR_BIND}:/input:ro" \
+        --bind "${OUTPUT_DIR}:/output" \
+        "$SPADES_CONTAINER" \
+        rnaspades.py \
+        -s "/input/$(basename "$R1_UNMAPPED")" \
+        -o "/output/rnaSPAdes/${sample}" \
+        -t "$THREADS"
+fi
 
-        # metaSPAdes. --------
-        # metaSPAdes is good for small genomes.
-        echo "Starting assembly through metaSPAdes..." 
+if [[ $? -eq 0 ]]; then
+    echo "rnaSPAdes assembly completed for ${sample}"
+else
+    echo "rnaSPAdes assembly FAILED for ${sample}"
+fi
 
-        # Input files were the same unmapped reads with the same format. 
-        echo "Starting metaSPAdes assembly for sample $sample..."
-        conda activate SPADES_env
+####================================####
+####        metaSPAdes Assembly      ####
+####================================####
+
+echo "Starting metaSPAdes assembly for sample ${sample}..."
+
+if [[ "$sample_type" == "paired" ]]; then
+    apptainer exec \
+        --bind "${INPUT_DIR_FOR_BIND}:/input:ro" \
+        --bind "${OUTPUT_DIR}:/output" \
+        "$SPADES_CONTAINER" \
         metaspades.py \
-        -1 "$R1_fastq" \
-        -2 "$R2_fastq" \
-        -o "$OUTDIR"/assembly/metaSPAdes/$sample \
-        -t $threads
-        conda deactivate
-        echo "metaSPAdes assembly finished for sample $sample"
+        -1 "/input/$(basename "$R1_UNMAPPED")" \
+        -2 "/input/$(basename "$R2_UNMAPPED")" \
+        -o "/output/metaSPAdes/${sample}" \
+        -t "$THREADS"
+elif [[ "$sample_type" == "paired_interleaved" ]]; then
+    apptainer exec \
+        --bind "${INPUT_DIR_FOR_BIND}:/input:ro" \
+        --bind "${OUTPUT_DIR}:/output" \
+        "$SPADES_CONTAINER" \
+        metaspades.py \
+        --interleaved "/input/$(basename "$R1_UNMAPPED")" \
+        -o "/output/metaSPAdes/${sample}" \
+        -t "$THREADS"
+else
+    apptainer exec \
+        --bind "${INPUT_DIR_FOR_BIND}:/input:ro" \
+        --bind "${OUTPUT_DIR}:/output" \
+        "$SPADES_CONTAINER" \
+        metaspades.py \
+        -s "/input/$(basename "$R1_UNMAPPED")" \
+        -o "/output/metaSPAdes/${sample}" \
+        -t "$THREADS"
+fi
 
-        # MEGAhit. --------
-        echo "Starting assembly through MEGAhit..."
+if [[ $? -eq 0 ]]; then
+    echo "metaSPAdes assembly completed for ${sample}"
+else
+    echo "metaSPAdes assembly FAILED for ${sample}"
+fi
 
-        echo "Starting MEGAhit assembly for sample $sample..."
-        conda activate MEGAhit_env 
+####================================####
+####        MEGAhit Assembly         ####
+####================================####
+
+echo "Starting MEGAhit assembly for sample ${sample}..."
+
+rm -rf "${OUTPUT_DIR}/MEGAhit/${sample}" 2>/dev/null
+
+if [[ "$sample_type" == "paired" ]]; then
+    apptainer exec \
+        --bind "${INPUT_DIR_FOR_BIND}:/input:ro" \
+        --bind "${OUTPUT_DIR}:/output" \
+        "$MEGAHIT_CONTAINER" \
         megahit \
-        -1 "$R1_fastq" \
-        -2 "$R2_fastq" \
-        -o "$OUTDIR"/assembly/MEGAhit/$sample \
-        -t $threads \
-        -m 30
-        conda deactivate
-        echo "MEGAhit assembly finished for sample $sample"
+        -1 "/input/$(basename "$R1_UNMAPPED")" \
+        -2 "/input/$(basename "$R2_UNMAPPED")" \
+        -o "/output/MEGAhit/${sample}" \
+        -t "$THREADS" \
+        -m "${MEMORY}"
+elif [[ "$sample_type" == "paired_interleaved" ]]; then
+    # MEGAhit doesn't support interleaved directly, convert to separate files first
+    # For now, use single-end mode with the interleaved file
+    apptainer exec \
+        --bind "${INPUT_DIR_FOR_BIND}:/input:ro" \
+        --bind "${OUTPUT_DIR}:/output" \
+        "$MEGAHIT_CONTAINER" \
+        megahit \
+        -r "/input/$(basename "$R1_UNMAPPED")" \
+        -o "/output/MEGAhit/${sample}" \
+        -t "$THREADS" \
+        -m "${MEMORY}"
+else
+    apptainer exec \
+        --bind "${INPUT_DIR_FOR_BIND}:/input:ro" \
+        --bind "${OUTPUT_DIR}:/output" \
+        "$MEGAHIT_CONTAINER" \
+        megahit \
+        -r "/input/$(basename "$R1_UNMAPPED")" \
+        -o "/output/MEGAhit/${sample}" \
+        -t "$THREADS" \
+        -m "${MEMORY}"
+fi
 
-    done
+if [[ $? -eq 0 ]]; then
+    echo "MEGAhit assembly completed for ${sample}"
+else
+    echo "MEGAhit assembly FAILED for ${sample}"
+fi
 
-    echo "All assembly processes completed"
-}
+####================================####
+####        SUMMARY                  ####
+####================================####
+
+echo ""
+echo "========================================="
+echo "  Assembly completed for ${sample}"
+echo "  Output directories:"
+echo "    - rnaSPAdes: ${OUTPUT_DIR}/rnaSPAdes/${sample}"
+echo "    - metaSPAdes: ${OUTPUT_DIR}/metaSPAdes/${sample}"
+echo "    - MEGAhit: ${OUTPUT_DIR}/MEGAhit/${sample}"
+echo "========================================="
+
+tg_send "Completed: ${sample}" 2>/dev/null || true
