@@ -34,7 +34,7 @@ FASTQ_DIR="${PROJECT_SCRATCH}/assembly/fastq"
 CONTAINERS="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers"
 SPADES_CONTAINER="${CONTAINERS}/spades_3.15.5.sif"
 MEGAHIT_CONTAINER="${CONTAINERS}/megahit_1.2.9.sif"
-SAMTOOLS_CONTAINER="${CONTAINERS}/samtools_1.20--h50ea8bc_1.sif"
+SEQTK_CONTAINER="${CONTAINERS}/seqtk_1.5.sif"
 
 # Scripts directory
 SCRIPTS_NFS="${HOME}/git_repos/${PROJECT_NAME}/scripts/individual_analyses"
@@ -233,8 +233,18 @@ case "${sample_source}_${sample_type}" in
         R2_FASTQ="${FASTQ_DIR}/${sample}/${sample}_R2.fastq"
         
         echo "Converting STAR paired-end unmapped reads to FASTQ..."
-        awk '{print "@" $1 "\n" $2 "\n+\n" $3}' "$R1_RAW" > "$R1_FASTQ"
-        awk '{print "@" $1 "\n" $2 "\n+\n" $3}' "$R2_RAW" > "$R2_FASTQ"
+
+        apptainer exec \
+            --bind "$(dirname "$R1_RAW"):/input:ro" \
+            --bind "$(dirname "$R1_FASTQ"):/output" \
+            "$SEQTK_CONTAINER" \
+            seqtk seq -A "/input/$(basename "$R1_RAW")" > "$R1_FASTQ"
+        
+        apptainer exec \
+            --bind "$(dirname "$R2_RAW"):/input:ro" \
+            --bind "$(dirname "$R2_FASTQ"):/output" \
+            "$SEQTK_CONTAINER" \
+            seqtk seq -A "/input/$(basename "$R2_RAW")" > "$R2_FASTQ"
         
         # Set R1_UNMAPPED and R2_UNMAPPED to the FASTQ files
         R1_UNMAPPED="$R1_FASTQ"
@@ -249,7 +259,12 @@ case "${sample_source}_${sample_type}" in
         R1_FASTQ="${FASTQ_DIR}/${sample}/${sample}_R1.fastq"
         
         echo "Converting STAR R1 unpaired unmapped reads to FASTQ..."
-        awk '{print "@" $1 "\n" $2 "\n+\n" $3}' "$R1_RAW" > "$R1_FASTQ"
+        
+        apptainer exec \
+            --bind "${STAR_INPUT_DIR}:/input:ro" \
+            --bind "${FASTQ_DIR}/${sample}:/output" \
+            "$SEQTK_CONTAINER" \
+            seqtk seq -A "/input/$(basename "$R1_RAW")" > "$R1_FASTQ"
         
         # Set R1_UNMAPPED to the FASTQ file
         R1_UNMAPPED="$R1_FASTQ"
@@ -262,7 +277,12 @@ case "${sample_source}_${sample_type}" in
         R2_FASTQ="${FASTQ_DIR}/${sample}/${sample}_R2.fastq"
         
         echo "Converting STAR R2 unpaired unmapped reads to FASTQ..."
-        awk '{print "@" $1 "\n" $2 "\n+\n" $3}' "$R2_RAW" > "$R2_FASTQ"
+
+        apptainer exec \
+            --bind "${STAR_INPUT_DIR}:/input:ro" \
+            --bind "${FASTQ_DIR}/${sample}:/output" \
+            "$SEQTK_CONTAINER" \
+            seqtk seq -A "/input/$(basename "$R2_RAW")" > "$R2_FASTQ"
         
         # Set R2_UNMAPPED to the FASTQ file
         R2_UNMAPPED="$R2_FASTQ"
@@ -319,6 +339,11 @@ fi
 # Parameters
 THREADS=32
 MEMORY=128  # GB for MEGAhit
+
+# Clean output directories before running
+rm -rf "${OUTPUT_DIR}/rnaSPAdes/${sample}"/*
+rm -rf "${OUTPUT_DIR}/metaSPAdes/${sample}"/*
+rm -rf "${OUTPUT_DIR}/MEGAhit/${sample}"/*
 
 # Create output directories
 mkdir -p "${OUTPUT_DIR}/rnaSPAdes/${sample}"

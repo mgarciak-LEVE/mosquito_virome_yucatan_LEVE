@@ -46,7 +46,7 @@ if [[ $total_samples -eq 0 ]]; then
 fi
 
 bsub -o "${DATE_DIR}/assembly_%J_%I.out" \
-     -e "${DATE_DIR}/ssembly_%J_%I.err" \
+     -e "${DATE_DIR}/assembly_%J_%I.err" \
      -q normal \
      -n 32 \
      -M 128000 \
