@@ -27,8 +27,8 @@ STAR_INPUT_DIR="${PROJECT_SCRATCH}/results/aligned/STAR_alignment"
 BOWTIE_INPUT_DIR="${PROJECT_SCRATCH}/results/aligned/Bowtie2_alignment"
 
 # Output directory
-OUTPUT_DIR="${PROJECT_SCRATCH}/assembly"
-FASTQ_DIR="${PROJECT_SCRATCH}/assembly/fastq"
+OUTPUT_DIR="${PROJECT_SCRATCH}/results/assembly"
+FASTQ_DIR="${PROJECT_SCRATCH}/results/assembly/fastq"
 
 # Container configuration
 CONTAINERS="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers"
@@ -259,7 +259,7 @@ case "${sample_source}_${sample_type}" in
         R1_FASTQ="${FASTQ_DIR}/${sample}/${sample}_R1.fastq"
         
         echo "Converting STAR R1 unpaired unmapped reads to FASTQ..."
-        
+
         apptainer exec \
             --bind "${STAR_INPUT_DIR}:/input:ro" \
             --bind "${FASTQ_DIR}/${sample}:/output" \
