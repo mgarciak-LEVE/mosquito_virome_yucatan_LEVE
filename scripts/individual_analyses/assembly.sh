@@ -28,11 +28,13 @@ BOWTIE_INPUT_DIR="${PROJECT_SCRATCH}/results/aligned/Bowtie2_alignment"
 
 # Output directory
 OUTPUT_DIR="${PROJECT_SCRATCH}/assembly"
+FASTQ_DIR="${PROJECT_SCRATCH}/assembly/fastq"
 
 # Container configuration
 CONTAINERS="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers"
 SPADES_CONTAINER="${CONTAINERS}/spades_3.15.5.sif"
 MEGAHIT_CONTAINER="${CONTAINERS}/megahit_1.2.9.sif"
+SAMTOOLS_CONTAINER="${CONTAINERS}/samtools_1.20--h50ea8bc_1.sif"
 
 # Scripts directory
 SCRIPTS_NFS="${HOME}/git_repos/${PROJECT_NAME}/scripts/individual_analyses"
@@ -216,30 +218,57 @@ echo "========================================="
 
 tg_send "Processing: ${sample} (${sample_type}) from ${sample_source} (${LSB_JOBINDEX}/${#all_samples[@]})" 2>/dev/null || true
 
-####===================================================####
-####          DETERMINE INPUT FILES                    ####
-####===================================================####
+####=====================================####
+####        DETERMINE INPUT FILES        ####
+####=====================================####
+
+# Create FASTQ directory
+mkdir -p "${FASTQ_DIR}/${sample}"
 
 case "${sample_source}_${sample_type}" in
     "STAR_paired")
-        R1_UNMAPPED="${STAR_INPUT_DIR}/${sample}_paired_Unmapped.out.mate1"
-        R2_UNMAPPED="${STAR_INPUT_DIR}/${sample}_paired_Unmapped.out.mate2"
-        INPUT_DIR_FOR_BIND="${STAR_INPUT_DIR}"
-        echo "STAR paired-end unmapped reads:"
-        echo "  R1: $(basename "$R1_UNMAPPED")"
-        echo "  R2: $(basename "$R2_UNMAPPED")"
-        ;;
+        R1_RAW="${STAR_INPUT_DIR}/${sample}_paired_Unmapped.out.mate1"
+        R2_RAW="${STAR_INPUT_DIR}/${sample}_paired_Unmapped.out.mate2"
+        R1_FASTQ="${FASTQ_DIR}/${sample}/${sample}_R1.fastq"
+        R2_FASTQ="${FASTQ_DIR}/${sample}/${sample}_R2.fastq"
+        
+        echo "Converting STAR paired-end unmapped reads to FASTQ..."
+        awk '{print "@" $1 "\n" $2 "\n+\n" $3}' "$R1_RAW" > "$R1_FASTQ"
+        awk '{print "@" $1 "\n" $2 "\n+\n" $3}' "$R2_RAW" > "$R2_FASTQ"
+        
+        # Set R1_UNMAPPED and R2_UNMAPPED to the FASTQ files
+        R1_UNMAPPED="$R1_FASTQ"
+        R2_UNMAPPED="$R2_FASTQ"
+        
+        INPUT_DIR_FOR_BIND="${FASTQ_DIR}/${sample}"
+        echo "  R1: $(basename "$R1_FASTQ")"
+        echo "  R2: $(basename "$R2_FASTQ")"
+        ;;  
     "STAR_R1_unpaired")
-        R1_UNMAPPED="${STAR_INPUT_DIR}/${sample}_R1_unpaired_Unmapped.out.mate1"
-        INPUT_DIR_FOR_BIND="${STAR_INPUT_DIR}"
-        echo "STAR R1 unpaired unmapped reads:"
-        echo "  R1: $(basename "$R1_UNMAPPED")"
+        R1_RAW="${STAR_INPUT_DIR}/${sample}_R1_unpaired_Unmapped.out.mate1"
+        R1_FASTQ="${FASTQ_DIR}/${sample}/${sample}_R1.fastq"
+        
+        echo "Converting STAR R1 unpaired unmapped reads to FASTQ..."
+        awk '{print "@" $1 "\n" $2 "\n+\n" $3}' "$R1_RAW" > "$R1_FASTQ"
+        
+        # Set R1_UNMAPPED to the FASTQ file
+        R1_UNMAPPED="$R1_FASTQ"
+        
+        INPUT_DIR_FOR_BIND="${FASTQ_DIR}/${sample}"
+        echo "  R1: $(basename "$R1_FASTQ")"
         ;;
     "STAR_R2_unpaired")
-        R2_UNMAPPED="${STAR_INPUT_DIR}/${sample}_R2_unpaired_Unmapped.out.mate1"
-        INPUT_DIR_FOR_BIND="${STAR_INPUT_DIR}"
-        echo "STAR R2 unpaired unmapped reads:"
-        echo "  R2: $(basename "$R2_UNMAPPED")"
+        R2_RAW="${STAR_INPUT_DIR}/${sample}_R2_unpaired_Unmapped.out.mate1"
+        R2_FASTQ="${FASTQ_DIR}/${sample}/${sample}_R2.fastq"
+        
+        echo "Converting STAR R2 unpaired unmapped reads to FASTQ..."
+        awk '{print "@" $1 "\n" $2 "\n+\n" $3}' "$R2_RAW" > "$R2_FASTQ"
+        
+        # Set R2_UNMAPPED to the FASTQ file
+        R2_UNMAPPED="$R2_FASTQ"
+        
+        INPUT_DIR_FOR_BIND="${FASTQ_DIR}/${sample}"
+        echo "  R2: $(basename "$R2_FASTQ")"
         ;;
     "Bowtie_paired_interleaved")
         R1_UNMAPPED="${BOWTIE_INPUT_DIR}/${sample}_unmapped_mixed.fastq"
