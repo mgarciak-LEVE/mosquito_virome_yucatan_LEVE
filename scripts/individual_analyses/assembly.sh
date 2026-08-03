@@ -34,7 +34,7 @@ FASTQ_DIR="${PROJECT_SCRATCH}/results/assembly/fastq"
 CONTAINERS="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers"
 SPADES_CONTAINER="${CONTAINERS}/spades_3.15.5.sif"
 MEGAHIT_CONTAINER="${CONTAINERS}/megahit_1.2.9.sif"
-SEQTK_CONTAINER="${CONTAINERS}/seqtk_1.5.sif"
+SAMTOOLS_CONTAINER="${CONTAINERS}/samtools_1.20--h50ea8bc_1.sif"
 
 # Scripts directory
 SCRIPTS_NFS="${HOME}/git_repos/${PROJECT_NAME}/scripts/individual_analyses"
@@ -72,23 +72,23 @@ cd "$STAR_INPUT_DIR" || exit 1
 # STAR paired samples
 star_paired_samples=()
 while IFS= read -r line; do
-    sample_name=$(basename "$line" "_paired_Unmapped.out.mate1")
+    sample_name=$(basename "$line" "_paired_Aligned.sortedByCoord.out.bam")
     star_paired_samples+=("$sample_name")
-done < <(ls -1 *_paired_Unmapped.out.mate1 2>/dev/null | sort)
+done < <(ls -1 *_paired_Aligned.sortedByCoord.out.bam 2>/dev/null | sort)
 
 # STAR R1 unpaired samples
 star_r1_unpaired_samples=()
 while IFS= read -r line; do
-    sample_name=$(basename "$line" "_R1_unpaired_Unmapped.out.mate1")
+    sample_name=$(basename "$line" "_R1_unpaired_Aligned.sortedByCoord.out.bam")
     star_r1_unpaired_samples+=("$sample_name")
-done < <(ls -1 *_R1_unpaired_Unmapped.out.mate1 2>/dev/null | sort)
+done < <(ls -1 *_R1_unpaired_Aligned.sortedByCoord.out.bam 2>/dev/null | sort)
 
 # STAR R2 unpaired samples
 star_r2_unpaired_samples=()
 while IFS= read -r line; do
-    sample_name=$(basename "$line" "_R2_unpaired_Unmapped.out.mate1")
+    sample_name=$(basename "$line" "_R2_unpaired_Aligned.sortedByCoord.out.bam")
     star_r2_unpaired_samples+=("$sample_name")
-done < <(ls -1 *_R2_unpaired_Unmapped.out.mate1 2>/dev/null | sort)
+done < <(ls -1 *_R2_unpaired_Aligned.sortedByCoord.out.bam 2>/dev/null | sort)
 
 # Count STAR samples
 star_total=$(( ${#star_paired_samples[@]} + ${#star_r1_unpaired_samples[@]} + ${#star_r2_unpaired_samples[@]} ))
@@ -227,88 +227,117 @@ mkdir -p "${FASTQ_DIR}/${sample}"
 
 case "${sample_source}_${sample_type}" in
     "STAR_paired")
-        R1_RAW="${STAR_INPUT_DIR}/${sample}_paired_Unmapped.out.mate1"
-        R2_RAW="${STAR_INPUT_DIR}/${sample}_paired_Unmapped.out.mate2"
+        BAM_FILE="${STAR_INPUT_DIR}/${sample}_paired_Aligned.sortedByCoord.out.bam"
         R1_FASTQ="${FASTQ_DIR}/${sample}/${sample}_R1.fastq"
         R2_FASTQ="${FASTQ_DIR}/${sample}/${sample}_R2.fastq"
+        UNMAPPED_BAM="${FASTQ_DIR}/${sample}/${sample}_unmapped.bam"
         
-        echo "Converting STAR paired-end unmapped reads to FASTQ..."
-
+        echo "Extracting unmapped reads from BAM to FASTQ using samtools..."
+        
+        # Extract unmapped reads from BAM (same as your original script)
         apptainer exec \
-            --bind "$(dirname "$R1_RAW"):/input:ro" \
-            --bind "$(dirname "$R1_FASTQ"):/output" \
-            "$SEQTK_CONTAINER" \
-            seqtk seq -A "/input/$(basename "$R1_RAW")" > "$R1_FASTQ"
+            --bind "${STAR_INPUT_DIR}:/input:ro" \
+            --bind "${FASTQ_DIR}/${sample}:/output" \
+            "$SAMTOOLS_CONTAINER" \
+            samtools view -b -f 12 "/input/$(basename "$BAM_FILE")" > "$UNMAPPED_BAM"
         
+        # Convert unmapped BAM to FASTQ (same as your original script)
         apptainer exec \
-            --bind "$(dirname "$R2_RAW"):/input:ro" \
-            --bind "$(dirname "$R2_FASTQ"):/output" \
-            "$SEQTK_CONTAINER" \
-            seqtk seq -A "/input/$(basename "$R2_RAW")" > "$R2_FASTQ"
+            --bind "${FASTQ_DIR}/${sample}:/input:ro" \
+            --bind "${FASTQ_DIR}/${sample}:/output" \
+            "$SAMTOOLS_CONTAINER" \
+            samtools fastq -1 "/input/$(basename "$R1_FASTQ")" -2 "/input/$(basename "$R2_FASTQ")" "/input/$(basename "$UNMAPPED_BAM")"
         
-        # Set R1_UNMAPPED and R2_UNMAPPED to the FASTQ files
+        # Clean up intermediate BAM
+        rm -f "$UNMAPPED_BAM"
+        
+        if [[ ! -s "$R1_FASTQ" ]] || [[ ! -s "$R2_FASTQ" ]]; then
+            echo " WARNING: FASTQ conversion produced empty files for ${sample}"
+            echo "  Skipping assembly for ${sample}"
+            exit 0
+        fi
+        
         R1_UNMAPPED="$R1_FASTQ"
         R2_UNMAPPED="$R2_FASTQ"
-        
         INPUT_DIR_FOR_BIND="${FASTQ_DIR}/${sample}"
-        echo "  R1: $(basename "$R1_FASTQ")"
-        echo "  R2: $(basename "$R2_FASTQ")"
-        ;;  
+        echo "  R1: $(basename "$R1_FASTQ") ($(wc -l < "$R1_FASTQ") lines)"
+        echo "  R2: $(basename "$R2_FASTQ") ($(wc -l < "$R2_FASTQ") lines)"
+        ;;
+        
     "STAR_R1_unpaired")
-        R1_RAW="${STAR_INPUT_DIR}/${sample}_R1_unpaired_Unmapped.out.mate1"
+        BAM_FILE="${STAR_INPUT_DIR}/${sample}_R1_unpaired_Aligned.sortedByCoord.out.bam"
         R1_FASTQ="${FASTQ_DIR}/${sample}/${sample}_R1.fastq"
+        UNMAPPED_BAM="${FASTQ_DIR}/${sample}/${sample}_R1_unmapped.bam"
         
-        echo "Converting STAR R1 unpaired unmapped reads to FASTQ..."
-
+        echo "Extracting R1 unpaired unmapped reads from BAM..."
+        
         apptainer exec \
             --bind "${STAR_INPUT_DIR}:/input:ro" \
             --bind "${FASTQ_DIR}/${sample}:/output" \
-            "$SEQTK_CONTAINER" \
-            seqtk seq -A "/input/$(basename "$R1_RAW")" > "$R1_FASTQ"
+            "$SAMTOOLS_CONTAINER" \
+            samtools view -b -f 4 "/input/$(basename "$BAM_FILE")" > "$UNMAPPED_BAM"
         
-        # Set R1_UNMAPPED to the FASTQ file
+        apptainer exec \
+            --bind "${FASTQ_DIR}/${sample}:/input:ro" \
+            --bind "${FASTQ_DIR}/${sample}:/output" \
+            "$SAMTOOLS_CONTAINER" \
+            samtools fastq "/input/$(basename "$UNMAPPED_BAM")" > "$R1_FASTQ"
+        
+        rm -f "$UNMAPPED_BAM"
+        
         R1_UNMAPPED="$R1_FASTQ"
-        
         INPUT_DIR_FOR_BIND="${FASTQ_DIR}/${sample}"
         echo "  R1: $(basename "$R1_FASTQ")"
         ;;
-    "STAR_R2_unpaired")
-        R2_RAW="${STAR_INPUT_DIR}/${sample}_R2_unpaired_Unmapped.out.mate1"
-        R2_FASTQ="${FASTQ_DIR}/${sample}/${sample}_R2.fastq"
         
-        echo "Converting STAR R2 unpaired unmapped reads to FASTQ..."
-
+    "STAR_R2_unpaired")
+        BAM_FILE="${STAR_INPUT_DIR}/${sample}_R2_unpaired_Aligned.sortedByCoord.out.bam"
+        R2_FASTQ="${FASTQ_DIR}/${sample}/${sample}_R2.fastq"
+        UNMAPPED_BAM="${FASTQ_DIR}/${sample}/${sample}_R2_unmapped.bam"
+        
+        echo "Extracting R2 unpaired unmapped reads from BAM..."
+        
         apptainer exec \
             --bind "${STAR_INPUT_DIR}:/input:ro" \
             --bind "${FASTQ_DIR}/${sample}:/output" \
-            "$SEQTK_CONTAINER" \
-            seqtk seq -A "/input/$(basename "$R2_RAW")" > "$R2_FASTQ"
+            "$SAMTOOLS_CONTAINER" \
+            samtools view -b -f 4 "/input/$(basename "$BAM_FILE")" > "$UNMAPPED_BAM"
         
-        # Set R2_UNMAPPED to the FASTQ file
+        apptainer exec \
+            --bind "${FASTQ_DIR}/${sample}:/input:ro" \
+            --bind "${FASTQ_DIR}/${sample}:/output" \
+            "$SAMTOOLS_CONTAINER" \
+            samtools fastq "/input/$(basename "$UNMAPPED_BAM")" > "$R2_FASTQ"
+        
+        rm -f "$UNMAPPED_BAM"
+        
         R2_UNMAPPED="$R2_FASTQ"
-        
         INPUT_DIR_FOR_BIND="${FASTQ_DIR}/${sample}"
         echo "  R2: $(basename "$R2_FASTQ")"
         ;;
+        
     "Bowtie_paired_interleaved")
-        R1_UNMAPPED="${BOWTIE_INPUT_DIR}/${sample}_unmapped_mixed.fastq"
-        R2_UNMAPPED=""  # Interleaved file contains both reads
+        R1_UNMAPPED="${BOWTIE_INPUT_DIR}/${sample}_both_unmapped.fastq"
+        if [[ ! -f "$R1_UNMAPPED" ]]; then
+            R1_UNMAPPED="${BOWTIE_INPUT_DIR}/${sample}_unmapped_mixed.fastq"
+        fi
+        R2_UNMAPPED=""
         INPUT_DIR_FOR_BIND="${BOWTIE_INPUT_DIR}"
-        echo "Bowtie paired-end unmapped reads (interleaved):"
-        echo "  File: $(basename "$R1_UNMAPPED")"
+        echo "Bowtie paired-end unmapped reads: $(basename "$R1_UNMAPPED")"
         ;;
+        
     "Bowtie_R1_unpaired")
         R1_UNMAPPED="${BOWTIE_INPUT_DIR}/${sample}_R1_unpaired_unmapped.fastq"
         INPUT_DIR_FOR_BIND="${BOWTIE_INPUT_DIR}"
-        echo "Bowtie R1 unpaired unmapped reads:"
-        echo "  R1: $(basename "$R1_UNMAPPED")"
+        echo "Bowtie R1 unpaired: $(basename "$R1_UNMAPPED")"
         ;;
+        
     "Bowtie_R2_unpaired")
         R2_UNMAPPED="${BOWTIE_INPUT_DIR}/${sample}_R2_unpaired_unmapped.fastq"
         INPUT_DIR_FOR_BIND="${BOWTIE_INPUT_DIR}"
-        echo "Bowtie R2 unpaired unmapped reads:"
-        echo "  R2: $(basename "$R2_UNMAPPED")"
+        echo "Bowtie R2 unpaired: $(basename "$R2_UNMAPPED")"
         ;;
+        
     *)
         echo "ERROR: Unknown combination: ${sample_source}_${sample_type}"
         exit 1
