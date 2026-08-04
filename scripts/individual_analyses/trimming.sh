@@ -2,7 +2,7 @@
 
 # Author: Jorge Alberto Castro Rodríguez
 # Script to validate fastq files.
-# 29/07/2026
+# 05/08/2026
 # Version 2.4.0 (farm-ready)
 
 ####==================================####
@@ -124,26 +124,44 @@ tg_send "Trimmomatic: ${R1_NAME} and ${R2_NAME} (${LSB_JOBINDEX}/${#r1_files[@]}
 ####        DECOMPRESS INPUT         ####
 ####==================================####
 
-echo "Checking for compressed input files..."
+# Create a temporary working directory for this job
+TEMP_DIR="${INPUT_DIR}/temp_${LSB_JOBINDEX}_${$}"
+mkdir -p "$TEMP_DIR"
 
-# Decompress R1 if it's compressed
+# Cleanup function for temp directory
+cleanup_temp() {
+    if [[ -d "$TEMP_DIR" ]]; then
+        echo "Cleaning up temporary directory: ${TEMP_DIR}"
+        rm -rf "$TEMP_DIR"
+    fi
+}
+
+# Set trap to cleanup on script exit (success or failure)
+trap cleanup_temp EXIT
+
+echo "Creating temporary working directory: ${TEMP_DIR}"
+
+# Copy and decompress files to temp directory
 if [[ "$R1_NAME" == *.gz ]]; then
-    echo "Decompressing: ${R1_NAME}"
-    gunzip "$R1_FILE"
-    # Update R1_NAME to the decompressed file
+    echo "Decompressing: ${R1_NAME} to temp..."
+    zcat "$R1_FILE" > "${TEMP_DIR}/${R1_NAME%.gz}"
     R1_NAME="${R1_NAME%.gz}"
-    R1_FILE="${INPUT_DIR}/${R1_NAME}"
+    R1_FILE="${TEMP_DIR}/${R1_NAME}"
     echo "Decompressed to: ${R1_NAME}"
+else
+    cp "$R1_FILE" "${TEMP_DIR}/$R1_NAME"
+    R1_FILE="${TEMP_DIR}/${R1_NAME}"
 fi
 
-# Decompress R2 if it's compressed
 if [[ "$R2_NAME" == *.gz ]]; then
-    echo "Decompressing: ${R2_NAME}"
-    gunzip "$R2_FILE"
-    # Update R2_NAME to the decompressed file
+    echo "Decompressing: ${R2_NAME} to temp..."
+    zcat "$R2_FILE" > "${TEMP_DIR}/${R2_NAME%.gz}"
     R2_NAME="${R2_NAME%.gz}"
-    R2_FILE="${INPUT_DIR}/${R2_NAME}"
+    R2_FILE="${TEMP_DIR}/${R2_NAME}"
     echo "Decompressed to: ${R2_NAME}"
+else
+    cp "$R2_FILE" "${TEMP_DIR}/$R2_NAME"
+    R2_FILE="${TEMP_DIR}/${R2_NAME}"
 fi
 
 echo "Input files ready for trimming:"
@@ -181,8 +199,9 @@ R2_UNPAIRED="${trimmed_dir}/${sample_name}_R2_unpaired.fastq"
 echo "Running Trimmomatic..."
 tg_send "Running Trimmomatic for ${sample_name}" 2>/dev/null || true
 
+# FIX 1: Bind mount TEMP_DIR (not INPUT_DIR)
 if apptainer exec \
-    --bind "${INPUT_DIR}:/input:ro" \
+    --bind "${TEMP_DIR}:/input:ro" \
     --bind "${trimmed_dir}:/output" \
     "$TRIMMOMATIC_CONTAINER" \
     trimmomatic PE \
@@ -219,6 +238,9 @@ else
     tg_send "Trimmomatic: ${sample_name} FAILED" 2>/dev/null || true
     exit 1
 fi
+
+# FIX 2: Remove this - no need to recompress since we used temp files
+# REMOVE the entire "RECOMPRESS INPUT" section
 
 ####==================================####
 ####        COMPRESS OUTPUT          ####
@@ -258,23 +280,8 @@ if [[ -f "$R2_UNPAIRED" ]]; then
     fi
 fi
 
-####==================================####
-####        RECOMPRESS INPUT         ####
-####==================================####
-
-echo "Recompressing input files..."
-
-# Recompress R1 if it was decompressed
-if [[ -f "$R1_FILE" ]] && [[ ! -f "${R1_FILE}.gz" ]]; then
-    echo "  Recompressing: ${R1_NAME}"
-    gzip "$R1_FILE"
-fi
-
-# Recompress R2 if it was decompressed
-if [[ -f "$R2_FILE" ]] && [[ ! -f "${R2_FILE}.gz" ]]; then
-    echo "  Recompressing: ${R2_NAME}"
-    gzip "$R2_FILE"
-fi
+# FIX 3: Remove the "RECOMPRESS INPUT" section entirely
+# TEMP_DIR will be cleaned up by the trap on EXIT
 
 echo ""
 echo "========================================="

@@ -2,8 +2,8 @@
 
 # Author: Jorge Alberto Castro Rodríguez
 # Script to assemble unmapped reads from STAR and Bowtie2
-# 31/07/2026
-# Ver. 1.2.0 (farm-ready)
+# 03/08/2026
+# Ver. 1.4.0 (farm-ready)
 
 ####==================================####
 ####           CONFIGURATION          ####
@@ -34,7 +34,6 @@ FASTQ_DIR="${PROJECT_SCRATCH}/results/assembly/fastq"
 CONTAINERS="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers"
 SPADES_CONTAINER="${CONTAINERS}/spades_3.15.5.sif"
 MEGAHIT_CONTAINER="${CONTAINERS}/megahit_1.2.9.sif"
-SAMTOOLS_CONTAINER="${CONTAINERS}/samtools_1.20--h50ea8bc_1.sif"
 
 # Scripts directory
 SCRIPTS_NFS="${HOME}/git_repos/${PROJECT_NAME}/scripts/individual_analyses"
@@ -227,93 +226,93 @@ mkdir -p "${FASTQ_DIR}/${sample}"
 
 case "${sample_source}_${sample_type}" in
     "STAR_paired")
-        BAM_FILE="${STAR_INPUT_DIR}/${sample}_paired_Aligned.sortedByCoord.out.bam"
-        R1_FASTQ="${FASTQ_DIR}/${sample}/${sample}_R1.fastq"
-        R2_FASTQ="${FASTQ_DIR}/${sample}/${sample}_R2.fastq"
-        UNMAPPED_BAM="${FASTQ_DIR}/${sample}/${sample}_unmapped.bam"
+        # STAR unmapped reads
+        R1_UNMAPPED_ORIG="${STAR_INPUT_DIR}/${sample}_paired_Unmapped.out.mate1"
+        R2_UNMAPPED_ORIG="${STAR_INPUT_DIR}/${sample}_paired_Unmapped.out.mate2"
         
-        echo "Extracting unmapped reads from BAM to FASTQ using samtools..."
+        # Copy with .fastq extension
+        R1_UNMAPPED="${FASTQ_DIR}/${sample}/${sample}_R1.fastq"
+        R2_UNMAPPED="${FASTQ_DIR}/${sample}/${sample}_R2.fastq"
         
-        # Extract unmapped reads from BAM 
-        apptainer exec \
-            --bind "${STAR_INPUT_DIR}:/input:ro" \
-            --bind "${FASTQ_DIR}/${sample}:/output" \
-            "$SAMTOOLS_CONTAINER" \
-            samtools view -b -f 4 "/input/$(basename "$BAM_FILE")" -o "/output/$(basename "$UNMAPPED_BAM")"
-        
-        # Convert unmapped BAM to FASTQ 
-        apptainer exec \
-            --bind "${FASTQ_DIR}/${sample}:/input:ro" \
-            --bind "${FASTQ_DIR}/${sample}:/output" \
-            "$SAMTOOLS_CONTAINER" \
-            samtools fastq -o "/output/$(basename "$R2_FASTQ")" "/input/$(basename "$UNMAPPED_BAM")"
-        
-        # Clean up intermediate BAM
-        rm -f "$UNMAPPED_BAM"
-        
-        if [[ ! -s "$R1_FASTQ" ]] || [[ ! -s "$R2_FASTQ" ]]; then
-            echo " WARNING: FASTQ conversion produced empty files for ${sample}"
+        if [[ ! -s "$R1_UNMAPPED_ORIG" ]] || [[ ! -s "$R2_UNMAPPED_ORIG" ]]; then
+            echo " WARNING: Unmapped files for ${sample} are empty or missing"
             echo "  Skipping assembly for ${sample}"
             exit 0
         fi
         
-        R1_UNMAPPED="$R1_FASTQ"
-        R2_UNMAPPED="$R2_FASTQ"
+        echo "  Copying unmapped reads to FASTQ directory..."
+        
+        # Copy files to FASTQ directory with .fastq extension
+        cp -p "$R1_UNMAPPED_ORIG" "$R1_UNMAPPED"
+        cp -p "$R2_UNMAPPED_ORIG" "$R2_UNMAPPED"
+        
+        # Compress original files to save space
+        echo "  Compressing original unmapped files..."
+        gzip -f "$R1_UNMAPPED_ORIG"
+        gzip -f "$R2_UNMAPPED_ORIG"
+        
         INPUT_DIR_FOR_BIND="${FASTQ_DIR}/${sample}"
-        echo "  R1: $(basename "$R1_FASTQ") ($(wc -l < "$R1_FASTQ") lines)"
-        echo "  R2: $(basename "$R2_FASTQ") ($(wc -l < "$R2_FASTQ") lines)"
+        
+        R1_READS=$(($(wc -l < "$R1_UNMAPPED") / 4))
+        R2_READS=$(($(wc -l < "$R2_UNMAPPED") / 4))
+        echo "  Using STAR unmapped reads (copied to FASTQ directory):"
+        echo "  R1: $(basename "$R1_UNMAPPED") ($R1_READS reads)"
+        echo "  R2: $(basename "$R2_UNMAPPED") ($R2_READS reads)"
+        echo "  Original files compressed: $(basename "$R1_UNMAPPED_ORIG").gz and $(basename "$R2_UNMAPPED_ORIG").gz"
         ;;
         
     "STAR_R1_unpaired")
-        BAM_FILE="${STAR_INPUT_DIR}/${sample}_R1_unpaired_Aligned.sortedByCoord.out.bam"
-        R1_FASTQ="${FASTQ_DIR}/${sample}/${sample}_R1.fastq"
-        UNMAPPED_BAM="${FASTQ_DIR}/${sample}/${sample}_R1_unmapped.bam"
+        R1_UNMAPPED_ORIG="${STAR_INPUT_DIR}/${sample}_R1_unpaired_Unmapped.out.mate1"
+        R1_UNMAPPED="${FASTQ_DIR}/${sample}/${sample}_R1.fastq"
         
-        echo "Extracting R1 unpaired unmapped reads from BAM..."
+        if [[ ! -s "$R1_UNMAPPED_ORIG" ]]; then
+            echo " WARNING: Unmapped file for ${sample} is empty or missing"
+            echo "  Skipping assembly for ${sample}"
+            exit 0
+        fi
         
-        apptainer exec \
-            --bind "${STAR_INPUT_DIR}:/input:ro" \
-            --bind "${FASTQ_DIR}/${sample}:/output" \
-            "$SAMTOOLS_CONTAINER" \
-            samtools view -b -f 4 "/input/$(basename "$BAM_FILE")" -o "/output/$(basename "$UNMAPPED_BAM")"
+        echo "  Copying R1 unmapped reads to FASTQ directory..."
         
-        apptainer exec \
-            --bind "${FASTQ_DIR}/${sample}:/input:ro" \
-            --bind "${FASTQ_DIR}/${sample}:/output" \
-            "$SAMTOOLS_CONTAINER" \
-            samtools fastq -o "/output/$(basename "$R1_FASTQ")" "/input/$(basename "$UNMAPPED_BAM")"
+        # Copy file to FASTQ directory with .fastq extension
+        cp -p "$R1_UNMAPPED_ORIG" "$R1_UNMAPPED"
         
-        rm -f "$UNMAPPED_BAM"
+        # Compress original file to save space
+        echo "  Compressing original R1 unmapped file..."
+        gzip -f "$R1_UNMAPPED_ORIG"
         
-        R1_UNMAPPED="$R1_FASTQ"
         INPUT_DIR_FOR_BIND="${FASTQ_DIR}/${sample}"
-        echo "  R1: $(basename "$R1_FASTQ")"
+        
+        R1_READS=$(($(wc -l < "$R1_UNMAPPED") / 4))
+        echo "  Using STAR R1 unmapped reads (copied to FASTQ directory):"
+        echo "  R1: $(basename "$R1_UNMAPPED") ($R1_READS reads)"
+        echo "  Original file compressed: $(basename "$R1_UNMAPPED_ORIG").gz"
         ;;
         
     "STAR_R2_unpaired")
-        BAM_FILE="${STAR_INPUT_DIR}/${sample}_R2_unpaired_Aligned.sortedByCoord.out.bam"
-        R2_FASTQ="${FASTQ_DIR}/${sample}/${sample}_R2.fastq"
-        UNMAPPED_BAM="${FASTQ_DIR}/${sample}/${sample}_R2_unmapped.bam"
+        R2_UNMAPPED_ORIG="${STAR_INPUT_DIR}/${sample}_R2_unpaired_Unmapped.out.mate1"
+        R2_UNMAPPED="${FASTQ_DIR}/${sample}/${sample}_R2.fastq"
         
-        echo "Extracting R2 unpaired unmapped reads from BAM..."
+        if [[ ! -s "$R2_UNMAPPED_ORIG" ]]; then
+            echo " WARNING: Unmapped file for ${sample} is empty or missing"
+            echo "  Skipping assembly for ${sample}"
+            exit 0
+        fi
         
-        apptainer exec \
-            --bind "${STAR_INPUT_DIR}:/input:ro" \
-            --bind "${FASTQ_DIR}/${sample}:/output" \
-            "$SAMTOOLS_CONTAINER" \
-            samtools view -b -f 4 "/input/$(basename "$BAM_FILE")" > "$UNMAPPED_BAM"
+        echo "  Copying R2 unmapped reads to FASTQ directory..."
         
-        apptainer exec \
-            --bind "${FASTQ_DIR}/${sample}:/input:ro" \
-            --bind "${FASTQ_DIR}/${sample}:/output" \
-            "$SAMTOOLS_CONTAINER" \
-            samtools fastq "/input/$(basename "$UNMAPPED_BAM")" > "$R2_FASTQ"
+        # Copy file to FASTQ directory with .fastq extension
+        cp -p "$R2_UNMAPPED_ORIG" "$R2_UNMAPPED"
         
-        rm -f "$UNMAPPED_BAM"
+        # Compress original file to save space
+        echo "  Compressing original R2 unmapped file..."
+        gzip -f "$R2_UNMAPPED_ORIG"
         
-        R2_UNMAPPED="$R2_FASTQ"
         INPUT_DIR_FOR_BIND="${FASTQ_DIR}/${sample}"
-        echo "  R2: $(basename "$R2_FASTQ")"
+        
+        R2_READS=$(($(wc -l < "$R2_UNMAPPED") / 4))
+        echo "  Using STAR R2 unmapped reads (copied to FASTQ directory):"
+        echo "  R2: $(basename "$R2_UNMAPPED") ($R2_READS reads)"
+        echo "  Original file compressed: $(basename "$R2_UNMAPPED_ORIG").gz"
         ;;
         
     "Bowtie_paired_interleaved")
@@ -389,7 +388,6 @@ tg_send "Starting assembly for ${sample}" 2>/dev/null || true
 echo "Starting rnaSPAdes assembly for sample ${sample}..."
 
 if [[ "$sample_type" == "paired" ]]; then
-    # STAR paired-end (two separate files)
     apptainer exec \
         --bind "${INPUT_DIR_FOR_BIND}:/input:ro" \
         --bind "${OUTPUT_DIR}:/output" \

@@ -19,7 +19,7 @@ bsub -o "${DATE_DIR}/trimming_%J_%I.out" \
      -M 8000 \
      -R "select[mem>8000] rusage[mem=8000] span[hosts=1]" \
      -G team222 \
-     -J "trimming_raw_seqs[1-${file_count}]%4" \
+     -J "trimming_[1-${file_count}]%4" \
      "${HOME}/git_repos/mosquito_virome_yucatan_LEVE/scripts/individual_analyses/trimming.sh"
 
 echo "Trimming array job submitted!"
