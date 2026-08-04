@@ -234,19 +234,19 @@ case "${sample_source}_${sample_type}" in
         
         echo "Extracting unmapped reads from BAM to FASTQ using samtools..."
         
-        # Extract unmapped reads from BAM (same as your original script)
+        # Extract unmapped reads from BAM 
         apptainer exec \
             --bind "${STAR_INPUT_DIR}:/input:ro" \
             --bind "${FASTQ_DIR}/${sample}:/output" \
             "$SAMTOOLS_CONTAINER" \
-            samtools view -b -f 12 "/input/$(basename "$BAM_FILE")" > "$UNMAPPED_BAM"
+            samtools view -b -f 4 "/input/$(basename "$BAM_FILE")" -o "/output/$(basename "$UNMAPPED_BAM")"
         
-        # Convert unmapped BAM to FASTQ (same as your original script)
+        # Convert unmapped BAM to FASTQ 
         apptainer exec \
             --bind "${FASTQ_DIR}/${sample}:/input:ro" \
             --bind "${FASTQ_DIR}/${sample}:/output" \
             "$SAMTOOLS_CONTAINER" \
-            samtools fastq -1 "/input/$(basename "$R1_FASTQ")" -2 "/input/$(basename "$R2_FASTQ")" "/input/$(basename "$UNMAPPED_BAM")"
+            samtools fastq -o "/output/$(basename "$R2_FASTQ")" "/input/$(basename "$UNMAPPED_BAM")"
         
         # Clean up intermediate BAM
         rm -f "$UNMAPPED_BAM"
@@ -275,13 +275,13 @@ case "${sample_source}_${sample_type}" in
             --bind "${STAR_INPUT_DIR}:/input:ro" \
             --bind "${FASTQ_DIR}/${sample}:/output" \
             "$SAMTOOLS_CONTAINER" \
-            samtools view -b -f 4 "/input/$(basename "$BAM_FILE")" > "$UNMAPPED_BAM"
+            samtools view -b -f 4 "/input/$(basename "$BAM_FILE")" -o "/output/$(basename "$UNMAPPED_BAM")"
         
         apptainer exec \
             --bind "${FASTQ_DIR}/${sample}:/input:ro" \
             --bind "${FASTQ_DIR}/${sample}:/output" \
             "$SAMTOOLS_CONTAINER" \
-            samtools fastq "/input/$(basename "$UNMAPPED_BAM")" > "$R1_FASTQ"
+            samtools fastq -o "/output/$(basename "$R1_FASTQ")" "/input/$(basename "$UNMAPPED_BAM")"
         
         rm -f "$UNMAPPED_BAM"
         
