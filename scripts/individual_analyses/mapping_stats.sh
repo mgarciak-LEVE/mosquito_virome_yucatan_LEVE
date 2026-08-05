@@ -25,7 +25,7 @@ PROJECT_SCRATCH="${SCRATCH_BASE}/${PROJECT_NAME}"
 # Input directories
 STAR_INPUT_DIR="${PROJECT_SCRATCH}/results/aligned/STAR_alignment"
 
-LSF_LOG_DATE="30_07_2026"  # Change this to your date if needed
+LSF_LOG_DATE="04_08_2026"  # Change this to your date if needed
 BOWTIE_LSF_LOG_DIR="${HOME}/lsf_logs/${LSF_LOG_DATE}"
 
 # Output directory
