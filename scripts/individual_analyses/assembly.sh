@@ -1,3 +1,4 @@
+  GNU nano 6.2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      assembly.sh                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
 #!/bin/bash
 
 # Author: Jorge Alberto Castro Rodríguez
@@ -229,30 +230,30 @@ case "${sample_source}_${sample_type}" in
         # STAR unmapped reads
         R1_UNMAPPED_ORIG="${STAR_INPUT_DIR}/${sample}_paired_Unmapped.out.mate1"
         R2_UNMAPPED_ORIG="${STAR_INPUT_DIR}/${sample}_paired_Unmapped.out.mate2"
-        
+
         # Copy with .fastq extension
         R1_UNMAPPED="${FASTQ_DIR}/${sample}/${sample}_R1.fastq"
         R2_UNMAPPED="${FASTQ_DIR}/${sample}/${sample}_R2.fastq"
-        
+
         if [[ ! -s "$R1_UNMAPPED_ORIG" ]] || [[ ! -s "$R2_UNMAPPED_ORIG" ]]; then
             echo " WARNING: Unmapped files for ${sample} are empty or missing"
             echo "  Skipping assembly for ${sample}"
             exit 0
         fi
-        
+
         echo "  Copying unmapped reads to FASTQ directory..."
-        
+
         # Copy files to FASTQ directory with .fastq extension
         cp -p "$R1_UNMAPPED_ORIG" "$R1_UNMAPPED"
         cp -p "$R2_UNMAPPED_ORIG" "$R2_UNMAPPED"
-        
+
         # Compress original files to save space
         echo "  Compressing original unmapped files..."
         gzip -f "$R1_UNMAPPED_ORIG"
         gzip -f "$R2_UNMAPPED_ORIG"
-        
+
         INPUT_DIR_FOR_BIND="${FASTQ_DIR}/${sample}"
-        
+
         R1_READS=$(($(wc -l < "$R1_UNMAPPED") / 4))
         R2_READS=$(($(wc -l < "$R2_UNMAPPED") / 4))
         echo "  Using STAR unmapped reads (copied to FASTQ directory):"
@@ -260,61 +261,61 @@ case "${sample_source}_${sample_type}" in
         echo "  R2: $(basename "$R2_UNMAPPED") ($R2_READS reads)"
         echo "  Original files compressed: $(basename "$R1_UNMAPPED_ORIG").gz and $(basename "$R2_UNMAPPED_ORIG").gz"
         ;;
-        
+
     "STAR_R1_unpaired")
         R1_UNMAPPED_ORIG="${STAR_INPUT_DIR}/${sample}_R1_unpaired_Unmapped.out.mate1"
         R1_UNMAPPED="${FASTQ_DIR}/${sample}/${sample}_R1.fastq"
-        
+
         if [[ ! -s "$R1_UNMAPPED_ORIG" ]]; then
             echo " WARNING: Unmapped file for ${sample} is empty or missing"
             echo "  Skipping assembly for ${sample}"
             exit 0
         fi
-        
+
         echo "  Copying R1 unmapped reads to FASTQ directory..."
-        
+
         # Copy file to FASTQ directory with .fastq extension
         cp -p "$R1_UNMAPPED_ORIG" "$R1_UNMAPPED"
-        
+
         # Compress original file to save space
         echo "  Compressing original R1 unmapped file..."
         gzip -f "$R1_UNMAPPED_ORIG"
-        
+
         INPUT_DIR_FOR_BIND="${FASTQ_DIR}/${sample}"
-        
+
         R1_READS=$(($(wc -l < "$R1_UNMAPPED") / 4))
         echo "  Using STAR R1 unmapped reads (copied to FASTQ directory):"
         echo "  R1: $(basename "$R1_UNMAPPED") ($R1_READS reads)"
         echo "  Original file compressed: $(basename "$R1_UNMAPPED_ORIG").gz"
         ;;
-        
+
     "STAR_R2_unpaired")
         R2_UNMAPPED_ORIG="${STAR_INPUT_DIR}/${sample}_R2_unpaired_Unmapped.out.mate1"
         R2_UNMAPPED="${FASTQ_DIR}/${sample}/${sample}_R2.fastq"
-        
+
         if [[ ! -s "$R2_UNMAPPED_ORIG" ]]; then
             echo " WARNING: Unmapped file for ${sample} is empty or missing"
             echo "  Skipping assembly for ${sample}"
             exit 0
         fi
-        
+
         echo "  Copying R2 unmapped reads to FASTQ directory..."
-        
+
         # Copy file to FASTQ directory with .fastq extension
         cp -p "$R2_UNMAPPED_ORIG" "$R2_UNMAPPED"
-        
+
         # Compress original file to save space
         echo "  Compressing original R2 unmapped file..."
         gzip -f "$R2_UNMAPPED_ORIG"
-        
+
         INPUT_DIR_FOR_BIND="${FASTQ_DIR}/${sample}"
-        
+
         R2_READS=$(($(wc -l < "$R2_UNMAPPED") / 4))
         echo "  Using STAR R2 unmapped reads (copied to FASTQ directory):"
         echo "  R2: $(basename "$R2_UNMAPPED") ($R2_READS reads)"
         echo "  Original file compressed: $(basename "$R2_UNMAPPED_ORIG").gz"
         ;;
-        
+
     "Bowtie_paired_interleaved")
         R1_UNMAPPED="${BOWTIE_INPUT_DIR}/${sample}_both_unmapped.fastq"
         if [[ ! -f "$R1_UNMAPPED" ]]; then
@@ -324,19 +325,19 @@ case "${sample_source}_${sample_type}" in
         INPUT_DIR_FOR_BIND="${BOWTIE_INPUT_DIR}"
         echo "Bowtie paired-end unmapped reads: $(basename "$R1_UNMAPPED")"
         ;;
-        
+
     "Bowtie_R1_unpaired")
         R1_UNMAPPED="${BOWTIE_INPUT_DIR}/${sample}_R1_unpaired_unmapped.fastq"
         INPUT_DIR_FOR_BIND="${BOWTIE_INPUT_DIR}"
         echo "Bowtie R1 unpaired: $(basename "$R1_UNMAPPED")"
         ;;
-        
+
     "Bowtie_R2_unpaired")
         R2_UNMAPPED="${BOWTIE_INPUT_DIR}/${sample}_R2_unpaired_unmapped.fastq"
         INPUT_DIR_FOR_BIND="${BOWTIE_INPUT_DIR}"
         echo "Bowtie R2 unpaired: $(basename "$R2_UNMAPPED")"
         ;;
-        
+
     *)
         echo "ERROR: Unknown combination: ${sample_source}_${sample_type}"
         exit 1
@@ -381,8 +382,11 @@ mkdir -p "${OUTPUT_DIR}/MEGAhit/${sample}"
 echo "Starting assembly process for ${sample} (${sample_type}) from ${sample_source}..."
 tg_send "Starting assembly for ${sample}" 2>/dev/null || true
 
+
+
+
 ####================================####
-####        rnaSPAdes Assembly       ####
+####        rnaSPAdes Assembly      ####
 ####================================####
 
 echo "Starting rnaSPAdes assembly for sample ${sample}..."
@@ -468,7 +472,52 @@ else
 fi
 
 ####================================####
-####        MEGAhit Assembly         ####
+####     metaviralSPAdes Assembly   ####
+####================================####
+
+echo "Starting metaviralSPAdes assembly for sample ${sample}..."
+
+if [[ "$sample_type" == "paired" ]]; then
+    apptainer exec \
+        --bind "${INPUT_DIR_FOR_BIND}:/input:ro" \
+        --bind "${OUTPUT_DIR}:/output" \
+        "$SPADES_CONTAINER" \
+        metaviralspades.py \
+        -1 "/input/$(basename "$R1_UNMAPPED")" \
+        -2 "/input/$(basename "$R2_UNMAPPED")" \
+        -o "/output/metaviralSPAdes/${sample}" \
+        -t "$THREADS"
+elif [[ "$sample_type" == "paired_interleaved" ]]; then
+    # Bowtie paired-end (interleaved file)
+    apptainer exec \
+        --bind "${INPUT_DIR_FOR_BIND}:/input:ro" \
+        --bind "${OUTPUT_DIR}:/output" \
+        "$SPADES_CONTAINER" \
+        metaviralspades.py \
+        --interleaved "/input/$(basename "$R1_UNMAPPED")" \
+        -o "/output/metaviralSPAdes/${sample}" \
+        -t "$THREADS"
+else
+    # Single-end
+    apptainer exec \
+        --bind "${INPUT_DIR_FOR_BIND}:/input:ro" \
+        --bind "${OUTPUT_DIR}:/output" \
+        "$SPADES_CONTAINER" \
+        metaviralspades.py \
+        -s "/input/$(basename "$R1_UNMAPPED")" \
+        -o "/output/metaviralSPAdes/${sample}" \
+        -t "$THREADS"
+fi
+
+if [[ $? -eq 0 ]]; then
+    echo "metaviralSPAdes assembly completed for ${sample}"
+else
+    echo "metaviralSPAdes assembly FAILED for ${sample}"
+fi
+
+
+####================================####
+####        MEGAhit Assembly        ####
 ####================================####
 
 echo "Starting MEGAhit assembly for sample ${sample}..."
