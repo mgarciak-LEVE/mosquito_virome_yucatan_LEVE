@@ -576,6 +576,7 @@ echo "  Output directories:"
 echo "    - rnaSPAdes: ${OUTPUT_DIR}/rnaSPAdes/${sample}"
 echo "    - metaSPAdes: ${OUTPUT_DIR}/metaSPAdes/${sample}"
 echo "    - MEGAhit: ${OUTPUT_DIR}/MEGAhit/${sample}"
+echo "    - metaviralSPAdes: ${OUTPUT_DIR}/metaviralSPAdes/${sample}"
 echo "========================================="
 
 tg_send "Completed: ${sample}" 2>/dev/null || true

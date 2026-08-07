@@ -47,7 +47,7 @@ fi
 
 bsub -o "${DATE_DIR}/assembly_%J_%I.out" \
      -e "${DATE_DIR}/assembly_%J_%I.err" \
-     -q normal \
+     -q week \
      -n 32 \
      -M 128000 \
      -R "select[mem>128000] rusage[mem=128000]" \
