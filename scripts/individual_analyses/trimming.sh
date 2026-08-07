@@ -239,9 +239,6 @@ else
     exit 1
 fi
 
-# FIX 2: Remove this - no need to recompress since we used temp files
-# REMOVE the entire "RECOMPRESS INPUT" section
-
 ####==================================####
 ####        COMPRESS OUTPUT          ####
 ####==================================####
@@ -279,9 +276,6 @@ if [[ -f "$R2_UNPAIRED" ]]; then
         rm "$R2_UNPAIRED"
     fi
 fi
-
-# FIX 3: Remove the "RECOMPRESS INPUT" section entirely
-# TEMP_DIR will be cleaned up by the trap on EXIT
 
 echo ""
 echo "========================================="
