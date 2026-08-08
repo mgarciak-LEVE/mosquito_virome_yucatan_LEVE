@@ -26,7 +26,7 @@ PROJECT_SCRATCH="${SCRATCH_BASE}/${PROJECT_NAME}"
 BOWTIE_INPUT_DIR="${PROJECT_SCRATCH}/results/aligned/Bowtie2_alignment"
 
 # Output directory
-OUTPUT_DIR="${PROJECT_SCRATCH}/results/assembly"
+OUTPUT_DIR="${PROJECT_SCRATCH}/results/assembly/bowtie_assembly"
 
 # Container configuration
 CONTAINERS="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers"

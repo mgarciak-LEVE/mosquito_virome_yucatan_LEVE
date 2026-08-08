@@ -26,7 +26,7 @@ PROJECT_SCRATCH="${SCRATCH_BASE}/${PROJECT_NAME}"
 STAR_INPUT_DIR="${PROJECT_SCRATCH}/results/aligned/STAR_alignment"
 
 # Output directory
-OUTPUT_DIR="${PROJECT_SCRATCH}/results/assembly"
+OUTPUT_DIR="${PROJECT_SCRATCH}/results/assembly/star_assembly"
 FASTQ_DIR="${PROJECT_SCRATCH}/results/assembly/fastq"
 
 # Container configuration
