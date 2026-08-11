@@ -2,8 +2,8 @@
 
 # Author: Jorge Alberto Castro Rodríguez
 # Script to assemble unmapped reads from Bowtie2
-# 07/08/2026
-# Ver. 1.0.0 (Bowtie-only)
+# 11/08/2026
+# Ver. 1.1.0 (Bowtie-only)
 
 ####==================================####
 ####           CONFIGURATION          ####
@@ -230,7 +230,7 @@ if [[ "$sample_type" == "paired_interleaved" ]]; then
         --bind "${OUTPUT_DIR}:/output" \
         "$SPADES_CONTAINER" \
         rnaspades.py \
-        --interleaved "/input/$(basename "$R1_UNMAPPED")" \
+        --pe--interleaved "/input/$(basename "$R1_UNMAPPED")" \
         -o "/output/rnaSPAdes/${sample}" \
         -t "$THREADS"
 else
@@ -262,7 +262,7 @@ if [[ "$sample_type" == "paired_interleaved" ]]; then
         --bind "${OUTPUT_DIR}:/output" \
         "$SPADES_CONTAINER" \
         metaspades.py \
-        --interleaved "/input/$(basename "$R1_UNMAPPED")" \
+        --pe--interleaved "/input/$(basename "$R1_UNMAPPED")" \
         -o "/output/metaSPAdes/${sample}" \
         -t "$THREADS"
 else
@@ -294,7 +294,7 @@ if [[ "$sample_type" == "paired_interleaved" ]]; then
         --bind "${OUTPUT_DIR}:/output" \
         "$SPADES_CONTAINER" \
         metaviralspades.py \
-        --interleaved "/input/$(basename "$R1_UNMAPPED")" \
+        --pe--interleaved "/input/$(basename "$R1_UNMAPPED")" \
         -o "/output/metaviralSPAdes/${sample}" \
         -t "$THREADS"
 else

@@ -2,8 +2,8 @@
 
 # Author: Jorge Alberto Castro Rodríguez
 # Script to identify assembled contigs
-# 06/08/2026
-# Ver. 1.0.0 (farm-ready)
+# 10/08/2026
+# Ver. 1.2.0 (farm-ready)
 
 ####==================================####
 ####           CONFIGURATION          ####
@@ -36,8 +36,11 @@ OUTPUT_DIR="${PROJECT_SCRATCH}/results/identification"
 
 # Container configuration
 CONTAINERS="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers"
-VIRSORTER2_CONTAINER="${CONTAINERS}/spades_3.15.5.sif"
-DEEPVIRFINDER_CONTAINER="${CONTAINERS}/megahit_1.2.9.sif"
+VIRSORTER2_CONTAINER="${CONTAINERS}/virsorter2.sif"
+DEEPVIRFINDER_CONTAINER="${CONTAINERS}/deepvirfinder.sif"
+CHECKV_CONTAINER="${CONTAINERS}/checkv.sif"
+DIAMOND_CONTAINER="${CONTAINERS}/diamond.sif"
+GRAVITY_CONTAINER="${CONTAINERS}/gravity.sif"
 
 # Scripts directory
 SCRIPTS_NFS="${HOME}/git_repos/${PROJECT_NAME}/scripts/individual_analyses"

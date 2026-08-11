@@ -31,7 +31,7 @@ count_assemblies() {
             
             # For each sample directory
             for sample_dir in "$assembler_dir"/*/; do
-                if [[ -d "$sample_dir" ]]; then
+                if [[ -d "$sample_dir%/" ]]; then
                     sample=$(basename "$sample_dir")
                     
                     # Check based on assembler type

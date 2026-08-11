@@ -3,7 +3,7 @@
 # Author: Jorge Alberto Castro Rodríguez
 # Script to recover assembly statistics from rnaSPAdes, metaSPAdes, metaviralSPAdes, and MEGAhit
 # 08/08/2026
-# Ver. 2.2.0 (farm-ready - with parent directory tracking)
+# Ver. 2.2.0 (farm-ready)
 
 ####==================================####
 ####           CONFIGURATION          ####
@@ -147,9 +147,9 @@ get_assembly_stats() {
     echo "    $file_desc: $num_contigs contigs, N50=$n50, GC=$gc_percent%"
 }
 
-####================================####
-####          PROCESS ASSEMBLIES     ####
-####================================####
+####========================####
+####   PROCESS ASSEMBLIES   ####
+####========================####
 
 process_assembly_directory() {
     local base_dir="$1"

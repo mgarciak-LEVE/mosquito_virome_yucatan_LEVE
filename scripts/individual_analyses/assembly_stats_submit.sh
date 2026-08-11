@@ -7,10 +7,10 @@ mkdir -p "${DATE_DIR}"
 
 bsub -o "${DATE_DIR}/assembly_stats_%J.out" \
      -e "${DATE_DIR}/assembly_stats_%J.err" \
-     -q normal \
+     -q long \
      -n 1 \
-     -M 2000 \
-     -R "select[mem>2000] rusage[mem=2000]" \
+     -M 16000 \
+     -R "select[mem>16000] rusage[mem=16000]" \
      -G team222 \
      < "${HOME}/git_repos/mosquito_virome_yucatan_LEVE/scripts/individual_analyses/assembly_stats.sh"
 

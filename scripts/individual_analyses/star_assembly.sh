@@ -181,6 +181,9 @@ fi
 THREADS=32
 MEMORY=128
 
+# Create base output directory
+mkdir -p "${OUTPUT_DIR}"
+
 # Clean output directories before running
 rm -rf "${OUTPUT_DIR}/rnaSPAdes/${sample}"/*
 rm -rf "${OUTPUT_DIR}/metaSPAdes/${sample}"/*
