@@ -343,9 +343,8 @@ if [[ -f "$R1_PAIRED" ]] && [[ -f "$R2_PAIRED" ]]; then
         -1 "/input/${sample}/${sample}_R1_paired.fastq" \
         -2 "/input/${sample}/${sample}_R2_paired.fastq" \
         -S "/output/${sample}_paired.sam" \
-        --un-conc "/output/${sample}_both_unmapped.fastq" \
-        --un "/output/${sample}_unmapped_mixed.fastq" \
-        --al "/output/${sample}_aligned_concordant.fastq" \
+        --un-conc "/output/${sample}_unmapped_mixed.fastq" \
+        --al-conc "/output/${sample}_aligned_concordant.fastq" \
         --threads "$THREADS" \
         --sensitive \
         --rg-id "${sample}" \
@@ -353,6 +352,29 @@ if [[ -f "$R1_PAIRED" ]] && [[ -f "$R2_PAIRED" ]]; then
         --rg "PL:ILLUMINA" \
         2>&1; then
         echo "Bowtie2 paired-end alignment completed for ${sample}"
+        
+        # Convert SAM to BAM
+        if command -v samtools &> /dev/null; then
+            echo "Converting SAM to BAM..."
+            samtools view -bS "${OUTPUT_DIR}/Bowtie2_alignment/${sample}_paired.sam" > \
+                "${OUTPUT_DIR}/Bowtie2_alignment/${sample}_paired.bam"
+            samtools sort "${OUTPUT_DIR}/Bowtie2_alignment/${sample}_paired.bam" -o \
+                "${OUTPUT_DIR}/Bowtie2_alignment/${sample}_paired_sorted.bam"
+            samtools index "${OUTPUT_DIR}/Bowtie2_alignment/${sample}_paired_sorted.bam"
+            rm "${OUTPUT_DIR}/Bowtie2_alignment/${sample}_paired.sam"
+        fi
+        
+        # Check if unmapped reads were produced
+        if [[ -f "${OUTPUT_DIR}/Bowtie2_alignment/${sample}_unmapped_mixed.fastq" ]]; then
+            read_count=$(($(wc -l < "${OUTPUT_DIR}/Bowtie2_alignment/${sample}_unmapped_mixed.fastq") / 4))
+            echo "Unmapped reads produced: ${read_count} pairs"
+            if [[ $read_count -eq 0 ]]; then
+                echo "WARNING: No unmapped reads found for ${sample}"
+            fi
+        else
+            echo "WARNING: Unmapped file not created for ${sample}"
+        fi
+        
         tg_send "Bowtie2 paired-end: ${sample} complete" 2>/dev/null || true
     else
         echo "Bowtie2 paired-end alignment FAILED for ${sample}"
@@ -360,7 +382,6 @@ if [[ -f "$R1_PAIRED" ]] && [[ -f "$R2_PAIRED" ]]; then
     fi
 fi
 
-# Single-end alignment for unpaired reads
 if [[ -f "$R1_UNPAIRED" ]]; then
     echo "Found R1 unpaired file: ${R1_UNPAIRED}"
     
@@ -374,6 +395,7 @@ if [[ -f "$R1_UNPAIRED" ]]; then
         -U "/input/${sample}/${sample}_R1_unpaired.fastq" \
         -S "/output/${sample}_R1_unpaired.sam" \
         --un "/output/${sample}_R1_unpaired_unmapped.fastq" \
+        --al "/output/${sample}_R1_unpaired_aligned.fastq" \
         --threads "$THREADS" \
         --sensitive \
         --rg-id "${sample}_R1_unpaired" \
@@ -381,6 +403,13 @@ if [[ -f "$R1_UNPAIRED" ]]; then
         --rg "PL:ILLUMINA" \
         2>&1; then
         echo "Bowtie2 R1 unpaired alignment completed for ${sample}"
+        
+        # Convert SAM to BAM
+        if command -v samtools &> /dev/null; then
+            samtools view -bS "${OUTPUT_DIR}/Bowtie2_alignment/${sample}_R1_unpaired.sam" > \
+                "${OUTPUT_DIR}/Bowtie2_alignment/${sample}_R1_unpaired.bam"
+            rm "${OUTPUT_DIR}/Bowtie2_alignment/${sample}_R1_unpaired.sam"
+        fi
     else
         echo "Bowtie2 R1 unpaired alignment FAILED for ${sample}"
     fi
@@ -399,6 +428,7 @@ if [[ -f "$R2_UNPAIRED" ]]; then
         -U "/input/${sample}/${sample}_R2_unpaired.fastq" \
         -S "/output/${sample}_R2_unpaired.sam" \
         --un "/output/${sample}_R2_unpaired_unmapped.fastq" \
+        --al "/output/${sample}_R2_unpaired_aligned.fastq" \
         --threads "$THREADS" \
         --sensitive \
         --rg-id "${sample}_R2_unpaired" \
@@ -406,10 +436,27 @@ if [[ -f "$R2_UNPAIRED" ]]; then
         --rg "PL:ILLUMINA" \
         2>&1; then
         echo "Bowtie2 R2 unpaired alignment completed for ${sample}"
+        
+        # Convert SAM to BAM
+        if command -v samtools &> /dev/null; then
+            samtools view -bS "${OUTPUT_DIR}/Bowtie2_alignment/${sample}_R2_unpaired.sam" > \
+                "${OUTPUT_DIR}/Bowtie2_alignment/${sample}_R2_unpaired.bam"
+            rm "${OUTPUT_DIR}/Bowtie2_alignment/${sample}_R2_unpaired.sam"
+        fi
     else
         echo "Bowtie2 R2 unpaired alignment FAILED for ${sample}"
     fi
 fi
+
+# Compress Bowtie2 output files
+echo "Compressing Bowtie2 output files..."
+for fastq_file in "${OUTPUT_DIR}/Bowtie2_alignment/${sample}"*.fastq; do
+    if [[ -f "$fastq_file" ]] && [[ ! -f "${fastq_file}.gz" ]]; then
+        echo "  Compressing: $(basename $fastq_file)"
+        gzip "$fastq_file" &
+    fi
+done
+wait
 
 echo "Done Bowtie2 processing: ${sample}"
 

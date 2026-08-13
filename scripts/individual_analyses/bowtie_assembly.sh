@@ -1,9 +1,8 @@
 #!/bin/bash
-
 # Author: Jorge Alberto Castro Rodríguez
 # Script to assemble unmapped reads from Bowtie2
-# 11/08/2026
-# Ver. 1.1.0 (Bowtie-only)
+# 13/08/2026
+# Ver. 1.4.0 (Bowtie-only)
 
 ####==================================####
 ####           CONFIGURATION          ####
@@ -68,23 +67,29 @@ cd "$BOWTIE_INPUT_DIR" || exit 1
 # Bowtie paired samples (interleaved file with both reads)
 bowtie_paired_samples=()
 while IFS= read -r line; do
-    sample_name=$(basename "$line" "_unmapped_mixed.fastq")
-    bowtie_paired_samples+=("$sample_name")
-done < <(ls -1 *_unmapped_mixed.fastq 2>/dev/null | sort)
+    sample_name=$(basename "$line" "_unmapped_mixed.1.fastq.gz")
+    if [[ "$sample_name" != "$(basename "$line")" ]]; then
+        bowtie_paired_samples+=("$sample_name")
+    fi
+done < <(ls -1 *_unmapped_mixed.1.fastq.gz 2>/dev/null | sort)
 
 # Bowtie R1 unpaired samples
 bowtie_r1_unpaired_samples=()
 while IFS= read -r line; do
-    sample_name=$(basename "$line" "_R1_unpaired_unmapped.fastq")
-    bowtie_r1_unpaired_samples+=("$sample_name")
-done < <(ls -1 *_R1_unpaired_unmapped.fastq 2>/dev/null | sort)
+    sample_name=$(basename "$line" "_R1_unpaired_unmapped.fastq.gz")
+    if [[ "$sample_name" != "$(basename "$line")" ]]; then
+        bowtie_r1_unpaired_samples+=("$sample_name")
+    fi
+done < <(ls -1 *_R1_unpaired_unmapped.fastq.gz 2>/dev/null | sort)
 
 # Bowtie R2 unpaired samples
 bowtie_r2_unpaired_samples=()
 while IFS= read -r line; do
-    sample_name=$(basename "$line" "_R2_unpaired_unmapped.fastq")
-    bowtie_r2_unpaired_samples+=("$sample_name")
-done < <(ls -1 *_R2_unpaired_unmapped.fastq 2>/dev/null | sort)
+    sample_name=$(basename "$line" "_R2_unpaired_unmapped.fastq.gz")
+    if [[ "$sample_name" != "$(basename "$line")" ]]; then
+        bowtie_r2_unpaired_samples+=("$sample_name")
+    fi
+done < <(ls -1 *_R2_unpaired_unmapped.fastq.gz 2>/dev/null | sort)
 
 # Count Bowtie samples
 bowtie_total=$(( ${#bowtie_paired_samples[@]} + ${#bowtie_r1_unpaired_samples[@]} + ${#bowtie_r2_unpaired_samples[@]} ))
@@ -159,20 +164,20 @@ tg_send "Processing: ${sample} (${sample_type}) from Bowtie ($((SAMPLE_INDEX+1))
 
 case "$sample_type" in
     "paired_interleaved")
-        R1_UNMAPPED="${BOWTIE_INPUT_DIR}/${sample}_unmapped_mixed.fastq"
+        R1_UNMAPPED="${BOWTIE_INPUT_DIR}/${sample}_unmapped_mixed.1.fastq.gz"
         R2_UNMAPPED=""
         INPUT_DIR_FOR_BIND="${BOWTIE_INPUT_DIR}"
         echo "Bowtie paired-end unmapped reads (interleaved): $(basename "$R1_UNMAPPED")"
         ;;
 
     "R1_unpaired")
-        R1_UNMAPPED="${BOWTIE_INPUT_DIR}/${sample}_R1_unpaired_unmapped.fastq"
+        R1_UNMAPPED="${BOWTIE_INPUT_DIR}/${sample}_R1_unpaired_unmapped.fastq.gz"
         INPUT_DIR_FOR_BIND="${BOWTIE_INPUT_DIR}"
         echo "Bowtie R1 unpaired: $(basename "$R1_UNMAPPED")"
         ;;
 
     "R2_unpaired")
-        R2_UNMAPPED="${BOWTIE_INPUT_DIR}/${sample}_R2_unpaired_unmapped.fastq"
+        R2_UNMAPPED="${BOWTIE_INPUT_DIR}/${sample}_R2_unpaired_unmapped.fastq.gz"
         INPUT_DIR_FOR_BIND="${BOWTIE_INPUT_DIR}"
         echo "Bowtie R2 unpaired: $(basename "$R2_UNMAPPED")"
         ;;
@@ -183,11 +188,27 @@ case "$sample_type" in
         ;;
 esac
 
-# Check if input files exist
+# Check if input files exist and have content
 if [[ "$sample_type" == "paired_interleaved" ]]; then
     if [[ ! -f "$R1_UNMAPPED" ]]; then
         echo "ERROR: Input file not found: ${R1_UNMAPPED}"
         exit 1
+    fi
+    # Check if file has content
+    if [[ ! -s "$R1_UNMAPPED" ]]; then
+        echo "WARNING: Input file is empty: ${R1_UNMAPPED}"
+        echo "No reads to assemble. Exiting."
+        exit 0
+    fi
+    # Count reads from gzipped file
+    read_count=$(($(zcat "$R1_UNMAPPED" 2>/dev/null | wc -l) / 4))
+    if [[ $? -ne 0 ]]; then
+        echo "WARNING: Could not read gzipped file: ${R1_UNMAPPED}"
+    else
+        echo "Input file has ${read_count} reads"
+        if [[ $read_count -lt 100 ]]; then
+            echo "WARNING: Very few reads (${read_count}). Assembly may fail."
+        fi
     fi
 else
     if [[ ! -f "$R1_UNMAPPED" ]] && [[ ! -f "$R2_UNMAPPED" ]]; then
@@ -230,7 +251,7 @@ if [[ "$sample_type" == "paired_interleaved" ]]; then
         --bind "${OUTPUT_DIR}:/output" \
         "$SPADES_CONTAINER" \
         rnaspades.py \
-        --pe--interleaved "/input/$(basename "$R1_UNMAPPED")" \
+        --pe-interleaved "/input/$(basename "$R1_UNMAPPED")" \
         -o "/output/rnaSPAdes/${sample}" \
         -t "$THREADS"
 else
@@ -262,7 +283,7 @@ if [[ "$sample_type" == "paired_interleaved" ]]; then
         --bind "${OUTPUT_DIR}:/output" \
         "$SPADES_CONTAINER" \
         metaspades.py \
-        --pe--interleaved "/input/$(basename "$R1_UNMAPPED")" \
+        --pe-interleaved "/input/$(basename "$R1_UNMAPPED")" \
         -o "/output/metaSPAdes/${sample}" \
         -t "$THREADS"
 else
@@ -294,7 +315,7 @@ if [[ "$sample_type" == "paired_interleaved" ]]; then
         --bind "${OUTPUT_DIR}:/output" \
         "$SPADES_CONTAINER" \
         metaviralspades.py \
-        --pe--interleaved "/input/$(basename "$R1_UNMAPPED")" \
+        --pe-interleaved "/input/$(basename "$R1_UNMAPPED")" \
         -o "/output/metaviralSPAdes/${sample}" \
         -t "$THREADS"
 else
@@ -331,7 +352,7 @@ if [[ "$sample_type" == "paired_interleaved" ]]; then
         -r "/input/$(basename "$R1_UNMAPPED")" \
         -o "/output/MEGAhit/${sample}" \
         -t "$THREADS" \
-        -m "${MEMORY}"
+        --memory "${MEMORY}"
 else
     apptainer exec \
         --bind "${INPUT_DIR_FOR_BIND}:/input:ro" \
@@ -341,7 +362,7 @@ else
         -r "/input/$(basename "$R1_UNMAPPED")" \
         -o "/output/MEGAhit/${sample}" \
         -t "$THREADS" \
-        -m "${MEMORY}"
+        --memory "${MEMORY}"
 fi
 
 if [[ $? -eq 0 ]]; then
@@ -351,17 +372,12 @@ else
 fi
 
 ####================================####
-####        SUMMARY                  ####
+####          COMPLETION            ####
 ####================================####
 
-echo ""
 echo "========================================="
-echo "  Bowtie Assembly completed for ${sample}"
-echo "  Output directories:"
-echo "    - rnaSPAdes: ${OUTPUT_DIR}/rnaSPAdes/${sample}"
-echo "    - metaSPAdes: ${OUTPUT_DIR}/metaSPAdes/${sample}"
-echo "    - metaviralSPAdes: ${OUTPUT_DIR}/metaviralSPAdes/${sample}"
-echo "    - MEGAhit: ${OUTPUT_DIR}/MEGAhit/${sample}"
+echo "  Completed processing: ${sample}"
+echo "  Date: $(date)"
 echo "========================================="
 
-tg_send "Completed Bowtie: ${sample}" 2>/dev/null || true
+tg_send "Completed: ${sample} from Bowtie ($((SAMPLE_INDEX+1))/${#all_samples[@]})" 2>/dev/null || true
