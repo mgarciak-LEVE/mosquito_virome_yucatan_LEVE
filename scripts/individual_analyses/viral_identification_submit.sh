@@ -28,47 +28,52 @@ count_assemblies() {
         if [[ -d "$assembler_dir" ]]; then
             assembler=$(basename "$assembler_dir")
             echo "    Assembler: ${assembler}"
-            
+
             # For each sample directory
             for sample_dir in "$assembler_dir"/*/; do
-                if [[ -d "$sample_dir%/" ]]; then
+                if [[ -d "$sample_dir" ]]; then  # FIXED: removed % character
                     sample=$(basename "$sample_dir")
                     
+                    # Skip k-mer directories (K21, K33, K55, etc.)
+                    if [[ "$sample" =~ ^K[0-9]+$ ]]; then
+                        continue
+                    fi
+
                     # Check based on assembler type
                     case $assembler in
                         "MEGAhit")
-                            if [[ -f "${sample_dir}/final.contigs.fa" ]]; then
+                            if [[ -f "${sample_dir}/final.contigs.fa" && -s "${sample_dir}/final.contigs.fa" ]]; then
                                 file_count=$((file_count + 1))
                                 echo "      Found: ${mapping_tool}/${assembler}/${sample}"
                             else
-                                echo "      WARNING: No final.contigs.fa in ${sample_dir}"
+                                echo "      WARNING: No valid final.contigs.fa in ${sample_dir}"
                             fi
                             ;;
                         "metaSPAdes")
-                            if [[ -f "${sample_dir}/contigs.fasta" ]]; then
+                            if [[ -f "${sample_dir}/contigs.fasta" && -s "${sample_dir}/contigs.fasta" ]]; then
                                 file_count=$((file_count + 1))
                                 echo "      Found: ${mapping_tool}/${assembler}/${sample}"
                             else
-                                echo "      WARNING: No contigs.fasta in ${sample_dir}"
+                                echo "      WARNING: No valid contigs.fasta in ${sample_dir}"
                             fi
                             ;;
                         "metaviralSPAdes")
-                            if [[ -f "${sample_dir}/contigs.fasta" ]]; then
+                            if [[ -f "${sample_dir}/contigs.fasta" && -s "${sample_dir}/contigs.fasta" ]]; then
                                 file_count=$((file_count + 1))
                                 echo "      Found: ${mapping_tool}/${assembler}/${sample}"
                             else
-                                echo "      WARNING: No contigs.fasta in ${sample_dir}"
+                                echo "      WARNING: No valid contigs.fasta in ${sample_dir}"
                             fi
                             ;;
                         "rnaSPAdes")
-                            if [[ -f "${sample_dir}/hard_filtered_transcripts.fasta" ]]; then
+                            if [[ -f "${sample_dir}/hard_filtered_transcripts.fasta" && -s "${sample_dir}/hard_filtered_transcripts.fasta" ]]; then
                                 file_count=$((file_count + 1))
                                 echo "      Found: ${mapping_tool}/${assembler}/${sample} (hard_filtered)"
-                            elif [[ -f "${sample_dir}/transcripts.fasta" ]]; then
+                            elif [[ -f "${sample_dir}/transcripts.fasta" && -s "${sample_dir}/transcripts.fasta" ]]; then
                                 file_count=$((file_count + 1))
                                 echo "      Found: ${mapping_tool}/${assembler}/${sample} (transcripts)"
                             else
-                                echo "      WARNING: No transcripts in ${sample_dir}"
+                                echo "      WARNING: No valid transcripts in ${sample_dir}"
                             fi
                             ;;
                         *)
@@ -103,7 +108,7 @@ if [[ $file_count -eq 0 ]]; then
     exit 1
 fi
 
-
+# Submit array job
 bsub -o "${DATE_DIR}/viral_identification_%J_%I.out" \
      -e "${DATE_DIR}/viral_identification_%J_%I.err" \
      -q normal \
@@ -117,6 +122,7 @@ bsub -o "${DATE_DIR}/viral_identification_%J_%I.out" \
 if [[ $? -eq 0 ]]; then
     echo ""
     echo "   Viral identification array job submitted successfully!"
+    echo "   Submitted ${file_count} jobs"
 else
     echo "Job submission failed!"
     exit 1

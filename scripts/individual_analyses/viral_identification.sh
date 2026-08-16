@@ -2,7 +2,7 @@
 
 # Author: Jorge Alberto Castro Rodríguez
 # Script to identify assembled contigs
-# 10/08/2026
+# 16/08/2026
 # Ver. 1.2.0 (farm-ready)
 
 ####==================================####
@@ -54,6 +54,9 @@ source "${SCRIPTS_NFS}/bot_telegram.sh" 2>/dev/null || echo "Telegram bot not av
 
 module load ISG/apptainer/1.4.0 2>/dev/null || echo "Apptainer module not available"
 
+THREADS=12
+CORES=6
+
 ####==================================####
 ####          PRINT CONFIG            ####
 ####==================================####
@@ -61,6 +64,7 @@ module load ISG/apptainer/1.4.0 2>/dev/null || echo "Apptainer module not availa
 echo "========================================="
 echo "  Viral Identification Pipeline"
 echo "  Project: ${PROJECT_NAME}"
+echo "  Threads: ${THREADS}"
 echo "  Input directories (mapping_tool/assembler/sample):"
 echo "    - STAR: ${STAR_ASSEMBLY_DIR}"
 echo "    - Bowtie: ${BOWTIE_ASSEMBLY_DIR}"
@@ -216,7 +220,7 @@ mkdir -p "${SAMPLE_OUTPUT}"
 cd "$SAMPLE_OUTPUT" || exit 1
 
 ####==================================####
-####      FUNCTION: RUN VIRSORTER2    ####
+####    FUNCTION: RUN VIRSORTER2     ####
 ####==================================####
 
 run_virsorter2() {
@@ -234,17 +238,24 @@ run_virsorter2() {
     
     echo "  Running VirSorter2..."
     
+    # Ensure CORES is set
+    if [[ -z "${CORES}" ]]; then
+        CORES=4  # Default to 4 cores if not set
+        echo "  WARNING: CORES not set, defaulting to ${CORES}"
+    fi
+    
     apptainer exec \
         --bind "$(dirname "$ASSEMBLY_FILE")":/input:ro \
         --bind "${SAMPLE_OUTPUT}":/output \
         "${VIRSORTER2_CONTAINER}" \
         virsorter run \
             -i "/input/$(basename "$ASSEMBLY_FILE")" \
-            -o "/output/virsorter2" \
+            -w "/output/virsorter2" \
             --include-groups dsDNAphage,ssDNA,ssRNA,dsRNA \
-            --min-length 1000 \
+            --min-length 350 \
             --min-score 0.5 \
-            --threads ${THREADS} \
+            -j "${CORES}" \
+            all \
             2>&1 | tee "${output_dir}/virsorter2.log"
     
     if [[ $? -eq 0 ]]; then
@@ -279,6 +290,12 @@ run_deepvirfinder() {
     
     echo "  Running DeepVirFinder..."
     
+    # Ensure CORES is set
+    if [[ -z "${CORES}" ]]; then
+        CORES=4  # Default to 4 cores if not set
+        echo "  WARNING: CORES not set, defaulting to ${CORES}"
+    fi
+    
     apptainer exec \
         --bind "$(dirname "$ASSEMBLY_FILE")":/input:ro \
         --bind "${SAMPLE_OUTPUT}":/output \
@@ -286,8 +303,8 @@ run_deepvirfinder() {
         python /DeepVirFinder/dvf.py \
             -i "/input/$(basename "$ASSEMBLY_FILE")" \
             -o "/output/deepvirfinder" \
-            -l 1000 \
-            -c ${THREADS} \
+            -l 350 \
+            -c "${CORES}" \
             2>&1 | tee "${output_dir}/deepvirfinder.log"
     
     if [[ $? -eq 0 ]]; then
@@ -324,14 +341,56 @@ run_checkv() {
     
     echo "  Running CheckV..."
     
+    # Ensure THREADS is set
+    if [[ -z "${THREADS}" ]]; then
+        THREADS=4  # Default to 4 threads if not set
+        echo "  WARNING: THREADS not set, defaulting to ${THREADS}"
+    fi
+    
+
+    CHECKV_DB="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers/checkv_db"
+    
+    # Check if database exists
+    if [[ ! -d "${CHECKV_DB}" ]]; then
+        echo "  ERROR: CheckV database not found at ${CHECKV_DB}"
+        echo "  Please download CheckV database or set the correct path"
+        return 1
+    fi
+    
+    # Determine which viral contigs to use for CheckV
+    local viral_input="${ASSEMBLY_FILE}"
+    if [[ -f "${SAMPLE_OUTPUT}/virsorter2/final-viral-combined.fa" ]]; then
+        viral_input="${SAMPLE_OUTPUT}/virsorter2/final-viral-combined.fa"
+        echo "  Using VirSorter2 output for CheckV analysis"
+    elif [[ -f "${SAMPLE_OUTPUT}/deepvirfinder/viral_contigs.txt" ]]; then
+        # Extract viral sequences from assembly based on DeepVirFinder results
+        python -c "
+import sys
+with open('${SAMPLE_OUTPUT}/deepvirfinder/viral_contigs.txt') as f:
+    contigs = set(line.split()[0] for line in f)
+with open('${ASSEMBLY_FILE}') as f:
+    write_seq = False
+    for line in f:
+        if line.startswith('>'):
+            contig_id = line.strip()[1:]
+            write_seq = contig_id in contigs
+        if write_seq:
+            sys.stdout.write(line)
+" > "${output_dir}/viral_contigs.fa"
+        viral_input="${output_dir}/viral_contigs.fa"
+        echo "  Using DeepVirFinder output for CheckV analysis"
+    fi
+    
     apptainer exec \
-        --bind "$(dirname "$ASSEMBLY_FILE")":/input:ro \
+        --bind "$(dirname "$viral_input")":/input:ro \
         --bind "${SAMPLE_OUTPUT}":/output \
+        --bind "${CHECKV_DB}":/checkv_db:ro \
         "${CHECKV_CONTAINER}" \
         checkv end_to_end \
-            "/input/$(basename "$ASSEMBLY_FILE")" \
+            "/input/$(basename "$viral_input")" \
             "/output/checkv" \
-            -t ${THREADS} \
+            -d /checkv_db \
+            -t "${THREADS}" \
             2>&1 | tee "${output_dir}/checkv.log"
     
     if [[ $? -eq 0 ]]; then
@@ -339,70 +398,6 @@ run_checkv() {
         return 0
     else
         echo "  CheckV failed"
-        return 1
-    fi
-}
-
-####==================================####
-####      FUNCTION: RUN GRAVITY      ####
-####==================================####
-
-run_gravity() {
-    echo ""
-    echo "--- Running GraViTy ---"
-    
-    local output_dir="${SAMPLE_OUTPUT}/gravity"
-    mkdir -p "$output_dir"
-    
-    # Check if already completed
-    if [[ -f "${output_dir}/taxonomy_results.txt" ]] && [[ -s "${output_dir}/taxonomy_results.txt" ]]; then
-        echo "  GraViTy already completed for ${MAPPING_TOOL}/${ASSEMBLER}/${SAMPLE}"
-        return 0
-    fi
-    
-    echo "  Running GraViTy..."
-    
-    # First, we need to get the viral contigs from VirSorter2 or DeepVirFinder
-    local viral_contigs=""
-    if [[ -f "${SAMPLE_OUTPUT}/virsorter2/final-viral-combined.fa" ]]; then
-        viral_contigs="${SAMPLE_OUTPUT}/virsorter2/final-viral-combined.fa"
-    elif [[ -f "${SAMPLE_OUTPUT}/deepvirfinder/viral_contigs.txt" ]]; then
-        # Extract sequences from assembly file based on DeepVirFinder contig IDs
-        python -c "
-import sys
-with open('${SAMPLE_OUTPUT}/deepvirfinder/viral_contigs.txt') as f:
-    contigs = [line.split()[0] for line in f]
-with open('${ASSEMBLY_FILE}') as f:
-    for line in f:
-        if line.startswith('>') and line.strip()[1:] in contigs:
-            sys.stdout.write(line + next(f))
-" > "${output_dir}/viral_contigs.fa"
-        viral_contigs="${output_dir}/viral_contigs.fa"
-    else
-        echo "  No viral contigs found for GraViTy analysis"
-        return 1
-    fi
-    
-    if [[ ! -s "$viral_contigs" ]]; then
-        echo "  No viral contigs found for GraViTy analysis"
-        return 1
-    fi
-    
-    apptainer exec \
-        --bind "$(dirname "$viral_contigs")":/input:ro \
-        --bind "${SAMPLE_OUTPUT}":/output \
-        "${GRAVITY_CONTAINER}" \
-        gravy -i "/input/$(basename "$viral_contigs")" \
-            -o "/output/gravity" \
-            -db /gravity_db \
-            -t ${THREADS} \
-            2>&1 | tee "${output_dir}/gravity.log"
-    
-    if [[ $? -eq 0 ]]; then
-        echo " GraViTy completed successfully"
-        return 0
-    else
-        echo " GraViTy failed"
         return 1
     fi
 }
@@ -424,12 +419,29 @@ run_diamond() {
         return 0
     fi
     
+    # Set DIAMOND database path
+    DIAMOND_DB="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers/diamond_db"
+    
+    # Check if database exists
+    if [[ ! -d "${DIAMOND_DB}" ]] || [[ ! -f "${DIAMOND_DB}/viral_nr.dmnd" ]]; then
+        echo "  WARNING: DIAMOND database not found at ${DIAMOND_DB}/viral_nr.dmnd"
+        echo "  Skipping DIAMOND analysis - database needs to be created"
+        echo "  To create: diamond makedb --in viral_proteins.faa -d viral_nr"
+        return 0  # Return 0 to continue pipeline without failing
+    fi
+    
     echo "  Running DIAMOND..."
+    
+    # Ensure THREADS is set
+    if [[ -z "${THREADS}" ]]; then
+        THREADS=4
+        echo "  WARNING: THREADS not set, defaulting to ${THREADS}"
+    fi
     
     apptainer exec \
         --bind "$(dirname "$ASSEMBLY_FILE")":/input:ro \
         --bind "${SAMPLE_OUTPUT}":/output \
-        --bind "${CONTAINERS}/diamond_db":/db:ro \
+        --bind "${DIAMOND_DB}":/db:ro \
         "${DIAMOND_CONTAINER}" \
         diamond blastx \
             -q "/input/$(basename "$ASSEMBLY_FILE")" \
@@ -437,7 +449,7 @@ run_diamond() {
             -o "/output/diamond/diamond_results.tsv" \
             --ultra-sensitive \
             --evalue 1e-5 \
-            --threads ${THREADS} \
+            --threads "${THREADS}" \
             --outfmt 6 \
             2>&1 | tee "${output_dir}/diamond.log"
     
@@ -446,6 +458,92 @@ run_diamond() {
         return 0
     else
         echo "  DIAMOND failed"
+        return 1
+    fi
+}
+
+####==================================####
+####      FUNCTION: RUN GRAVITY      ####
+####==================================####
+
+run_gravity() {
+    echo ""
+    echo "--- Running GraViTy ---"
+    
+    local output_dir="${SAMPLE_OUTPUT}/gravity"
+    mkdir -p "$output_dir"
+    
+    # Check if already completed
+    if [[ -f "${output_dir}/taxonomy_results.txt" ]] && [[ -s "${output_dir}/taxonomy_results.txt" ]]; then
+        echo "  GraViTy already completed for ${MAPPING_TOOL}/${ASSEMBLER}/${SAMPLE}"
+        return 0
+    fi
+    
+    # Set GraViTy database path
+    GRAVITY_DB="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers/gravity_db"
+    
+    # Check if database exists
+    if [[ ! -d "${GRAVITY_DB}" ]]; then
+        echo "  WARNING: GraViTy database not found at ${GRAVITY_DB}"
+        echo "  Skipping GraViTy analysis - database needs to be set up"
+        echo "  See: https://github.com/PAiewsakun/GRAViTy for database setup"
+        return 0  # Return 0 to continue pipeline without failing
+    fi
+    
+    echo "  Running GraViTy..."
+    
+    # Ensure THREADS is set
+    if [[ -z "${THREADS}" ]]; then
+        THREADS=4
+        echo "  WARNING: THREADS not set, defaulting to ${THREADS}"
+    fi
+    
+    # First, we need to get the viral contigs from VirSorter2 or DeepVirFinder
+    local viral_contigs=""
+    if [[ -f "${SAMPLE_OUTPUT}/virsorter2/final-viral-combined.fa" ]]; then
+        viral_contigs="${SAMPLE_OUTPUT}/virsorter2/final-viral-combined.fa"
+    elif [[ -f "${SAMPLE_OUTPUT}/deepvirfinder/viral_contigs.txt" ]]; then
+        # Extract sequences from assembly file based on DeepVirFinder contig IDs
+        python -c "
+import sys
+with open('${SAMPLE_OUTPUT}/deepvirfinder/viral_contigs.txt') as f:
+    contigs = set(line.split()[0] for line in f)
+with open('${ASSEMBLY_FILE}') as f:
+    write_seq = False
+    for line in f:
+        if line.startswith('>'):
+            contig_id = line.strip()[1:]
+            write_seq = contig_id in contigs
+        if write_seq:
+            sys.stdout.write(line)
+" > "${output_dir}/viral_contigs.fa"
+        viral_contigs="${output_dir}/viral_contigs.fa"
+    else
+        echo "  No viral contigs found for GraViTy analysis"
+        return 0  # Return 0 to continue pipeline
+    fi
+    
+    if [[ ! -s "$viral_contigs" ]]; then
+        echo "  No viral contigs found for GraViTy analysis"
+        return 0  # Return 0 to continue pipeline
+    fi
+    
+    apptainer exec \
+        --bind "$(dirname "$viral_contigs")":/input:ro \
+        --bind "${SAMPLE_OUTPUT}":/output \
+        --bind "${GRAVITY_DB}":/gravity_db:ro \
+        "${GRAVITY_CONTAINER}" \
+        gravy -i "/input/$(basename "$viral_contigs")" \
+            -o "/output/gravity" \
+            -db /gravity_db \
+            -t "${THREADS}" \
+            2>&1 | tee "${output_dir}/gravity.log"
+    
+    if [[ $? -eq 0 ]]; then
+        echo " GraViTy completed successfully"
+        return 0
+    else
+        echo " GraViTy failed"
         return 1
     fi
 }
