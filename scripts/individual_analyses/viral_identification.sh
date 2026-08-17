@@ -34,6 +34,12 @@ BOWTIE_ASSEMBLY_DIR="${INPUT_DIR_BASE}/bowtie_assembly"
 # Output directory
 OUTPUT_DIR="${PROJECT_SCRATCH}/results/identification"
 
+# Database paths
+VIRSORTER2_DB="/nfs/users/nfs_j/jr46/databases/virsorter2_db"
+CHECKV_DB="/nfs/users/nfs_j/jr46/databases/checkv_db/checkv-db-v1.5"
+DIAMOND_DB="/nfs/users/nfs_j/jr46/databases/diamond_db/db"
+GRAVITY_DB="/nfs/users/nfs_j/jr46/databases/gravity_db"
+
 # Container configuration
 CONTAINERS="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers"
 VIRSORTER2_CONTAINER="${CONTAINERS}/virsorter2.sif"
@@ -247,10 +253,12 @@ run_virsorter2() {
     apptainer exec \
         --bind "$(dirname "$ASSEMBLY_FILE")":/input:ro \
         --bind "${SAMPLE_OUTPUT}":/output \
+        --bind "${VIRSORTER2_DB}":/virsorter2_db:ro \
         "${VIRSORTER2_CONTAINER}" \
         virsorter run \
             -i "/input/$(basename "$ASSEMBLY_FILE")" \
             -w "/output/virsorter2" \
+            --db-dir /virsorter2_db \
             --include-groups dsDNAphage,ssDNA,ssRNA,dsRNA \
             --min-length 350 \
             --min-score 0.5 \
@@ -347,9 +355,6 @@ run_checkv() {
         echo "  WARNING: THREADS not set, defaulting to ${THREADS}"
     fi
     
-
-    CHECKV_DB="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers/checkv_db"
-    
     # Check if database exists
     if [[ ! -d "${CHECKV_DB}" ]]; then
         echo "  ERROR: CheckV database not found at ${CHECKV_DB}"
@@ -419,9 +424,6 @@ run_diamond() {
         return 0
     fi
     
-    # Set DIAMOND database path
-    DIAMOND_DB="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers/diamond_db"
-    
     # Check if database exists
     if [[ ! -d "${DIAMOND_DB}" ]] || [[ ! -f "${DIAMOND_DB}/viral_nr.dmnd" ]]; then
         echo "  WARNING: DIAMOND database not found at ${DIAMOND_DB}/viral_nr.dmnd"
@@ -479,14 +481,10 @@ run_gravity() {
         return 0
     fi
     
-    # Set GraViTy database path
-    GRAVITY_DB="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers/gravity_db"
-    
     # Check if database exists
     if [[ ! -d "${GRAVITY_DB}" ]]; then
         echo "  WARNING: GraViTy database not found at ${GRAVITY_DB}"
         echo "  Skipping GraViTy analysis - database needs to be set up"
-        echo "  See: https://github.com/PAiewsakun/GRAViTy for database setup"
         return 0  # Return 0 to continue pipeline without failing
     fi
     
