@@ -2,8 +2,8 @@
 
 # Author: Jorge Alberto Castro Rodríguez
 # Script to identify assembled contigs
-# 16/08/2026
-# Ver. 1.2.0 (farm-ready)
+# 18/08/2026
+# Ver. 1.3.0 (farm-ready)
 
 ####==================================####
 ####           CONFIGURATION          ####
@@ -35,7 +35,7 @@ BOWTIE_ASSEMBLY_DIR="${INPUT_DIR_BASE}/bowtie_assembly"
 OUTPUT_DIR="${PROJECT_SCRATCH}/results/identification"
 
 # Database paths
-VIRSORTER2_DB="/nfs/users/nfs_j/jr46/databases/virsorter2_db"
+VIRSORTER2_DB="/nfs/users/nfs_j/jr46/databases/virsorter2_db/db"
 CHECKV_DB="/nfs/users/nfs_j/jr46/databases/checkv_db/checkv-db-v1.5"
 DIAMOND_DB="/nfs/users/nfs_j/jr46/databases/diamond_db/db"
 GRAVITY_DB="/nfs/users/nfs_j/jr46/databases/gravity_db"
@@ -46,7 +46,13 @@ VIRSORTER2_CONTAINER="${CONTAINERS}/virsorter2.sif"
 DEEPVIRFINDER_CONTAINER="${CONTAINERS}/deepvirfinder.sif"
 CHECKV_CONTAINER="${CONTAINERS}/checkv.sif"
 DIAMOND_CONTAINER="${CONTAINERS}/diamond.sif"
-GRAVITY_CONTAINER="${CONTAINERS}/gravity.sif"
+GRAVITY_CONTAINER="${CONTAINERS}/gravityv2_v2.2.sif"
+
+# Gravity configuration
+GRAVITY_OUTPUT_DIR="${SAMPLE_OUTPUT}/gravity"
+GRAVITY_EMAIL="jacr@iibiomedicas.unam.mx"  # Required for NCBI downloads
+GRAVITY_TAXO_GROUP="Genus"
+GRAVITY_THREADS="${THREADS}"
 
 # Scripts directory
 SCRIPTS_NFS="${HOME}/git_repos/${PROJECT_NAME}/scripts/individual_analyses"
@@ -248,6 +254,14 @@ run_virsorter2() {
     if [[ -z "${CORES}" ]]; then
         CORES=4  # Default to 4 cores if not set
         echo "  WARNING: CORES not set, defaulting to ${CORES}"
+    fi
+
+    # Check if database exists
+    if [[ ! -d "${VIRSORTER2_DB}" ]] || [[ ! -f "${VIRSORTER2_DB}/hmm/viral/combined.hmm" ]]; then
+        echo "  WARNING: VirSorter2 database not found or incomplete at ${VIRSORTER2_DB}"
+        echo "  Expected to find: ${VIRSORTER2_DB}/hmm/viral/combined.hmm"
+        echo "  Skipping VirSorter2 analysis"
+        return 0
     fi
     
     apptainer exec \
@@ -464,45 +478,33 @@ run_diamond() {
     fi
 }
 
+
 ####==================================####
-####      FUNCTION: RUN GRAVITY      ####
+####      FUNCTION: RUN GRAVITY       ####
 ####==================================####
 
 run_gravity() {
     echo ""
-    echo "--- Running GraViTy ---"
+    echo "--- Running GRAViTy-V2 ---"
     
     local output_dir="${SAMPLE_OUTPUT}/gravity"
     mkdir -p "$output_dir"
     
     # Check if already completed
-    if [[ -f "${output_dir}/taxonomy_results.txt" ]] && [[ -s "${output_dir}/taxonomy_results.txt" ]]; then
-        echo "  GraViTy already completed for ${MAPPING_TOOL}/${ASSEMBLER}/${SAMPLE}"
+    if [[ -f "${output_dir}/taxonomy_results.csv" ]] && [[ -s "${output_dir}/taxonomy_results.csv" ]]; then
+        echo "  GRAViTy-V2 already completed for ${MAPPING_TOOL}/${ASSEMBLER}/${SAMPLE}"
         return 0
     fi
     
-    # Check if database exists
-    if [[ ! -d "${GRAVITY_DB}" ]]; then
-        echo "  WARNING: GraViTy database not found at ${GRAVITY_DB}"
-        echo "  Skipping GraViTy analysis - database needs to be set up"
-        return 0  # Return 0 to continue pipeline without failing
-    fi
-    
-    echo "  Running GraViTy..."
-    
-    # Ensure THREADS is set
-    if [[ -z "${THREADS}" ]]; then
-        THREADS=4
-        echo "  WARNING: THREADS not set, defaulting to ${THREADS}"
-    fi
-    
-    # First, we need to get the viral contigs from VirSorter2 or DeepVirFinder
+    # Get viral contigs (prioritize VirSorter2, then DeepVirFinder)
     local viral_contigs=""
-    if [[ -f "${SAMPLE_OUTPUT}/virsorter2/final-viral-combined.fa" ]]; then
+    if [[ -f "${SAMPLE_OUTPUT}/virsorter2/final-viral-combined.fa" ]] && [[ -s "${SAMPLE_OUTPUT}/virsorter2/final-viral-combined.fa" ]]; then
         viral_contigs="${SAMPLE_OUTPUT}/virsorter2/final-viral-combined.fa"
-    elif [[ -f "${SAMPLE_OUTPUT}/deepvirfinder/viral_contigs.txt" ]]; then
-        # Extract sequences from assembly file based on DeepVirFinder contig IDs
-        python -c "
+        echo "  Using VirSorter2 viral contigs for GRAViTy-V2 analysis"
+    elif [[ -f "${SAMPLE_OUTPUT}/deepvirfinder/viral_contigs.txt" ]] && [[ -s "${SAMPLE_OUTPUT}/deepvirfinder/viral_contigs.txt" ]]; then
+        # Extract sequences from assembly based on DeepVirFinder contig IDs
+        local dvf_contigs="${output_dir}/dvf_viral_contigs.fa"
+        python3 -c "
 import sys
 with open('${SAMPLE_OUTPUT}/deepvirfinder/viral_contigs.txt') as f:
     contigs = set(line.split()[0] for line in f)
@@ -510,45 +512,224 @@ with open('${ASSEMBLY_FILE}') as f:
     write_seq = False
     for line in f:
         if line.startswith('>'):
-            contig_id = line.strip()[1:]
+            contig_id = line.strip()[1:].split()[0]  # Handle potential spaces in header
             write_seq = contig_id in contigs
         if write_seq:
             sys.stdout.write(line)
-" > "${output_dir}/viral_contigs.fa"
-        viral_contigs="${output_dir}/viral_contigs.fa"
+" > "$dvf_contigs"
+        viral_contigs="$dvf_contigs"
+        echo "  Using DeepVirFinder viral contigs for GRAViTy-V2 analysis"
     else
-        echo "  No viral contigs found for GraViTy analysis"
-        return 0  # Return 0 to continue pipeline
+        echo "  No viral contigs found for GRAViTy-V2 analysis"
+        return 0
     fi
     
     if [[ ! -s "$viral_contigs" ]]; then
-        echo "  No viral contigs found for GraViTy analysis"
-        return 0  # Return 0 to continue pipeline
+        echo "  No viral contigs found for GRAViTy-V2 analysis"
+        return 0
     fi
     
+    # Count viral contigs
+    local viral_count=$(grep -c '^>' "$viral_contigs")
+    echo "  Found ${viral_count} viral contigs for GRAViTy-V2 analysis"
+    
+    if [[ ${viral_count} -eq 0 ]]; then
+        echo "  No viral contigs found"
+        return 0
+    fi
+    
+    # Create GRAViTy-V2 input files
+    echo "  Preparing GRAViTy-V2 input files..."
+    
+    # Check if database exists - if not, GRAViTy will download references automatically
+    if [[ ! -d "${GRAVITY_DB}" ]] || [[ ! -f "${GRAVITY_DB}/latest_vmr.csv" ]]; then
+        echo "  WARNING: GRAViTy-V2 database not found at ${GRAVITY_DB}"
+        echo "  GRAViTy-V2 will download reference sequences from NCBI as needed"
+        echo "  This may take time and requires internet access"
+        # GRAViTy can work without a pre-built database - it will build on the fly
+    fi
+    
+    echo "  Running GRAViTy-V2..."
+    
+    # Ensure THREADS is set
+    if [[ -z "${THREADS}" ]]; then
+        THREADS=4
+        echo "  WARNING: THREADS not set, defaulting to ${THREADS}"
+    fi
+    
+    # Create a temporary VMR file for GRAViTy-V2
+    local vmr_file="${output_dir}/input_vmr.csv"
+    
+    # Create VMR-like document from viral contigs
+    cat > "$vmr_file" << EOF
+Accession,Species,Genus,Family,GenomeLength,Segment,Host
+${SAMPLE}_contig,Unclassified_${SAMPLE},Unclassified,Unclassified,0,1,Unclassified
+EOF
+    
+    # For each viral contig, add to VMR
+    local contig_num=0
+    grep '^>' "$viral_contigs" | while read -r header; do
+        contig_num=$((contig_num + 1))
+        local contig_id=$(echo "$header" | sed 's/^>//' | cut -d' ' -f1)
+        echo "${contig_id},Unclassified_${SAMPLE},Unclassified,Unclassified,0,1,Unclassified" >> "$vmr_file"
+    done
+    
+    # Create GenBank file from FASTA
+    local gb_file="${output_dir}/input_sequences.gb"
+    if [[ -f "${GRAVITY_CONTAINER}" ]]; then
+        # Use GRAViTy-V2's built-in converter if available
+        apptainer exec \
+            --bind "$(dirname "$viral_contigs")":/input:ro \
+            --bind "${SAMPLE_OUTPUT}":/output \
+            "${GRAVITY_CONTAINER}" \
+            gravity_utils convert_fasta_to_genbank \
+                -i "/input/$(basename "$viral_contigs")" \
+                -o "/output/gravity/input_sequences.gb" \
+                2>&1 | tee "${output_dir}/convert.log" || {
+                    echo "  WARNING: Built-in conversion failed, using simple conversion"
+                    # Fallback: simple conversion
+                    python3 -c "
+import sys
+from Bio import SeqIO
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
+
+records = []
+for record in SeqIO.parse('${viral_contigs}', 'fasta'):
+    record.id = record.id.replace(' ', '_')
+    records.append(record)
+SeqIO.write(records, '${gb_file}', 'genbank')
+" 2>/dev/null || true
+                }
+    else
+        # Fallback: simple conversion using BioPython
+        python3 -c "
+from Bio import SeqIO
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
+import sys
+
+try:
+    records = []
+    for record in SeqIO.parse('${viral_contigs}', 'fasta'):
+        record.id = record.id.replace(' ', '_')
+        records.append(record)
+    SeqIO.write(records, '${gb_file}', 'genbank')
+except Exception as e:
+    print(f'Error converting to GenBank: {e}', file=sys.stderr)
+    # Create minimal GenBank file
+    with open('${gb_file}', 'w') as f:
+        f.write('LOCUS       Unclassified          0 bp    DNA     linear   UNK\\n')
+        f.write('FEATURES             Location/Qualifiers\\n')
+        f.write('ORIGIN\\n')
+        f.write('//\\n')
+" 2>/dev/null || true
+    fi
+    
+    # Run GRAViTy-V2 with appropriate parameters
+    echo "  Starting GRAViTy-V2 classification..."
+    
+    # Determine which workflow to use based on viral contigs
+    # For small datasets (< 50 contigs) use similar_viruses
+    if [[ ${viral_count} -lt 50 ]]; then
+        WORKFLOW="similar_viruses"
+        echo "  Using 'similar_viruses' workflow (small dataset)"
+    else
+        WORKFLOW="new_classification_full"
+        echo "  Using 'new_classification_full' workflow (large dataset)"
+    fi
+    
+    # Run GRAViTy-V2
     apptainer exec \
         --bind "$(dirname "$viral_contigs")":/input:ro \
         --bind "${SAMPLE_OUTPUT}":/output \
         --bind "${GRAVITY_DB}":/gravity_db:ro \
         "${GRAVITY_CONTAINER}" \
-        gravy -i "/input/$(basename "$viral_contigs")" \
-            -o "/output/gravity" \
-            -db /gravity_db \
-            -t "${THREADS}" \
+        gravy_cli \
+            --GenomeDescTableFile "/output/gravity/input_vmr.csv" \
+            --GenomeSeqFile "/output/gravity/input_sequences.gb" \
+            --ExpDir "/output/gravity" \
+            --TaxoGrouping_Header "${GRAVITY_TAXO_GROUP}" \
+            --genbank_email "${GRAVITY_EMAIL}" \
+            --ProteinLength_Cutoff 70 \
+            --UseBlast true \
+            --NThreads "${GRAVITY_THREADS}" \
+            --Bootstrap_method "sumtrees" \
+            --N_Bootstrap 10 \
+            --workflow "${WORKFLOW}" \
             2>&1 | tee "${output_dir}/gravity.log"
     
-    if [[ $? -eq 0 ]]; then
-        echo " GraViTy completed successfully"
+    local exit_code=$?
+    
+    if [[ ${exit_code} -eq 0 ]]; then
+        echo "  GRAViTy-V2 completed successfully"
+        
+        # Check for output files
+        if [[ -f "${output_dir}/classification_results.csv" ]]; then
+            echo "  Classification results generated"
+            local classified=$(tail -n +2 "${output_dir}/classification_results.csv" | wc -l)
+            echo "  Classified ${classified} viral contigs"
+        fi
+        
+        # Generate summary
+        generate_gravity_summary "$output_dir"
         return 0
     else
-        echo " GraViTy failed"
+        echo "  GRAViTy-V2 failed with exit code ${exit_code}"
         return 1
     fi
 }
 
 ####==================================####
-####      FUNCTION: CONSOLIDATE       ####
+####    FUNCTION: GRAVITY SUMMARY    ####
 ####==================================####
+
+generate_gravity_summary() {
+    local gravity_dir="$1"
+    local summary_file="${gravity_dir}/gravity_summary.txt"
+    
+    cat > "$summary_file" << EOF
+===== GRAViTy-V2 Summary =====
+Mapping Tool: ${MAPPING_TOOL}
+Assembler: ${ASSEMBLER}
+Sample: ${SAMPLE}
+Date: $(date)
+
+--- Classification Results ---
+$(if [[ -f "${gravity_dir}/classification_results.csv" ]]; then
+    echo "Top taxonomic assignments:"
+    head -20 "${gravity_dir}/classification_results.csv" | column -t -s,
+else
+    echo "No classification results available"
+fi)
+
+--- Viral Groups ---
+$(if [[ -f "${gravity_dir}/virus_groups.csv" ]]; then
+    echo "Virus groups identified:"
+    cat "${gravity_dir}/virus_groups.csv" | column -t -s,
+else
+    echo "No virus groups available"
+fi)
+
+--- Heatmap ---
+$(if [[ -f "${gravity_dir}/heatmap.pdf" ]]; then
+    echo "Heatmap generated: ${gravity_dir}/heatmap.pdf"
+else
+    echo "No heatmap available"
+fi)
+
+--- Dendrogram ---
+$(if [[ -f "${gravity_dir}/dendrogram.pdf" ]]; then
+    echo "Dendrogram generated: ${gravity_dir}/dendrogram.pdf"
+else
+    echo "No dendrogram available"
+fi)
+
+=====================================
+EOF
+    
+    echo "  Summary created: $summary_file"
+}
 
 consolidate_results() {
     echo ""
@@ -606,12 +787,14 @@ else
     echo "CheckV results not available"
 fi)
 
---- GraViTy Taxonomy ---
-$(if [[ -f "${SAMPLE_OUTPUT}/gravity/taxonomy_results.txt" ]]; then
-    echo "Taxonomic assignments:"
-    head -20 "${SAMPLE_OUTPUT}/gravity/taxonomy_results.txt" 2>/dev/null || echo "No data"
+--- GRAViTy-V2 Taxonomy ---
+$(if [[ -f "${SAMPLE_OUTPUT}/gravity/gravity_summary.txt" ]]; then
+    cat "${SAMPLE_OUTPUT}/gravity/gravity_summary.txt"
+elif [[ -f "${SAMPLE_OUTPUT}/gravity/taxonomy_results.csv" ]]; then
+    echo "Top taxonomic assignments:"
+    head -20 "${SAMPLE_OUTPUT}/gravity/taxonomy_results.csv" | column -t -s,
 else
-    echo "GraViTy results not available"
+    echo "GRAViTy-V2 results not available"
 fi)
 
 --- DIAMOND Annotation ---

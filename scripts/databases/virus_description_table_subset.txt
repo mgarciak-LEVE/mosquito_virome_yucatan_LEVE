@@ -1,0 +1,663 @@
+Order	Family	Subfamily	Genus	Virus name (s)	Virus GENBANK accession	Baltimore Group	Virus sequence complete	Genetic code table	Taxonomic grouping
+Pantevenvirales	Ackermannviridae	Aglimvirinae	Agtrevirus	Shigella phage phiSboM-AG3	FJ373894	I	Complete genome	1	Ackermannviridae
+Pantevenvirales	Ackermannviridae	Aglimvirinae	Agtrevirus	Enterobacter phage phiEM4	LC373201	I	Complete genome	1	Ackermannviridae
+Rohanvirales	Adamaviridae		Andorivirus	Circovirus-like genome DHCV-6	KT149412		Complete genome	1	Adamaviridae
+Rohanvirales	Adamaviridae		Andorivirus	McMurdo Ice Shelf pond-associated circular DNA virus-3	KJ547648		Complete genome	1	Adamaviridae
+Rowavirales	Adenoviridae		Aviadenovirus	duck adenovirus 2	KJ469653	I	Complete genome	1	Adenoviridae
+Rowavirales	Adenoviridae		Aviadenovirus	duck adenovirus 3	MH777395	I	Complete genome	1	Adenoviridae
+	Aggregaviridae		Harrekavirus	Olleya phage Harreka_1	MT732457	I	Complete genome	1	Aggregaviridae
+Maximonvirales	Ahmunviridae		Yumkaaxvirus	archaeal virus JdFR077	PQ111746	I	Complete genome	1	Ahmunviridae
+Maximonvirales	Ahmunviridae		Yumkaaxvirus	Methanophagales virus PBV300	OP413840	I	Complete genome	1	Ahmunviridae
+Nakonvirales	Ahpuchviridae		Kisinvirus	Methanophagales virus PBV299	OP413838	I	Complete genome	1	Ahpuchviridae
+	Aliceevansviridae		Brussowvirus	Streptococcus phage 20617	HG424323	I	Complete genome	1	Aliceevansviridae
+	Aliceevansviridae		Brussowvirus	Streptococcus phage ALQ13.2	FJ226752	I	Complete genome	1	Aliceevansviridae
+	Alisviridae		Honmavirus	Porphyromonas phage phage006a_EM3	BK068089	I	Complete genome	1	Alisviridae
+	Alisviridae		Honmavirus	Porphyromonas phage phage007a_Bg4	PP754929	I	Complete genome	1	Alisviridae
+Jingchuvirales	Aliusviridae		Ollusvirus	Húběi coleoptera virus 3	KX884416	V	Complete genome	1	Aliusviridae
+Jingchuvirales	Aliusviridae		Ollusvirus	Hánchéng leafhopper mivirus	MN190034	V	Complete genome	1	Aliusviridae
+Herpesvirales	Alloherpesviridae		Batravirus	Lucké tumor herpesvirus; ranid herpesvirus 1	DQ665917	I	Complete genome	1	Alloherpesviridae
+Herpesvirales	Alloherpesviridae		Batravirus	frog virus 4; ranid herpesvirus 2	DQ665652	I	Complete genome	1	Alloherpesviridae
+Imitervirales	Allomimiviridae		Oceanusvirus	Tetraselmis virus 1	KY322437	I	Complete genome	1	Allomimiviridae
+Tymovirales	Alphaflexiviridae		Allexivirus	garlic virus A	AB010300	IV	Complete genome	1	Alphaflexiviridae
+Tymovirales	Alphaflexiviridae		Allexivirus	garlic virus B	KM379144	IV	Complete genome	1	Alphaflexiviridae
+Gokushovirales	Alphagokushoviridae		Gokucipiengivirus	chimpanzee faeces associated microphage 2 CPNG_29299	KR704914		Complete genome	1	Alphagokushoviridae
+Gokushovirales	Alphagokushoviridae		Gokugallopavovirus	microvirus CA82	HQ264138		Complete genome	1	Alphagokushoviridae
+	Alphasatellitidae	Geminialphasatellitinae	Ageyesisatellite	Ageratum yellow vein Singapore alphasatellite	AJ416153		Complete genome	1	Alphasatellitidae
+	Alphasatellitidae	Geminialphasatellitinae	Ageyesisatellite	cotton leaf curl Saudi Arabia alphasatellite	HG530543		Complete genome	1	Alphasatellitidae
+Hepelivirales	Alphatetraviridae		Betatetravirus	Nudaurelia capensis beta virus	AF102884	IV	Complete genome	1	Alphatetraviridae
+	Altumviridae		Calorvirus	uncultured archaeal virus isolate JdFR1000234	KY229235	I	Complete genome	1	Altumviridae
+	Altumviridae		Calorvirus	Archaeoglobus virus JdFR416	PQ111739	I	Complete genome	1	Altumviridae
+Sobelivirales	Alvernaviridae		Dinornavirus	Heterocapsa circularisquama RNA virus 01	AB218608	IV	Complete genome	1	Alvernaviridae
+Durnavirales	Amalgaviridae		Amalgavirus	southern tomato virus	EF442780	III	Complete genome	1	Amalgaviridae
+Durnavirales	Amalgaviridae		Amalgavirus	rhododendron virus A	HQ128706	III	Complete genome	1	Amalgaviridae
+Tolivirales	Ambiguiviridae		Alphambiguivirus	Alternaria dianthicola umbra-like virus 1	ON843758	IV	Complete genome	1	Ambiguiviridae
+Tolivirales	Ambiguiviridae		Alphambiguivirus	Botrytis cinerea umbra-like virus 2	OP289104	IV	Complete genome	1	Ambiguiviridae
+Mulpavirales	Amesuviridae		Temfrudevirus	temperate fruit decay-associated virus	KR134312		Complete genome	1	Amesuviridae
+Mulpavirales	Amesuviridae		Yermavirus	yerba mate-associated circular DNA virus	MG748715		Complete genome	1	Amesuviridae
+	Ampullaviridae		Bottigliavirus	Acidianus bottle-shaped virus 3 strain ABV3	KP282674	I	Complete genome	1	Ampullaviridae
+	Ampullaviridae		Bottigliavirus	Acidianus bottle-shaped virus	EF432053	I	Complete genome	1	Ampullaviridae
+Methanobavirales	Anaerodiviridae		Metforvirus	Methanobacterium virus Drs3	MH674343	I	Complete genome	1	Anaerodiviridae
+	Anamaviridae	Kantovirinae	Beograduvirus	Xanthomonas phage BsXeu269p/3	ON996340	I	Complete genome	1	Anamaviridae
+	Anamaviridae	Kantovirinae	Beograduvirus	Xanthomonas phage KPhi1	KY210139	I	Complete genome	1	Anamaviridae
+	Andersonviridae	Ounavirinae	Felixounavirus	Escherichia phage adrianh	MN850614	I	Complete genome	1	Andersonviridae
+	Andersonviridae	Ounavirinae	Felixounavirus	Escherichia phage vB_EcoM_Alf5	KX377933	I	Complete genome	1	Andersonviridae
+Sanitavirales	Anelloviridae		Aleptorquevirus	mosquito VEM Anellovirus SDBVL	HQ335082		Complete genome	1	Anelloviridae
+Sanitavirales	Anelloviridae		Aleptorquevirus	Lepus torque teno virus 1	MN994854		Complete genome	1	Anelloviridae
+Mulpavirales	Anicreviridae		Baranavirus	Delphin virus 1	MW562321		Complete genome	1	Anicreviridae
+Mulpavirales	Anicreviridae		Ketkevirus	tentweb spider associated circular virus 1	MH545533		Complete genome	1	Anicreviridae
+Magrovirales	Aoguangviridae		Aobingvirus	Poseidoniales virus YSH_150918	ON649702	I	Complete genome	1	Aoguangviridae
+Magrovirales	Apasviridae		Agnivirus	magrovirus_A_01	OR863078	I	Complete genome	1	Apasviridae
+Hareavirales	Arenaviridae		Mammarenavirus	Mafiga virus	L1: ON381478		Complete genome	1	Arenaviridae
+	Arenbergviridae		Wroclawvirus	Pseudomonas phage vB_PaeM_PA5oct	MK797984	I	Complete genome	1	Arenbergviridae
+Methanobavirales	Armatusviridae		Ariesvirus	Methanobrevibacter tailed virus 3	BK063678	I	Complete genome	1	Armatusviridae
+Nidovirales	Arteriviridae	Crocarterivirinae	Muarterivirus	Olivier's shrew virus 1	MF324848	IV	Complete genome	1	Arteriviridae
+Nidovirales	Arteriviridae	Equarterivirinae	Alphaarterivirus	equine arteritis virus	X53459	IV	Complete genome	1	Arteriviridae
+Ghabrivirales	Artiviridae		Artivirus	Penaeid shrimp infectious myonecrosis virus	AY570982	III	Complete genome	1	Artiviridae
+Ghabrivirales	Artiviridae		Artivirus	Drosophila totivirus (Drosophila melanogaster totivirus)	GQ342961	III	Complete genome	1	Artiviridae
+Mononegavirales	Artoviridae		Hexartovirus	Lepeophtheirus salmonis negative-stranded RNA virus 1	MG489864	V	Complete genome	1	Artoviridae
+Mononegavirales	Artoviridae		Peropuvirus	Solanum melongena rhabdo-like virus	MN831436	V	Complete genome	1	Artoviridae
+Pimascovirales	Ascoviridae		Ascovirus	Heliothis virescens ascovirus 3a	EF133465	I	Complete genome	1	Ascoviridae
+Pimascovirales	Ascoviridae		Ascovirus	Heliothis virescens ascovirus 3f	KJ755191	I	Complete genome	1	Ascoviridae
+Vinavirales	Asemoviridae		Elsinorevirus	Vibrio phage fNo16	MH730557	I	Complete genome	1	Asemoviridae
+Vinavirales	Asemoviridae		Rumoivirus	Vibrio phage vB_VruC_PG21	OM867525	I	Complete genome	1	Asemoviridae
+Asfuvirales	Asfarviridae		Asfivirus	African swine fever virus	U18466	I	Complete genome	1	Asfarviridae
+Asfuvirales	Asfarviridae		Asfivirus	African swine fever virus	FN557520	I	Complete genome	1	Asfarviridae
+Naedrevirales	Aspiviridae		Miraophiovirus	Caladenia ophiovirus	BK062666	V	Coding-complete genome	1	Aspiviridae
+Naedrevirales	Aspiviridae		Miraophiovirus	carrot ophiovirus 1	OM419178	V	Coding-complete genome	1	Aspiviridae
+	Assalcaviridae		Karumvirus	Danakil Halobacteriales tailed virus 6	PQ827558	I	Complete genome	1	Assalcaviridae
+	Assiduviridae		Cebadecemvirus	Cellulophaga phage phi10:1	KC821618	I	Complete genome	1	Assiduviridae
+	Assiduviridae		Cellubavirus	Cellulophaga phage phi19:1	KC821607	I	Complete genome	1	Assiduviridae
+Stellavirales	Astroviridae		Avastrovirus	avastrovirus 2	AB033998	IV	Complete genome	1	Astroviridae
+Stellavirales	Astroviridae		Avastrovirus	avastrovirus 3	AF206663	IV	Complete genome	1	Astroviridae
+Norzivirales	Atkinsviridae		Aastrivirus	Leviviridae sp. 179-k141_18680	MZ679574	IV	Coding-complete genome	1	Atkinsviridae
+Norzivirales	Atkinsviridae		Aldormivirus	ssRNA phage ESE018	BK013373	IV	Coding-complete genome	1	Atkinsviridae
+Vinavirales	Autolykiviridae		Ameliavirus	Vibrio phage 1.008.O._10N.286.54.E5	MG592394	I	Complete genome	1	Autolykiviridae
+Vinavirales	Autolykiviridae		Livvievirus	Vibrio phage 1.249.A._10N.261.55.B9	MG592615	I	Complete genome	1	Autolykiviridae
+Autographivirales	Autonotataviridae	Gujervirinae	Ceskevirus	Xanthomonas phage SB4	PP079415	I	Complete genome	1	Autonotataviridae
+Autographivirales	Autonotataviridae	Gujervirinae	Maltophvirus	Stenotrophomonas phage BUCT609	MW960043	I	Complete genome	1	Autonotataviridae
+Autographivirales	Autoscriptoviridae	Beijerinckvirinae	Aristophanesvirus	Acinetobacter phage Aristophanes	MT783706	I	Complete genome	1	Autoscriptoviridae
+Autographivirales	Autoscriptoviridae	Beijerinckvirinae	Daemvirus	Acinetobacter phage vB_AbaP_Acibel007	KJ473423	I	Complete genome	1	Autoscriptoviridae
+Autographivirales	Autosignataviridae	Colwellvirinae	Daolivirus	Aeromonas phage MJG	MK455769	I	Complete genome	1	Autosignataviridae
+Autographivirales	Autosignataviridae	Colwellvirinae	Gutovirus	Vibrio phage Vc1	KJ502657	I	Complete genome	1	Autosignataviridae
+Autographivirales	Autotranscriptaviridae	Studiervirinae	Aarhusvirus	Dickeya phage Dagda	MH059632	I	Complete genome	1	Autotranscriptaviridae
+Autographivirales	Autotranscriptaviridae	Studiervirinae	Aarhusvirus	Dickeya phage_Katbat	MH807813	I	Complete genome	1	Autotranscriptaviridae
+	Avsunviroidae		Avsunviroid	avocado sunblotch viroid	J02020		Complete genome	1	Avsunviroidae
+	Avsunviroidae		Elaviroid	eggplant latent viroid	AJ536613		Complete genome	1	Avsunviroidae
+Baphyvirales	Bacilladnaviridae		Aberdnavirus	Avonheates virus SG_61	OM154946		Complete genome	1	Bacilladnaviridae
+Baphyvirales	Bacilladnaviridae		Diatodnavirus	Chaetoceros setoensis DNA virus	AB781089		Complete genome	1	Bacilladnaviridae
+Lefavirales	Baculoviridae		Alphabaculovirus	Adoxophyes honmai nucleopolyhedrovirus	AP006270	I	Complete genome	1	Baculoviridae
+Lefavirales	Baculoviridae		Alphabaculovirus	Agrotis ipsilon multiple nucleopolyhedrovirus	EU839994	I	Complete genome	1	Baculoviridae
+Sobelivirales	Barnaviridae		Barnavirus	Mushroom bacilliform virus	U07551	IV	Complete genome	1	Barnaviridae
+	Bartogtaviriformidae		Bartonegtaviriform	Bartonella gene transfer agent	BX897699 (1602076.1680868)	I	Partial genome (non-compliant)	1	Bartogtaviriformidae
+	Basaltiviridae		Tsigisvirus	Bathyarchaeota virus JdFR006	PQ111734	I	Complete genome	1	Basaltiviridae
+	Basaltiviridae		Tsigisvirus	archaeal virus JdFR013	PQ111735	I	Complete genome	1	Basaltiviridae
+Ortervirales	Belpaoviridae		Semotivirus	Drosophila melanogaster Bel virus	U23420		Complete genome	1	Belpaoviridae
+Ortervirales	Belpaoviridae		Semotivirus	Caenorhabditis elegans Cer13 virus	LK928904 (2253.10260)		Complete genome	1	Belpaoviridae
+	Berryhillviridae		Altadenavirus	Arthrobacter phage Altadena	OR521058	I	Complete genome	1	Berryhillviridae
+	Berryhillviridae		Altadenavirus	Arthrobacter phage Bumble	MT498055	I	Complete genome	1	Berryhillviridae
+Tymovirales	Betaflexiviridae	Quinvirinae	Banmivirus	Miscanthus virus M	ON986335	IV	Complete genome	1	Betaflexiviridae
+Tymovirales	Betaflexiviridae	Quinvirinae	Banmivirus	banana mild mosaic virus	AF314662	IV	Complete genome	1	Betaflexiviridae
+Gokushovirales	Betagokushoviridae		Bdellomicrovirus	Bdellovibrio phage phiMH2K	AF306496		Complete genome	1	Betagokushoviridae
+Gokushovirales	Betagokushoviridae		Chlamydiaduovirus	Chlamydia phage 2	AJ270057		Complete genome	1	Betagokushoviridae
+	Bicaudaviridae		Bicaudavirus	Acidianus two-tailed virus	AJ888457	I	Complete genome	1	Bicaudaviridae
+	Blefusviridae		Wecalvirus	Danakil Nanohaloarchaeota tailed virus 3	PQ827567	I	Complete genome	1	Blefusviridae
+Timlovirales	Blumeviridae		Alehndavirus	ssRNA phage AVE020	BK013364	IV	Coding-complete genome	1	Blumeviridae
+Timlovirales	Blumeviridae		Bonghivirus	ssRNA phage SRR5466725_7	BK014097	IV	Coding-complete genome	1	Blumeviridae
+Mononegavirales	Bornaviridae		Cartilovirus	little skate bornavirus	BK063518	V	Complete genome	1	Bornaviridae
+Mononegavirales	Bornaviridae		Cultervirus	electric eel bornavirus	BK063519	V	Complete genome	1	Bornaviridae
+Ourlivirales	Botourmiaviridae		Betascleroulivirus	Pyricularia oryzae ourmia-like virus 2	LC413502	IV	Complete genome	1	Botourmiaviridae
+Ourlivirales	Botourmiaviridae		Botoulivirus	Botrytis ourmia-like virus	LN827955	IV	Complete genome	1	Botourmiaviridae
+	Brachygtaviriformidae		Brachyspigtaviriform	Brachyspira hyodysenteriae gene transfer agent	CP001357 (2121760.2137438)	I	Partial genome (non-compliant)	1	Brachygtaviriformidae
+Martellivirales	Bromoviridae		Ilarvirus	apple ilarvirus 2	ON932434	IV	Complete genome	1	Bromoviridae
+Martellivirales	Bromoviridae		Ilarvirus	apple necrotic mosaic virus	LC108993	IV	Complete genome	1	Bromoviridae
+	Buchnerviridae		Jauervirus	Acinetobacter phage YMC11/11/R3177	KP861230	I	Complete genome	1	Buchnerviridae
+	Buchnerviridae		Lubinvirus	Acinetobacter phage Ab1656-2	MZ675741	I	Complete genome	1	Buchnerviridae
+Priklausovirales	Burtonviroviridae		Burquivirus	Yellowstone Lake virophage 5	KM502589	I	Complete genome	1	Burtonviroviridae
+Picornavirales	Caliciviridae		Bavovirus	chicken calicivirus	HQ010042	IV	Complete genome	1	Caliciviridae
+Picornavirales	Caliciviridae		Lagovirus	European brown hare syndrome virus	Z69620	IV	Complete genome	1	Caliciviridae
+Tolivirales	Carmotetraviridae		Alphacarmotetravirus	Providence virus	GU991616	IV	Complete genome	1	Carmotetraviridae
+	Casidaviridae		Baileybluvirus	Arthrobacter phage BaileyBlu	OL455900	I	Complete genome	1	Casidaviridae
+	Casidaviridae		Baileybluvirus	Arthrobacter phage CallinAllBarbz	OR553891	I	Complete genome	1	Casidaviridae
+	Casjensviridae		Ahduovirus	Burkholderia phage vB_BceS_AH2	JN564907	I	Complete genome	1	Casjensviridae
+	Casjensviridae		Broinstvirus	Loktanella phage pCB2051-A	HQ632859	I	Complete genome	1	Casjensviridae
+Ortervirales	Caulimoviridae		Badnavirus	Aglaonema bacilliform virus	MH384837		Complete genome	1	Caulimoviridae
+Ortervirales	Caulimoviridae		Badnavirus	taro bacilliform virus	AF357836		Complete genome	1	Caulimoviridae
+Coyopavirales	Chaacviridae		Antichaacvirus	Methanophagales virus PBV266	OP413841	I	Complete genome	1	Chaacviridae
+Coyopavirales	Chaacviridae		Homochaacvirus	Methanophagales virus PBV305	OP548100	I	Complete genome	1	Chaacviridae
+	Chaseviridae	Cleopatravirinae	Carltongylesvirus	Escherichia phage vB_EcoP_Bp7	MN117721	I	Complete genome	1	Chaseviridae
+	Chaseviridae	Cleopatravirinae	Carltongylesvirus	Escherichia phage vB_EcoM_Bp10	MN122072	I	Complete genome	1	Chaseviridae
+Secretvirales	Chicoviridae		Chaparrovirus	Rhizobium phage RHph_TM24	MN988464		Complete genome	1	Chicoviridae
+Secretvirales	Chicoviridae		Chaparrovirus	Rhizobium phage RHph_TM32	MN988477		Complete genome	1	Chicoviridae
+	Chimalliviridae	Gorgonvirinae	Aphroditevirus	Vibrio phage Aphrodite1	MG720308	I	Complete genome	1	Chimalliviridae
+	Chimalliviridae	Gorgonvirinae	Aphroditevirus	Vibrio phage 2 TSL-2019	MK368614	I	Complete genome	1	Chimalliviridae
+Ligamenvirales	Chiyouviridae		Wargodvirus	Bathyarchaeia bifangarchaeales chiyouvirus 1	PP467602	I	Complete genome	1	Chiyouviridae
+Jingchuvirales	Chuviridae		Boscovirus	Wǔhàn louse fly virus 7	S1: KM817609	V	Complete genome	1	Chuviridae
+Jingchuvirales	Chuviridae		Boscovirus	Wǔhàn louse fly virus 6	S1: KM817607	V	Complete genome	1	Chuviridae
+Cirlivirales	Circoviridae		Circovirus	white-naped crane circovirus 1	MN928908		Complete genome	1	Circoviridae
+Cirlivirales	Circoviridae		Circovirus	banfec circovirus 2	OQ599924		Complete genome	1	Circoviridae
+	Clavaviridae		Clavavirus	Aeropyrum pernix bacilliform virus 1	AB537968	I	Complete genome	1	Clavaviridae
+	Clermontviridae		Ventrumvirus	Methanonassiliicoccales tailed virus 1	BK063676	I	Complete genome	1	Clermontviridae
+Martellivirales	Closteroviridae		Ampelovirus	air potato ampelovirus 1	MH206615	IV	Complete genome	1	Closteroviridae
+Martellivirales	Closteroviridae		Ampelovirus	yam asymptomatic virus 1	MT409627	IV	Complete genome	1	Closteroviridae
+	Colingsworthviridae		Lomovskayavirus	Streptomyces phage phiBT1	AJ550940	I	Complete genome	1	Colingsworthviridae
+	Colingsworthviridae		Lomovskayavirus	Streptomyces phage phi-C31	AJ006589	I	Complete genome	1	Colingsworthviridae
+	Connertonviridae		Firehammervirus	Campylobacter phage CJLB-12	MW074125	I	Complete genome	1	Connertonviridae
+	Connertonviridae		Firehammervirus	Campylobacter phage CJLB-14	MW074126	I	Complete genome	1	Connertonviridae
+Nidovirales	Coronaviridae	Orthocoronavirinae	Alphacoronavirus	bat alphacoronavirus isolate AMA_L_F	MT663548	IV	Complete genome	1	Coronaviridae
+Nidovirales	Coronaviridae	Orthocoronavirinae	Alphacoronavirus	bat coronavirus CDPHE15	KF430219	IV	Complete genome	1	Coronaviridae
+Vinavirales	Corticoviridae		Merivirus	Pseudoalteromonas phage Cr39582	MG966533	I	Complete genome	1	Corticoviridae
+Vinavirales	Corticoviridae		Merivirus	Pseudoalteromonas phage PM2	AF155037	I	Complete genome	1	Corticoviridae
+Nidovirales	Cremegaviridae	Becregavirinae	Sicregavirus	Trionyx sinensis hemorrhagic syndrome virus	MH447987	IV	Complete genome	1	Cremegaviridae
+Jingchuvirales	Crepuscuviridae		Aqualaruvirus	megalopteran chu-related virus 119	MW039261	V	Coding-complete genome	1	Crepuscuviridae
+Crassvirales	Crevaviridae	Coarsevirinae	Junduvirus	uncultured phage cr25_1	MZ130487	I	Complete genome	1	Crevaviridae
+Crassvirales	Crevaviridae	Coarsevirinae	Junduvirus	Crassvirales sp. isolate ct8tL4	BK044746	I	Complete genome	1	Crevaviridae
+Durnavirales	Curvulaviridae		Orthocurvulavirus	Heterobasidion RNA virus 6	HQ189459	III	Complete genome	1	Curvulaviridae
+Durnavirales	Curvulaviridae		Orthocurvulavirus	Rhizoctonia solani dsRNA virus 1	JX976612	III	Complete genome	1	Curvulaviridae
+	Dallocaviridae		Kalovirus	Danakil Halobacteriales tailed virus 2	PQ827554	I	Complete genome	1	Dallocaviridae
+	Danacaviridae		Gablavirus	Danakil Halobacteriales tailed virus 1	PQ827553	I	Complete genome	1	Danacaviridae
+Crassvirales	Darmviridae	Oafivirinae	Bohxovirus	uncultured phage cr61_1	MZ130491	I	Complete genome	1	Darmviridae
+Crassvirales	Darmviridae	Oafivirinae	Buhlduvirus	uncultured phage cr272_1	MT774410	I	Complete genome	1	Darmviridae
+Tymovirales	Deltaflexiviridae		Deltaflexivirus	Fusarium graminearum deltaflexivirus 1	KX015962	IV	Complete genome	1	Deltaflexiviridae
+Tymovirales	Deltaflexiviridae		Deltaflexivirus	Pleurotus ostreatus deltaflexivirus 1	OQ295989	IV	Complete genome	1	Deltaflexiviridae
+	Demerecviridae	Ermolyevavirinae	Cetovirus	Vibrio phage Ceto	MG649966	I	Complete genome	1	Demerecviridae
+	Demerecviridae	Ermolyevavirinae	Jesfedecavirus	Vibrio phage JSF10	KY883654	I	Complete genome	1	Demerecviridae
+Picornavirales	Dicistroviridae		Aparavirus	acute bee paralysis virus	AF150629	IV	Complete genome	1	Dicistroviridae
+Picornavirales	Dicistroviridae		Aparavirus	mud crab virus	HM777507	IV	Complete genome	1	Dicistroviridae
+Hareavirales	Discoviridae		Orthodiscovirus	Coniothyrium diplodiella negative-stranded RNA virus 1	MK584854	V	Coding-complete genome	1	Discoviridae
+Hareavirales	Discoviridae		Orthodiscovirus	Plasmopara viticola lesion associated mycobunyavirales-like virus 9	MN585282	V	Coding-complete genome	1	Discoviridae
+Priklausovirales	Dishuiviroviridae		Essdubovirus	Chlorella virophage isolate SW01	OL828819	I	Complete genome	1	Dishuiviroviridae
+Jormunvirales	Draupnirviridae		Armipotenivirus	Circoviridae TaCV2	MF804498		Complete genome	1	Draupnirviridae
+Jormunvirales	Draupnirviridae		Asperivirus	Lake Sarah-associated circular virus-16	KP153423		Complete genome	1	Draupnirviridae
+	Drexlerviridae	Braunvirinae	Augustepiccardvirus	Escherichia phage AugustePiccard	MZ501051	I	Complete genome	1	Drexlerviridae
+	Drexlerviridae	Braunvirinae	Christensenvirus	Escherichia phage vB_EcoS_IME542	MK372342	I	Complete genome	1	Drexlerviridae
+Thumleimavirales	Druskaviridae		Hacavirus	Haloarcula californiae tailed virus 1	KC292029	I	Complete genome	1	Druskaviridae
+Thumleimavirales	Druskaviridae		Tredecimvirus	Haloarcula vallismortis tailed virus 1	KC117377	I	Complete genome	1	Druskaviridae
+Norzivirales	Duinviridae		Apeevirus	Acinetobacter phage AP205	AF334111	IV	Complete genome	1	Duinviridae
+Crytulvirales	Dumbiviridae		Orthodumbivirus	Armillaria mellea ambi-like virus 2	BK014421		Complete genome	1	Dumbiviridae
+Crytulvirales	Dumbiviridae		Orthodumbivirus	Rhizoctonia solani ambivirus 1	MT354567		Complete genome	1	Dumbiviridae
+	Duneviridae		Ingelinevirus	Cellulophaga phage Ingeline_1	MT732435	I	Complete genome	1	Duneviridae
+	Duneviridae		Labanvirus	Flavobacterium phage vB_FspS_laban6-1	MN812211	I	Complete genome	1	Duneviridae
+	Ehrlichviridae		Anathvirus	Bacillus phage Anath	MG983742	I	Complete genome	1	Ehrlichviridae
+	Ehrlichviridae		Andromedavirus	Bacillus phage Andromeda	KC330684	I	Complete genome	1	Ehrlichviridae
+Nakonvirales	Ekchuahviridae		Kukulkanvirus	Methanophagales virus GBV301	OP880252	I	Complete genome	1	Ekchuahviridae
+Nakonvirales	Ekchuahviridae		Kukulkanvirus	Methanophagales virus GBV302	OP880253	I	Complete genome	1	Ekchuahviridae
+Cirlivirales	Endolinaviridae		Bovdisavirus	Circoviridae sp. C042793	MH782429		Complete genome	1	Endolinaviridae
+Cirlivirales	Endolinaviridae		Camdisavirus	dromedary stool-associated circular ssDNA virus DcSCV_c941	KM573765		Complete genome	1	Endolinaviridae
+Martellivirales	Endornaviridae		Alphaendornavirus	Agaricus bisporus endornavirus 1	KY357509	IV	Complete genome	1	Endornaviridae
+Martellivirales	Endornaviridae		Alphaendornavirus	Basella alba endornavirus 1	AB844264	IV	Complete genome	1	Endornaviridae
+Grandevirales	Epsomviridae	Sescentorumvirinae	Wendovervirus	uncultured phage HB1	OR769223	I	Coding-complete genome	1	Epsomviridae
+Bullavirales	Eubullaviridae		Alphatrevirus	Escherichia phage alpha3	X60322		Complete genome	1	Eubullaviridae
+Bullavirales	Eubullaviridae		Alphatrevirus	Escherichia phage ID21	DQ079870		Complete genome	1	Eubullaviridae
+Amphintovirales	Eupolintoviridae		Alphadintovirus	Mayetiola barley midge adintovirus	BK011003	I	Complete genome	1	Eupolintoviridae
+Amphintovirales	Eupolintoviridae		Betadintovirus	Terrapene box turtle adintovirus	BK010890	I	Complete genome	1	Eupolintoviridae
+	Eurekaviridae		Hesperidvirus	Methanosarcina spindle-shaped virus 1	PQ167755	I	Complete genome	1	Eurekaviridae
+Nidovirales	Euroniviridae	Ceronivirinae	Charybnivirus	Beihai nido-like virus 2	KX883628	IV	Partial genome (non-compliant)	1	Euroniviridae
+Nidovirales	Euroniviridae	Ceronivirinae	Charybnivirus	Wenling nido-like virus 1	KX883636	IV	Partial genome (non-compliant)	1	Euroniviridae
+	Felixviridae	Maevirinae	Chronisvirus	Klebsiella phage vB_Kpn_Chronis	MN013086	I	Complete genome	1	Felixviridae
+	Felixviridae		Certevirus	Pantoea phage PdC23	OL396571	I	Complete genome	1	Felixviridae
+	Fervensviridae		Deepoceanvirus	Methanocaldococcus fervens tailed virus 1	MT711370	I	Complete genome	1	Fervensviridae
+Norzivirales	Fiersviridae		Cunavirus	Enterobacteria phage C-1 INW-2012	JX045649	IV	Complete genome	1	Fiersviridae
+Norzivirales	Fiersviridae		Emesvirus	Enterobacteria phage GA	X03869	IV	Complete genome	1	Fiersviridae
+Lefavirales	Filamentoviridae		Alphafilamentovirus	Leptopilina boulardi filamentous virus	KY009685	I	Complete genome	1	Filamentoviridae
+Lefavirales	Filamentoviridae		Betafilamentovirus	Cotesia congregata filamentous virus 2	OR120048	I	Complete genome	1	Filamentoviridae
+Mononegavirales	Filoviridae		Dianlovirus	Déhóng virus	OP924273	V	Complete genome	1	Filoviridae
+Mononegavirales	Filoviridae		Orthoebolavirus	Bombali virus	MF319185	V	Complete genome	1	Filoviridae
+Lautamovirales	Finnlakeviridae		Finnlakevirus	Flavobacterium phage FLiP	MF361639	II	Complete genome	1	Finnlakeviridae
+Amarillovirales	Flaviviridae		Orthoflavivirus	Apoi virus	AF160193	IV	Complete genome	1	Flaviviridae
+Amarillovirales	Flaviviridae		Orthoflavivirus	Aroa virus	AY632536	IV	Complete genome	1	Flaviviridae
+	Forsetiviridae		Freyavirus	Polaribacter phage Danklef_1	MT732458	I	Complete genome	1	Forsetiviridae
+	Forsetiviridae		Freyavirus	Polaribacter phage Freya_1	MT732463	I	Complete genome	1	Forsetiviridae
+	Fredfastierviridae		Jamesmcgillvirus	Pseudomonas phage 119X	DQ163914	I	Complete genome	1	Fredfastierviridae
+	Fredfastierviridae		Jamesmcgillvirus	Pseudomonas phage PaMx41	KU884563	I	Complete genome	1	Fredfastierviridae
+Ghabrivirales	Fusagraviridae		Fusagravirus	Fusarium poae dsRNA virus 3	KU728181	III	Complete genome	1	Fusagraviridae
+Ghabrivirales	Fusagraviridae		Fusagravirus	Fusarium graminearum dsRNA mycovirus 3	GQ140626	III	Complete genome	1	Fusagraviridae
+Hypofuvirales	Fusariviridae		Alphafusarivirus	Aspergillus chevalieri fusarivirus 1	LC832446	IV	Complete genome	1	Fusariviridae
+Hypofuvirales	Fusariviridae		Alphafusarivirus	Botryosphaeria dothidea fusarivirus 1	MN560974	IV	Complete genome	1	Fusariviridae
+	Fuselloviridae		Alphafusellovirus	sulfolobus spindle-shaped virus 4	EU030938	I	Complete genome	1	Fuselloviridae
+	Fuselloviridae		Alphafusellovirus	sulfolobus spindle-shaped virus 1	X07234	I	Complete genome	1	Fuselloviridae
+	Fuxiviridae		Taijivirus	Bathyarchaeia bifangarchaeales fuxivirus 1	PP467601	I	Complete genome	1	Fuxiviridae
+Tymovirales	Gammaflexiviridae		Gammaflexivirus	Entoleuca gammaflexivirus 1	MF375883	IV	Complete genome	1	Gammaflexiviridae
+Tymovirales	Gammaflexiviridae		Gammaflexivirus	Pistacia-associated gammaflexivirus 1	MF375884	IV	Complete genome	1	Gammaflexiviridae
+Gredzevirales	Gandrviridae		Atripovirus	CRESS virus sp. ctdb796	MH617332		Complete genome	1	Gandrviridae
+Gredzevirales	Gandrviridae		Meliavirus	CRESS virus sp. ctin15	MN582096		Complete genome	1	Gandrviridae
+Geplafuvirales	Geminiviridae		Becurtovirus	beet curly top Iran virus-A	EU273818		Complete genome	1	Geminiviridae
+Geplafuvirales	Geminiviridae		Becurtovirus	beet curly top Iran virus-B	JX131633		Complete genome	1	Geminiviridae
+Geplafuvirales	Genomoviridae		Gemycircularvirus	Genomoviridae sp. ctbi89	MK032723		Complete genome	1	Genomoviridae
+Geplafuvirales	Genomoviridae		Gemycircularvirus	Alces alces faeces associated genomovirus MP84	MG641204		Complete genome	1	Genomoviridae
+Geplafuvirales	Geplanaviridae		Acciovirus	Arizlama virus AZLM_678	MW697536		Complete genome	1	Geplanaviridae
+Geplafuvirales	Geplanaviridae		Acciovirus	Odonata-associated circular virus-7	KM598390		Complete genome	1	Geplanaviridae
+Ghabrivirales	Giardiaviridae		Giardiavirus	Giardia lamblia virus	L13218	III	Complete genome	1	Giardiaviridae
+	Globuloviridae		Alphaglobulovirus	Thermoproteus tenax spherical virus 1	AY722806	I	Complete genome	1	Globuloviridae
+	Globuloviridae		Alphaglobulovirus	Pyrobaculum spherical virus	AJ635161	I	Complete genome	1	Globuloviridae
+Kirjokansivirales	Graaviviridae		Beejeyvirus	Halorubrum virus BJ1	AM419438	I	Complete genome	1	Graaviviridae
+Kirjokansivirales	Graaviviridae		Ethicavirus	Danakil Halobacteriales tailed virus 3	PQ827555	I	Complete genome	1	Graaviviridae
+Nidovirales	Gresnaviridae	Reternivirinae	Cyclophivirus	Guangdong greater green snake arterivirus	MG600023	IV	Coding-complete genome	1	Gresnaviridae
+	Grimontviridae		Aquaneticvirus	Aeromonas phage APT65	OP491958	I	Complete genome	1	Grimontviridae
+	Grimontviridae		Crifsvirus	Cronobacter phage A24	MW343794	I	Complete genome	1	Grimontviridae
+Gokushovirales	Groupodiviridae		Mohgevirus	tortoise microvirus 100 100_SP_14	MK765653		Complete genome	1	Groupodiviridae
+Gokushovirales	Groupodiviridae		Sehtuvirus	Eel River basin pequenovirus c22108	KP087956		Complete genome	1	Groupodiviridae
+	Guelinviridae	Denniswatsonvirinae	Gregsiragusavirus	Clostridium phage CPD2	MH999279	I	Complete genome	1	Guelinviridae
+	Guelinviridae	Denniswatsonvirinae	Gregsiragusavirus	Clostridium phage cpp	OQ737697	I	Complete genome	1	Guelinviridae
+	Gulliviridae		Lemuelvirus	Danakil Nanohaloarchaeota tailed virus 1	PQ827565	I	Complete genome	1	Gulliviridae
+Priklausovirales	Gulliviroviridae		Invirovirus	Lavidaviridae sp. IMG_VR_1276	OQ836152	I	Complete genome	1	Gulliviroviridae
+	Guttaviridae		Betaguttavirus	Aeropyrum pernix ovoid virus 1	HE580237	I	Complete genome	1	Guttaviridae
+Thumleimavirales	Hafunaviridae		Haloferacalesvirus	Halorubrum tailed virus 10	MZ334496	I	Complete genome	1	Hafunaviridae
+Thumleimavirales	Hafunaviridae		Haloferacalesvirus	Halophage HF1	AY190604	I	Complete genome	1	Hafunaviridae
+Salinicovirales	Halicoviridae		Ertavirus	Danakil Halobacteriales icosahedral virus 1	PQ827550	I	Complete genome	1	Halicoviridae
+Kirjokansivirales	Haloferuviridae		Dpdavirus	Halorubrum tailed virus 29	MZ334526	I	Complete genome	1	Haloferuviridae
+Kirjokansivirales	Haloferuviridae		Retbasiphovirus	Haloferax tailed virus 1	MG550112	I	Complete genome	1	Haloferuviridae
+Thumleimavirales	Halomagnusviridae		Hagravirus	Halogranum tailed virus 1	KC292026	I	Complete genome	1	Halomagnusviridae
+	Halspiviridae		Salterprovirus	His1 virus	AF191796	I	Complete genome	1	Halspiviridae
+	Helgolandviridae		Leefvirus	Polaribacter phage Leef_1	MT732473	I	Complete genome	1	Helgolandviridae
+Amarillovirales	Hepaciviridae		Orthohepacivirus	equine hepacivirus	KP325401	IV	Complete genome	1	Hepaciviridae
+Amarillovirales	Hepaciviridae		Orthohepacivirus	hepatitis C virus genotype 1a	AF009606	IV	Complete genome	1	Hepaciviridae
+Blubervirales	Hepadnaviridae		Avihepadnavirus	duck hepatitis B virus	X60213		Complete genome	1	Hepadnaviridae
+Blubervirales	Hepadnaviridae		Avihepadnavirus	Ross's goose hepatitis B virus	M95589		Complete genome	1	Hepadnaviridae
+Hepelivirales	Hepeviridae	Orthohepevirinae	Avihepevirus	little egret hepatitis E virus	KX589065	IV	Complete genome	1	Hepeviridae
+Hepelivirales	Hepeviridae	Orthohepevirinae	Avihepevirus	avian hepatitis E virus	AY535004	IV	Complete genome	1	Hepeviridae
+	Herelleviridae	Bastillevirinae	Agatevirus	Bacillus phage phiAGATE	JX238501	I	Complete genome	1	Herelleviridae
+	Herelleviridae	Bastillevirinae	Agatevirus	Bacillus phage Bobb	KM051843	I	Complete genome	1	Herelleviridae
+	Hirszfeldviridae		Ankaravirus	Acinetobacter phage Ab69	OR045356	I	Complete genome	1	Hirszfeldviridae
+	Hirszfeldviridae		Beijingvirus	Acinetobacter phage vB_AbaM_IME284	MH853787	I	Complete genome	1	Hirszfeldviridae
+	Hodgkinviridae	Kutznervirinae	Kozievirus	Microbacterium phage Kozie	OK040792	I	Complete genome	1	Hodgkinviridae
+	Hodgkinviridae	Kutznervirinae	Kozievirus	Microbacterium phage MO526	OR941552	I	Complete genome	1	Hodgkinviridae
+Pimascovirales	Hydriviridae		Alphahydrivirus	Siberian hydrivirus MAG1	OW988864	I	Complete genome	1	Hydriviridae
+Hypofuvirales	Hypoviridae		Alphahypovirus	Cryphonectria hypovirus 2	L29010	IV	Complete genome	1	Hypoviridae
+Hypofuvirales	Hypoviridae		Alphahypovirus	Bipolaris oryzae hypovirus 1	MH316122	IV	Complete genome	1	Hypoviridae
+Lefavirales	Hytrosaviridae		Glossinavirus	Glossina pallidipes salivary gland hypertrophy virus	EF568108	I	Complete genome	1	Hytrosaviridae
+Lefavirales	Hytrosaviridae		Muscavirus	Musca domestica salivary gland hypertrophy virus	EU522111	I	Complete genome	1	Hytrosaviridae
+Picornavirales	Iflaviridae		Iflavirus	Acheta domesticus Iflavirus	MW281483	IV	Complete genome	1	Iflaviridae
+Picornavirales	Iflaviridae		Iflavirus	deformed wing virus	AJ489744	IV	Complete genome	1	Iflaviridae
+	Infernusviridae		Tanggwanvirus	archaeal virus JdFR002	PQ111741	I	Complete genome	1	Infernusviridae
+Tubulavirales	Inoviridae		Abaestuovirus	Inoviridae sp. isolate ctbh8	MH617292		Complete genome	1	Inoviridae
+Tubulavirales	Inoviridae		Aclydivirus	Inoviridae sp. rainbow trout isolate ctce6	MH617507		Complete genome	1	Inoviridae
+Ghabrivirales	Inseviridae		Insevirus	Camponotus yamaokai virus	LC026053	III	Complete genome	1	Inseviridae
+Ghabrivirales	Inseviridae		Insevirus	Australian Anopheles totivirus	MF073200	III	Complete genome	1	Inseviridae
+Crassvirales	Intestiviridae	Churivirinae	Jahgtovirus	Crassvirales sp. isolate ctrhr9	BK035341	I	Complete genome	1	Intestiviridae
+Crassvirales	Intestiviridae	Churivirinae	Jahgtovirus	Crassvirales sp. isolate ctv5c4	BK040584	I	Complete genome	1	Intestiviridae
+Pimascovirales	Iridoviridae	Alphairidovirinae	Lymphocystivirus	lymphocystis disease virus 4	MN803438	I	Complete genome	1	Iridoviridae
+Pimascovirales	Iridoviridae	Alphairidovirinae	Lymphocystivirus	lymphocystis disease virus 2; lymphocystis disease virus-China	AY380826	I	Complete genome	1	Iridoviridae
+	Itzamnaviridae		Demiitzamnavirus	Methanophagales virus GBV303	OP880254	I	Complete genome	1	Itzamnaviridae
+	Itzamnaviridae		Pletoitzamnavirus	Methanophagales virus PBV082	OP413839	I	Complete genome	1	Itzamnaviridae
+	Jasonviridae		Obscurovirus	archaeal virus JdFR019	PQ111740	I	Complete genome	1	Jasonviridae
+	Jeanschmidtviridae		Bajunvirus	Brevundimonas phage vB_BpoS-Bajun	ON529858	I	Complete genome	1	Jeanschmidtviridae
+	Jeanschmidtviridae		Bertelyvirus	Caulobacter phage CcrBL9	MH588546	I	Complete genome	1	Jeanschmidtviridae
+Methanobavirales	Kairosviridae		Nadirvirus	Methanobrevibacter tailed virus 2	BK063679	I	Complete genome	1	Kairosviridae
+Saturnivirales	Kanorauviridae		Chinseivirus	sewage-associated circular DNA virus-24	KM821759		Complete genome	1	Kanorauviridae
+Saturnivirales	Kanorauviridae		Chiunvirus	CRESS virus sp. hbl169cir1	MN928931		Complete genome	1	Kanorauviridae
+Roodoodoovirales	Kidogoviridae		Rofluviavirus	Microviridae sp. rooFreshIt virus	BK061423		Complete genome	1	Kidogoviridae
+Roodoodoovirales	Kidogoviridae		Romarinivirus	Microviridae sp. rooOceanUs1 virus	BK061422		Complete genome	1	Kidogoviridae
+Rohanvirales	Kirkoviridae		Aglavirus	Po-Circo-like virus 21	JF713716		Complete genome	1	Kirkoviridae
+Rohanvirales	Kirkoviridae		Denevirus	rodent circovirus RtRf-CV-1/YN2013	KY370025		Complete genome	1	Kirkoviridae
+	Kleczkowskaviridae		Cuauhnahuacvirus	Rhizobium phage RHph_TM30	MN988521	I	Complete genome	1	Kleczkowskaviridae
+	Kleczkowskaviridae		Cuauhnahuacvirus	Rhizobium phage RHph_Y65	MN988525	I	Complete genome	1	Kleczkowskaviridae
+	Kolmioviridae		Daazvirus	Chinese fire belly newt virus 1	MN031239	V	Complete genome	1	Kolmioviridae
+	Kolmioviridae		Dagazvirus	rhinotermitid virus 1	MK962759	V	Complete genome	1	Kolmioviridae
+	Konodaiviridae		Akedovirus	Akedovirus sp. isolate 2520_67539	OP072332	I	Complete genome	1	Konodaiviridae
+	Konodaiviridae		Satomivirus	Satomivirus sp. isolate 1827_77749	OP031061	I	Complete genome	1	Konodaiviridae
+Magrovirales	Krittikaviridae		Velanvirus	magrovirus_E_01	PP497039	I	Complete genome	1	Krittikaviridae
+	Kruegerviridae		Cafassovirus	Gordonia phage Aleemily	ON970578	I	Complete genome	1	Kruegerviridae
+	Kruegerviridae		Cafassovirus	Gordonia phage Cafasso	MZ322021	I	Complete genome	1	Kruegerviridae
+	Kunpengviridae		Dafengvirus	Bathyarchaeia jinwuousiales Kupengvirus 1	PP467599	I	Complete genome	1	Kunpengviridae
+Pantevenvirales	Kyanoviridae		Acionnavirus	Synechococcus phage S-MbCM100	KF156340	I	Complete genome	1	Kyanoviridae
+Pantevenvirales	Kyanoviridae		Ahtivirus	Synechococcus phage S-ShM2	GU071096	I	Complete genome	1	Kyanoviridae
+Grandevirales	Lakviridae	Quadringentisvirinae	Hatfieldvirus	uncultured phage RVC_JS4_GC31	OR769222	I	Coding-complete genome	1	Lakviridae
+Grandevirales	Lakviridae	Quingentivirinae	Amboselivirus	Prevotella phage Lak-B1	MK250020	I	Coding-complete genome	1	Lakviridae
+Ghabrivirales	Lebotiviridae		Lebotivirus	Solenopsis midden virus	MH727531	III	Complete genome	1	Lebotiviridae
+Methanobavirales	Leisingerviridae		Psimunavirus	Methanobacterium phage psiM2	AF065411	I	Complete genome	1	Leisingerviridae
+Amoyvirales	Liberviridae		Largivirus	Liberibacter phage CLasMV1	CP045566		Complete genome	1	Liberviridae
+Alpavirales	Lilleviridae		Algophervirus	tortoise microvirus 7 7_SP_42	MK765557		Complete genome	1	Lilleviridae
+Alpavirales	Lilleviridae		Alnafnavirus	Microviridae sp. 1023-1801 virus	MG945680		Complete genome	1	Lilleviridae
+	Lilliviridae		Mildendovirus	Danakil Nanohaloarchaeota tailed virus 2	PQ827566	I	Complete genome	1	Lilliviridae
+	Lindbergviridae		Bcepfunavirus	Burkholderia phage BcepF1	EF153632	I	Complete genome	1	Lindbergviridae
+	Lindbergviridae		Carpasinavirus	Xanthomonas phage Carpasina	MH059633	I	Complete genome	1	Lindbergviridae
+Ligamenvirales	Lipothrixviridae		Alphalipothrixvirus	Sulfolobus filamentous virus 1	MH447526	I	Complete genome	1	Lipothrixviridae
+Ligamenvirales	Lipothrixviridae		Betalipothrixvirus	Acidianus filamentous virus 3	AM087120	I	Complete genome	1	Lipothrixviridae
+Mononegavirales	Lispiviridae		Acridvirus	Hángzhōu acrida cinerea lispivirus 1	MZ209654	V	Coding-complete genome	1	Lispiviridae
+Mononegavirales	Lispiviridae		Aleyavirus	Bemisia tabaci arlivirus 1	MW256666	V	Coding-complete genome	1	Lispiviridae
+Alpavirales	Litenviridae		Alcanfavirus	Microviridae sp. 2449-1602 virus	MG945253		Complete genome	1	Litenviridae
+Alpavirales	Litenviridae		Alcanivirus	Microviridae sp. 3523-1602 virus	MG945572		Complete genome	1	Litenviridae
+Alpavirales	Litilviridae		Alcafavirus	Microviridae sp. 1931-1706 virus	MG945515		Complete genome	1	Litilviridae
+Alpavirales	Litilviridae		Alciorovirus	Microviridae sp. SD_HF_66 virus	MH572526		Complete genome	1	Litilviridae
+	Lomiviridae		Gomizavirus	Danakil Nanohaloarchaeota spindle-shaped virus 2	PQ827564	I	Complete genome	1	Lomiviridae
+	Lomiviridae		Gomizavirus	Danakil Nanohaloarchaeota spindle-shaped virus 1	PQ827563	I	Complete genome	1	Lomiviridae
+	Ludisviridae		Ludisvirus	Porphyromonas phage phage005b_ATCC49417	PP754928	I	Complete genome	1	Ludisviridae
+	Luriaviridae		Liaodongvirus	Acinetobacter phage vB_AbaM_D22	MT188223	I	Complete genome	1	Luriaviridae
+	Luriaviridae		Liaodongvirus	Acinetobacter phage vB_AbaM_P1	OL960030	I	Complete genome	1	Luriaviridae
+	Lutetiaviridae		Classicovirus	Methanonassiliicoccales tailed virus 2	BK063680	I	Complete genome	1	Lutetiaviridae
+	Lutzviridae		Lutzvirus	Oceanotoga phage vB_OteS-UFV02	OR420712	I	Complete genome	1	Lutzviridae
+	Madisaviridae		Clampvirus	Haloarcula hispanica tailed virus 1	KC292025	I	Complete genome	1	Madisaviridae
+	Madisaviridae		Morpovirus	Danakil Halobacteriales tailed virus 4	PQ827556	I	Complete genome	1	Madisaviridae
+	Madridviridae		Cepunavirus	Streptococcus phage Cp1	Z47794	I	Complete genome	1	Madridviridae
+	Madridviridae		Cepunavirus	Streptococcus phage Cp-7	LK392619	I	Complete genome	1	Madridviridae
+Saturnivirales	Mahapunaviridae		Acamarivirus	marmot associated feces virus 5	MT181545		Complete genome	1	Mahapunaviridae
+Saturnivirales	Mahapunaviridae		Acamarivirus	bat circovirus BtMl-CV/QH2013	KJ641730		Complete genome	1	Mahapunaviridae
+Herpesvirales	Malacoherpesviridae		Aurivirus	abalone herpesvirus; haliotid herpesvirus 1	JX453331	I	Complete genome	1	Malacoherpesviridae
+Herpesvirales	Malacoherpesviridae		Ostreavirus	oyster herpesvirus; ostreid herpesvirus 1	AY509253	I	Complete genome	1	Malacoherpesviridae
+	Mamonoviridae		Medusavirus	Acanthamoeba castellanii medusavirus J1	AP018495	I	Complete genome	1	Mamonoviridae
+	Mamonoviridae		Medusavirus	Medusavirus stheno T3	MW018138	I	Complete genome	1	Mamonoviridae
+	Mariniviridae		Pelagimarinivirus	Pelagibacter virus vSAG-37-F6	PQ625738	I	Complete genome	1	Mariniviridae
+Picornavirales	Marnaviridae		Bacillarnavirus	Rhizosolenia setigera RNA virus 01	AB243297	IV	Complete genome	1	Marnaviridae
+Picornavirales	Marnaviridae		Bacillarnavirus	Chaetoceros tenuissimus RNA virus 01	AB375474	IV	Complete genome	1	Marnaviridae
+Pimascovirales	Marseilleviridae		Losannavirus	Lausannevirus	HQ113105	I	Complete genome	1	Marseilleviridae
+Pimascovirales	Marseilleviridae		Losannavirus	Tunisvirus	KF483846	I	Complete genome	1	Marseilleviridae
+Hepelivirales	Matonaviridae		Rubivirus	rubella virus	JN635296	IV	Complete genome	1	Matonaviridae
+Hepelivirales	Matonaviridae		Rubivirus	rubella virus	M15240	IV	Complete genome	1	Matonaviridae
+Halopanivirales	Matsushitaviridae		Hukuchivirus	Thermus phage IN93	AB063393	I	Complete genome	1	Matsushitaviridae
+Halopanivirales	Matsushitaviridae		Hukuchivirus	Thermus phage P23-77	GQ403789	I	Complete genome	1	Matsushitaviridae
+Lavidavirales	Maviroviridae		Mavirus	Maverick-related virus	HQ712116	I	Complete genome	1	Maviroviridae
+Amoyvirales	Mazaviridae		Aminivirus	Ruegeria phage DSS3-P22	MF101922		Complete genome	1	Mazaviridae
+Amoyvirales	Mazaviridae		Avacavirus	Microviridae sp. ctih52 virus	MH617327		Complete genome	1	Mazaviridae
+	Mazoviaviridae		Dabrowskivirus	Alicyclobacillus myophage vB_Aac_IAFB_3916	OQ846916	I	Complete genome	1	Mazoviaviridae
+Nidovirales	Medioniviridae	Medionivirinae	Bolenivirus	Botrylloides leachii nidovirus	MK956105	IV	Complete genome	1	Medioniviridae
+Ghabrivirales	Megatotiviridae		Megatotivirus	Picoa juniperi megatotivirus 1	MT876189	III	Complete genome	1	Megatotiviridae
+Imitervirales	Mesomimiviridae		Tethysvirus	Phaeocystis globosa virus PgV-16T	KC662249	I	Complete genome	1	Mesomimiviridae
+Imitervirales	Mesomimiviridae		Tethysvirus	Chrysochromulina parva virus BQ2	MH918795	I	Complete genome	1	Mesomimiviridae
+Nidovirales	Mesoniviridae	Hexponivirinae	Alphamesonivirus	Casuarina virus	KJ125489	IV	Complete genome	1	Mesoniviridae
+Nidovirales	Mesoniviridae	Hexponivirinae	Alphamesonivirus	Nsé virus	JQ957874	IV	Complete genome	1	Mesoniviridae
+Vinavirales	Mestraviridae		Anticleavirus	Rhodobacter phage Jorvik	OP588643	I	Complete genome	1	Mestraviridae
+Vinavirales	Mestraviridae		Polymedevirus	Marinomonas phage YY	MH105080	I	Complete genome	1	Mestraviridae
+	Mesyanzhinovviridae	Bradleyvirinae	Abidjanvirus	Pseudomonas phage vB_PaeS_PAO1_Ab18	LN610577	I	Complete genome	1	Mesyanzhinovviridae
+	Mesyanzhinovviridae	Bradleyvirinae	Abidjanvirus	Pseudomonas phage vB_PaeS_PAO1_Ab19	LN610584	I	Complete genome	1	Mesyanzhinovviridae
+Ortervirales	Metaviridae		Errantivirus	Ceratitis capitata Yoyo virus	U60529		Complete genome	1	Metaviridae
+Ortervirales	Metaviridae		Errantivirus	Drosophila melanogaster 297 virus	X03431		Complete genome	1	Metaviridae
+Imitervirales	Mimiviridae	Aliimimivirinae	Rheavirus	Cafeteria roenbergensis virus	GU244497	I	Complete genome	1	Mimiviridae
+Imitervirales	Mimiviridae	Klosneuvirinae	Fadolivirus	Fadolivirus FV1/VV64	MT418680	I	Complete genome	1	Mimiviridae
+Cryppavirales	Mitoviridae		Duamitovirus	Botrytis cinerea mitovirus 1	EF580100	IV	Complete genome	1	Mitoviridae
+Cryppavirales	Mitoviridae		Duamitovirus	Botryosphaeria dothidea mitovirus 1	MT676452	IV	Complete genome	1	Mitoviridae
+	Molycolviridae		Mollyvirus	Maribacter phage Colly_1	MT732450	I	Complete genome	1	Molycolviridae
+	Molycolviridae		Mollyvirus	Maribacter phage Molly_1	MT732451	I	Complete genome	1	Molycolviridae
+Ghabrivirales	Monocitiviridae		Monocitivirus	Ustilago maydis virus H1	U01059	III	Complete genome	1	Monocitiviridae
+Nidovirales	Mononiviridae	Mononivirinae	Alphamononivirus	planarian secretory cell nidovirus	MH933735	IV	Complete genome	1	Mononiviridae
+	Mtkvariviridae	Gordonclarkvirinae	Kuravirus	Escherichia phage vB_EcoP-CHD5UKE1	MZ234028	I	Complete genome	1	Mtkvariviridae
+	Mtkvariviridae	Gordonclarkvirinae	Kuravirus	Escherichia phage vB_EcoP_EcoN5	MN715356	I	Complete genome	1	Mtkvariviridae
+Hepelivirales	Mycoalphaviridae		Alphasclernavirus	Sclerotinia sclerotiorum mycoalphavirus virus 1	MT706025	IV	Complete genome	1	Mycoalphaviridae
+Hepelivirales	Mycoalphaviridae		Alphasclernavirus	Sclerotinia sclerotiorum RNA virus L	EU779934	IV	Complete genome	1	Mycoalphaviridae
+Mononegavirales	Mymonaviridae		Auricularimonavirus	Armillaria mellea negative strand RNA virus 2	BK014417	V	Complete genome	1	Mymonaviridae
+Mononegavirales	Mymonaviridae		Auricularimonavirus	Auricularia heimuer negative-stranded RNA virus 1	MT259204	V	Complete genome	1	Mymonaviridae
+Jingchuvirales	Myriaviridae		Myriavirus	Húběi myriapoda virus 8	KX884444	V	Complete genome	1	Myriaviridae
+Nidovirales	Nanghoshaviridae	Chimanivirinae	Chimshavirus	Nanhai ghost shark arterivirus	MG600024	IV	Coding-complete genome	1	Nanghoshaviridae
+Nidovirales	Nanhypoviridae	Hyporhamsavirinae	Sajorinivirus	Wuhan japanese halfbeak arterivirus	MG600020	IV	Coding-complete genome	1	Nanhypoviridae
+Ducavirales	Nanicoviridae		Alevirus	Danakil Nanohaloarchaeota icosahedral virus 1	PQ827561	I	Complete genome	1	Nanicoviridae
+Haloruvirales	Nanopleoviridae		Milaagivirus	Danakil Nanohaloarchaeota pleomorphic virus 1	PQ827562	I	Complete genome	1	Nanopleoviridae
+	Naomviridae		Noahvirus	Bacteriophage DSS3_VP1	MN602266	I	Complete genome	1	Naomviridae
+Wolframvirales	Narnaviridae		Narnavirus	Saccharomyces 23S RNA narnavirus	U90136	IV	Complete genome	1	Narnaviridae
+Wolframvirales	Narnaviridae		Narnavirus	Saccharomyces 20S RNA narnavirus	AF039063	IV	Complete genome	1	Narnaviridae
+Rivendellvirales	Naryaviridae		Arkenivirus	Peromfec virus RodF7_30	OM869657		Complete genome	1	Naryaviridae
+Rivendellvirales	Naryaviridae		Beornivirus	Peromfec virus RodF8_96	OM869619		Complete genome	1	Naryaviridae
+Jingchuvirales	Natareviridae		Charybdivirus	Wēnzhōu crab virus 3	KM817603	V	Complete genome	1	Natareviridae
+Rohanvirales	Nenyaviridae		Angainorvirus	Entamoeba-associated CRESS DNA virus 4	MT293418		Complete genome	1	Nenyaviridae
+Rohanvirales	Nenyaviridae		Cirilivirus	Circular ssDNA virus sp. cg6319	KU043415		Complete genome	1	Nenyaviridae
+	Nimaviridae		Whispovirus	Chionoecetes opilio bacilliform virus	LC741431.1	I	Complete genome	1	Nimaviridae
+	Nimaviridae		Whispovirus	white spot syndrome virus	AF332093	I	Complete genome	1	Nimaviridae
+	Nipumfusiviridae		Baiafusivirus	Nitrosopumilaceae spindle-shaped virus NBC1	BK067786	I	Complete genome	1	Nipumfusiviridae
+	Nipumfusiviridae		Baiafusivirus	Nitrosopumilaceae spindle-shaped virus NBD1	BK067787	I	Complete genome	1	Nipumfusiviridae
+	Nixviridae		Dewhirstvirus	Porphyromonas phage phage016a_WW2866	BK068097	I	Complete genome	1	Nixviridae
+	Nixviridae		Dewhirstvirus	Porphyromonas phage phage017a_JCVISC001	BK068098	I	Complete genome	1	Nixviridae
+Picornavirales	Noraviridae		Orthonoravirus	Drosophila melanogaster Nora virus	GQ257737	IV	Complete genome	1	Noraviridae
+Lefavirales	Nudiviridae		Alphanudivirus	Tomelloso virus	KY457233	I	Complete genome	1	Nudiviridae
+Lefavirales	Nudiviridae		Alphanudivirus	Apis mellifera nudivirus	OR596894	I	Complete genome	1	Nudiviridae
+Mononegavirales	Nyamiviridae		Crustavirus	Red rock lobster virus	PQ440166	V	Complete genome	1	Nyamiviridae
+Mononegavirales	Nyamiviridae		Formivirus	Formica fusca virus 1	MH477287	V	Complete genome	1	Nyamiviridae
+	Obscuriviridae		Cebaduodecimvirus	Cellulophaga phage phi12a:1	KC821623	II	Complete genome	1	Obscuriviridae
+	Obscuriviridae		Cebaduodecimvirus	Cellulophaga phage phi12:2	KC821606	II	Complete genome	1	Obscuriviridae
+Secretvirales	Occultatumviridae		Micisonovirus	tortoise microvirus 38 38_SP_76	MK765588		Complete genome	1	Occultatumviridae
+Nidovirales	Olifoviridae	Gofosavirinae	Kukrinivirus	Hainan oligodon formosanus arterivirus	MG600022	IV	Coding-complete genome	1	Olifoviridae
+Priklausovirales	Omnilimnoviroviridae		Panaquavirovirus	Qinghai Lake virophage	KJ854379	I	Complete genome	1	Omnilimnoviroviridae
+Lineavirales	Oomyviridae		Nicoomyvirus	parvovirus NIH-CQV	KC617868	II	Complete genome	1	Oomyviridae
+Ghabrivirales	Ootiviridae		Ootivirus	Pythium polare RNA virus 1	LC376044	III	Complete genome	1	Ootiviridae
+Ghabrivirales	Ootiviridae		Ootivirus	Pythium splendens RNA virus 1	LC467965	III	Complete genome	1	Ootiviridae
+	Orlajensenviridae	Pelczarvirinae	Bonaevitaevirus	Microbacterium phage BonaeVitae	MH045556	I	Complete genome	1	Orlajensenviridae
+	Orlajensenviridae	Pelczarvirinae	Efekovirus	Microbacterium phage Efeko	MH825700	I	Complete genome	1	Orlajensenviridae
+Pimascovirales	Orpheoviridae		Alphaorpheovirus	orpheovirus	LT906555	I	Complete genome	1	Orpheoviridae
+Herpesvirales	Orthoherpesviridae	Alphaherpesvirinae	Iltovirus	cacatuid alphaherpesvirus 2	MK360902	I	Complete genome	1	Orthoherpesviridae
+Herpesvirales	Orthoherpesviridae	Alphaherpesvirinae	Iltovirus	gallid alphaherpesvirus 1; infectious laryngotracheitis virus	JN596962	I	Complete genome	1	Orthoherpesviridae
+Articulavirales	Orthomyxoviridae		Quaranjavirus	Araguari virus	KX670389	V	Complete genome	1	Orthomyxoviridae
+Articulavirales	Orthomyxoviridae		Quaranjavirus	Tyulek (Tjuloc) virus	JQ928941	V	Complete genome	1	Orthomyxoviridae
+Ghabrivirales	Orthototiviridae		Totivirus	Xanthophyllomyces dendrorhous virus L1B	JN997473	III	Complete genome	1	Orthototiviridae
+Ghabrivirales	Orthototiviridae		Totivirus	red clover powdery mildew-associated totivirus 1	LC075485	III	Complete genome	1	Orthototiviridae
+Reekeekeevirales	Osikeviridae		Nanosedivirus	Microviridae sp. reeSedAu virus	BK061430		Complete genome	1	Osikeviridae
+Reekeekeevirales	Osikeviridae		Vastaquavirus	Microviridae sp. reeWastUs1 virus	BK061429		Complete genome	1	Osikeviridae
+Ourlivirales	Ourmiaviridae		Epsilonourmiavirus	saffron associated botourmia-like virus	BK067260	IV	Complete genome	1	Ourmiaviridae
+Gredzevirales	Ouroboviridae		Aretevirus	hermit crab associated circular virus I0085A5	KR528556		Complete genome	1	Ouroboviridae
+Gredzevirales	Ouroboviridae		Aretevirus	marine snail associated circular virus I0084	KR528554		Complete genome	1	Ouroboviridae
+	Ovaliviridae		Alphaovalivirus	Sulfolobus ellipsoid virus 1 isolate CR_L	MF144115	I	Complete genome	1	Ovaliviridae
+	Pachyviridae		Bacelvirus	Cellulophaga phage phi46:3	KC821622	I	Complete genome	1	Pachyviridae
+	Pachyviridae		Baltivirus	Cellulophaga phage phi13:2	KC821633	I	Complete genome	1	Pachyviridae
+Tombendovirales	Pamosaviridae		Papanivirus	Panicum papanivirus 1	M17182	IV	Complete genome	1	Pamosaviridae
+Zurhausenvirales	Papillomaviridae	Firstpapillomavirinae	Alphapapillomavirus	human papillomavirus 32	X74475	I	Complete genome	1	Papillomaviridae
+Zurhausenvirales	Papillomaviridae	Firstpapillomavirinae	Alphapapillomavirus	human papillomavirus 42	M73236	I	Complete genome	1	Papillomaviridae
+Hypofuvirales	Parahypoviridae		Betahypovirus	Cryphonectria hypovirus 4	AY307099	IV	Complete genome	1	Parahypoviridae
+Hypofuvirales	Parahypoviridae		Betahypovirus	Cryphonectria hypovirus 3	AF188515	IV	Complete genome	1	Parahypoviridae
+Mononegavirales	Paramyxoviridae	Avulavirinae	Metaavulavirus	avian paramyxovirus 2 Finch	HM159995	V	Complete genome	1	Paramyxoviridae
+Mononegavirales	Paramyxoviridae	Avulavirinae	Metaavulavirus	avian metaavulavirus 6	AB759118	V	Complete genome	1	Paramyxoviridae
+Vinavirales	Parnassusviridae		Corycianvirus	Marinomonas phage MfV	MW618650	I	Complete genome	1	Parnassusviridae
+Piccovirales	Parvoviridae	Densovirinae	Aquambidensovirus	Asterias forbesi-associated densovirus	MN190158		Complete genome	1	Parvoviridae
+Piccovirales	Parvoviridae	Densovirinae	Aquambidensovirus	uncultured densovirus clone LaaDV1	MT733017		Complete genome	1	Parvoviridae
+Tubulavirales	Paulinoviridae		Bifilivirus	Propionibacterium phage B5	AF428260		Complete genome	1	Paulinoviridae
+Tubulavirales	Paulinoviridae		Bifilivirus	Propionibacterium phage Philemon	PP693361		Complete genome	1	Paulinoviridae
+Ringavirales	Pecoviridae		Amaruvirus	human circovirus VS6600022	KJ206566		Complete genome	1	Pecoviridae
+Ringavirales	Pecoviridae		Amaruvirus	Pecovirus sp. CRESSV1-84-AMS-03 DNA	LC708001		Complete genome	1	Pecoviridae
+	Peduoviridae		Acarajevirus	Ralstonia phage AB1	PP316168	I	Complete genome	1	Peduoviridae
+	Peduoviridae		Aptresvirus	Burkholderia phage AP3	KP966108	I	Complete genome	1	Peduoviridae
+Bullavirales	Pequenoviridae		Pseudophixvirus	Eel River basin pequenovirus c17592	KP087950		Complete genome	1	Pequenoviridae
+	Permutotetraviridae		Alphapermutotetravirus	Euprosterna elaeasa virus	AF461742	IV	Complete genome	1	Permutotetraviridae
+	Pervagoviridae		Callevirus	Cellulophaga phage Calle_1	MT732432	I	Complete genome	1	Pervagoviridae
+	Pervagoviridae		Callevirus	Cellulophaga phage phi38:1	KC821614	I	Complete genome	1	Pervagoviridae
+Amarillovirales	Pestiviridae		Orthopestivirus	pronghorn antelope pestivirus	AY781152	IV	Complete genome	1	Pestiviridae
+Amarillovirales	Pestiviridae		Orthopestivirus	porcine pestivirus	EF100713	IV	Complete genome	1	Pestiviridae
+Elliovirales	Phasmaviridae		Jonvirus	Mikado virus	MZ202272		Coding-complete genome	1	Phasmaviridae
+Elliovirales	Phasmaviridae		Jonvirus	Spilikins virus	MZ202269		Coding-complete genome	1	Phasmaviridae
+Hareavirales	Phenuiviridae		Horwuvirus	Wǔhàn horsefly virus	S1: KM817690	V	Coding-complete genome	1	Phenuiviridae
+Ghabrivirales	Phlegiviridae		Phlegivirus	Phlebiopsis gigantea large virus 1; Phlebiopsis gigantea mycovirus dsRNA 1	AM111096	III	Complete genome	1	Phlegiviridae
+Ghabrivirales	Phlegiviridae		Phlegivirus	Thelephora terrestris virus 1	KT191297	III	Complete genome	1	Phlegiviridae
+Algavirales	Phycodnaviridae		Chlorovirus	chlorovirus O-NE-11	PP681887	I	Complete genome	1	Phycodnaviridae
+Algavirales	Phycodnaviridae		Chlorovirus	chlorovirus O-NE-13	PP681889	I	Complete genome	1	Phycodnaviridae
+Archintovirales	Phypoliviridae		Tetrivirus	Tetraselmis viridis virus S1	HQ332143	I	Complete genome	1	Phypoliviridae
+Bullavirales	Piccoloviridae		Paraphixvirus	Eel River basin pequenovirus c18953	KP087951		Complete genome	1	Piccoloviridae
+Gokushovirales	Pichoviridae		Pacdirvirus	Parabacteroides phage YZ-2015a	KM589515		Complete genome	1	Pichoviridae
+Gokushovirales	Pichoviridae		Piapivirus	Apis mellifera associated microvirus 58 INH_SP_180	MH992186		Complete genome	1	Pichoviridae
+Picornavirales	Picornaviridae	Caphthovirinae	Ailurivirus	ailurivirus A1; aimelvirus 1	MF327529	IV	Complete genome	1	Picornaviridae
+Picornavirales	Picornaviridae	Caphthovirinae	Aphthovirus	equine rhinitis A virus	DQ272578	IV	Complete genome	1	Picornaviridae
+Alpavirales	Pieniviridae		Alepusivirus	Lepus americanus faeces associated microvirus SHP1 6472	MG641188		Complete genome	1	Pieniviridae
+Alpavirales	Pieniviridae		Almusivirus	Microviridae sp. ctbc205 virus	MH552492		Complete genome	1	Pieniviridae
+Methanobavirales	Pigerviridae		Somnumvirus	Methanobrevibacter tailed virus 4	BK063677	I	Complete genome	1	Pigerviridae
+Alpavirales	Pikkuviridae		Alcapybaravirus	capybara microvirus Cap1_SP_45	MK496680		Complete genome	1	Pikkuviridae
+Alpavirales	Pikkuviridae		Almacaqusvirus	Microviridae sp. ctcd27 virus	MH617318		Complete genome	1	Pikkuviridae
+Ghabrivirales	Pistolviridae		Pistolvirus	piscine myocarditis virus	HQ339954	III	Complete genome	1	Pistolviridae
+Ghabrivirales	Pistolviridae		Pistolvirus	piscine myocarditis-like virus	KT725636	III	Complete genome	1	Pistolviridae
+Pimascovirales	Pithoviridae	Orthocedratvirinae	Alphacedratvirus	cedratvirus A11	LT671577	I	Complete genome	1	Pithoviridae
+Pimascovirales	Pithoviridae	Orthocedratvirinae	Alphacedratvirus	Brazilian cedratvirus IHUMI	LT994651	I	Complete genome	1	Pithoviridae
+Bullavirales	Piticuviridae		Periphixvirus	Microviridae sp. ctea001 virus	MH649026		Complete genome	1	Piticuviridae
+	Pituviridae		Corunyavirus	Klebsiella phage ST13-OXA48phi12.2	MK422452	I	Complete genome	1	Pituviridae
+	Pituviridae		Keypisivirus	Klebsiella phage ST101-KPC2phi6.3	MK416017	I	Complete genome	1	Pituviridae
+	Plasmaviridae		Plasmavirus	Acholeplasma phage L2	L13696	I	Complete genome	1	Plasmaviridae
+Tubulavirales	Plectroviridae		Plectrovirus	Acholeplasma phage MV-L51	X58839		Complete genome	1	Plectroviridae
+Tubulavirales	Plectroviridae		Suturavirus	Spiroplasma phage SVTS2	AF133242		Complete genome	1	Plectroviridae
+Haloruvirales	Pleolipoviridae		Alphapleolipovirus	Halorubrum pleomorphic virus 1	FJ685651	II	Complete genome	1	Pleolipoviridae
+Haloruvirales	Pleolipoviridae		Alphapleolipovirus	Haloarcula hispanica pleomorphic virus 2	KF056323		Complete genome	1	Pleolipoviridae
+Mononegavirales	Pneumoviridae		Metapneumovirus	avian metapneumovirus	AY640317	V	Complete genome	1	Pneumoviridae
+Mononegavirales	Pneumoviridae		Metapneumovirus	human metapneumovirus	AF371337	V	Complete genome	1	Pneumoviridae
+Picornavirales	Polycipiviridae		Sopolycivirus	Lasius neglectus virus 1	MF041809	IV	Complete genome	1	Polycipiviridae
+Picornavirales	Polycipiviridae		Sopolycivirus	Myrmica scabrinodis virus 1	MF041810	IV	Complete genome	1	Polycipiviridae
+Xenadelphovirales	Polymycoviridae		Multimycovirus	Magnaporthe oryzae polymycovirus 2	MW752168	III	Complete genome	1	Polymycoviridae
+Sepolyvirales	Polyomaviridae		Alphapolyomavirus	bat polyomavirus 5b2	AB972940	I	Complete genome	1	Polyomaviridae
+Sepolyvirales	Polyomaviridae		Alphapolyomavirus	Apodemus flavicollis polyomavirus 1	MG654476	I	Complete genome	1	Polyomaviridae
+	Pootjesviridae	Staniewskivirinae	Trinifflemingvirus	Rhizobium phage RHph_I1_9	MN988532	I	Complete genome	1	Pootjesviridae
+	Pootjesviridae	Staniewskivirinae	Trinifflemingvirus	Rhizobium phage RHph_N34	MN988534	I	Complete genome	1	Pootjesviridae
+	Portogloboviridae		Alphaportoglobovirus	Sulfolobus polyhedral virus 1	KY780159	I	Complete genome	1	Portogloboviridae
+	Portogloboviridae		Alphaportoglobovirus	Sulfolobus polyhedral virus 2	MK064567	I	Complete genome	1	Portogloboviridae
+	Pospiviroidae		Apscaviroid	grapevine yellow speckle viroid 1	AF059712		Complete genome	1	Pospiviroidae
+	Pospiviroidae		Apscaviroid	Australian grapevine viroid	X17101		Complete genome	1	Pospiviroidae
+Patatavirales	Potyliviridae		Potylivirus	Plasmopara viticola lesion associated poty-like virus 1	MN551108	IV	Coding-complete genome	1	Potyliviridae
+Patatavirales	Potyliviridae		Potylivirus	Uromyces potyvirus A	MK231047	IV	Coding-complete genome	1	Potyliviridae
+Patatavirales	Potyviridae		Arepavirus	areca palm necrotic ringspot virus	MH395371	IV	Complete genome	1	Potyviridae
+Patatavirales	Potyviridae		Arepavirus	areca palm necrotic spindle‑spot virus	MH330686	IV	Complete genome	1	Potyviridae
+Chitovirales	Poxviridae	Chordopoxvirinae	Avipoxvirus	canarypox virus	AY318871	I	Complete genome	1	Poxviridae
+Chitovirales	Poxviridae	Chordopoxvirinae	Avipoxvirus	flamingopox virus	MF678796	I	Complete genome	1	Poxviridae
+Ghabrivirales	Pseudototiviridae		Eimeriavirus	Eimeria stiedai RNA virus 1	KU597305	III	Complete genome	1	Pseudototiviridae
+Ghabrivirales	Pseudototiviridae		Leishmaniavirus	Leishmania RNA virus 1	M92355	III	Complete genome	1	Pseudototiviridae
+Ortervirales	Pseudoviridae		Hemivirus	Drosophila melanogaster copia virus	X04456		Complete genome	1	Pseudoviridae
+Ortervirales	Pseudoviridae		Hemivirus	Drosophila melanogaster 1731 virus	X07656		Complete genome	1	Pseudoviridae
+	Pungoviridae		Flagovirus	Methanoculleus virus Blf4	MZ171369	I	Complete genome	1	Pungoviridae
+Kirjokansivirales	Pyrstoviridae		Haroovirus	Danakil Halobacteriales tailed virus 7	PQ827559	I	Complete genome	1	Pyrstoviridae
+Kirjokansivirales	Pyrstoviridae		Hatrivirus	Haloarcula tailed virus 3	MZ334527	I	Complete genome	1	Pyrstoviridae
+Crytulvirales	Quambiviridae		Orthoquambivirus	Tulasnella ambivirus 3	MN793994		Complete genome	1	Quambiviridae
+Crytulvirales	Quambiviridae		Orthoquambivirus	Tulasnella ambivirus 4	MN793995		Complete genome	1	Quambiviridae
+	Quasboviridae		Cusbovirus	Danakil Halobacteriales tailed virus 8	PQ827560	I	Complete genome	1	Quasboviridae
+Recrevirales	Redondoviridae		Torbevirus	human respiratory-associated brisavirus	KY052047		Complete genome	1	Redondoviridae
+Recrevirales	Redondoviridae		Torbevirus	apis mellifera virus 1	MH973742		Complete genome	1	Redondoviridae
+Ortervirales	Retroviridae	Orthoretrovirinae	Alpharetrovirus	avian carcinoma Mill Hill virus 2	M14008		Complete genome	1	Retroviridae
+Ortervirales	Retroviridae	Orthoretrovirinae	Alpharetrovirus	Fujinami sarcoma virus	AF033810		Complete genome	1	Retroviridae
+Mononegavirales	Rhabdoviridae	Alpharhabdovirinae	Almendravirus	Puerto Almendras virus	KF534749	V	Complete genome	1	Rhabdoviridae
+Mononegavirales	Rhabdoviridae	Alpharhabdovirinae	Almendravirus	Arboretum virus	KC994644	V	Complete genome	1	Rhabdoviridae
+Ourlivirales	Rhizouliviridae		Betarhizoulivirus	Rhizoctonia solani ourmia-like virus 5	MK372909	IV	Coding-complete genome	1	Rhizouliviridae
+Ourlivirales	Rhizouliviridae		Rhizoulivirus	Armillaria mellea ourmia-like virus 1	MW423802	IV	Coding-complete genome	1	Rhizouliviridae
+	Rhodogtaviriformidae		Dinogtaviriform	Dinoroseobacter shibae gene transfer agent	CP000830 (1649803.2306161)	I	Partial genome (non-compliant)	1	Rhodogtaviriformidae
+	Rhodogtaviriformidae		Rhodobactegtaviriform	Rhodobacter capsulatus gene transfer agent	CP001312 (203033.2020660)	I	Partial genome (non-compliant)	1	Rhodogtaviriformidae
+Nidovirales	Roniviridae	Okanivirinae	Nimanivirus	Macrobrachium rosenbergii Golda virus	MT907511	IV	Complete genome	1	Roniviridae
+Nidovirales	Roniviridae	Okanivirinae	Okavirus	gill-associated virus	AF227196	IV	Complete genome	1	Roniviridae
+	Rountreeviridae	Rakietenvirinae	Andhravirus	Staphylococcus phage Andhra	KY442063	I	Complete genome	1	Rountreeviridae
+	Rountreeviridae	Rakietenvirinae	Andhravirus	Staphylococcus phage BESEP3	MT596500	I	Complete genome	1	Rountreeviridae
+Ligamenvirales	Rudiviridae		Icerudivirus	Sulfolobus islandicus rod-shaped virus 2	AJ344259	I	Complete genome	1	Rudiviridae
+Ligamenvirales	Rudiviridae		Icerudivirus	Sulfolobus islandicus rod-shaped virus 1	AJ414696	I	Complete genome	1	Rudiviridae
+	Saffermanviridae		Arthrovirus	Arthronema virus TR020	MT457475	I	Complete genome	1	Saffermanviridae
+	Saffermanviridae		Kozyakovvirus	Anabaena phage A-4L	KF356198	I	Complete genome	1	Saffermanviridae
+	Saladoviridae		Crypovirus	environmental halophage eHP-23	JQ807243	I	Complete genome	1	Saladoviridae
+	Salasmaviridae	Northropvirinae	Claudivirus	Bacillus phage Aurora	KX349899	I	Complete genome	1	Salasmaviridae
+	Salasmaviridae	Northropvirinae	Claudivirus	Bacillus phage Baseball_field	MT777452	I	Complete genome	1	Salasmaviridae
+	Saparoviridae		Halohivirus	Haloarcula hispanica tailed virus 2	KC292024	I	Complete genome	1	Saparoviridae
+	Saparoviridae		Samsavirus	Haloarcula californiae tailed virus 2	KC292028	I	Complete genome	1	Saparoviridae
+	Sarkviridae	Guernseyvirinae	Cornellvirus	Salmonella phage GRNsp27	ON720976	I	Complete genome	1	Sarkviridae
+	Sarkviridae	Guernseyvirinae	Cornellvirus	Salmonella phage vB_SenS_SE1	MK479295	I	Complete genome	1	Sarkviridae
+Tombendovirales	Sarthroviridae		Macronovirus	extra small virus	AY247793	IV	Coding-complete genome	1	Sarthroviridae
+Tombendovirales	Sarthroviridae		Macronovirus	extra small virus	DQ174318	IV	Coding-complete genome	1	Sarthroviridae
+Adrikavirales	Satyavativiridae		Vyasavirus	Poseidoniales virus P01	PP497040	I	Complete genome	1	Satyavativiridae
+	Schitoviridae	Brisouvirinae	Atduovirus	Acinetobacter phage At2	PQ656108	I	Complete genome	1	Schitoviridae
+	Schitoviridae	Brisouvirinae	Exceevirus	Acinetobacter phage VB_ApiP_XC38	MN508356	I	Complete genome	1	Schitoviridae
+Imitervirales	Schizomimiviridae		Biavirus	Prymnesium kappa virus RF01	HG999358	I	Complete genome	1	Schizomimiviridae
+Imitervirales	Schizomimiviridae		Kratosvirus	Aureococcus anophagefferens virus	KJ645900	I	Complete genome	1	Schizomimiviridae
+	Seadebiviridae		Hacxwiqakvirus	archaeal virus JdFR009	PQ111736	I	Complete genome	1	Seadebiviridae
+	Seadebiviridae		Hacxwiqakvirus	archaeal virus JdFR114	PQ111738	I	Complete genome	1	Seadebiviridae
+Picornavirales	Secoviridae		Sequivirus	carrot necrotic dieback virus	EU980442	IV	Complete genome	1	Secoviridae
+Picornavirales	Secoviridae		Sequivirus	lettuce star mosaic virus	MT348706	IV	Complete genome	1	Secoviridae
+Reovirales	Sedoreoviridae		Mimoreovirus	Micromonas pusilla reovirus	S1: DQ126101	III	Complete genome	1	Sedoreoviridae
+Reovirales	Sedoreoviridae		Rotavirus	rotavirus L	OM101015	III	Complete genome	1	Sedoreoviridae
+Kirjokansivirales	Shortaselviridae		Lonfivirus	Haloarcula sinaiiensis tailed virus 1	KC117378	I	Complete genome	1	Shortaselviridae
+Halopanivirales	Simuloviridae		Yingchengvirus	Natrinema versiforme icosahedral virus 1	BK013337	I	Complete genome	1	Simuloviridae
+Halopanivirales	Simuloviridae		Yingchengvirus	Haloterrigena jeotgali icosahedral virus 1	BK013338	I	Complete genome	1	Simuloviridae
+Nodamuvirales	Sinhaliviridae		Sinaivirus	Lake Sinai virus 1	HQ871931	IV	Complete genome	1	Sinhaliviridae
+Nodamuvirales	Sinhaliviridae		Sinaivirus	Lake Sinai virus 2	HQ888865	IV	Complete genome	1	Sinhaliviridae
+Atroposvirales	Skuldviridae		Delusorvirus	Lokiarchaeia virus SkuldV3	BK062752	I	Complete genome	1	Skuldviridae
+Atroposvirales	Skuldviridae		Delusorvirus	Lokiarchaeia virus SkuldV1	OK558607	I	Complete genome	1	Skuldviridae
+Cremevirales	Smacoviridae		Babosmacovirus	Papio cynocephalus associated smacovirus 2/ZM09-71	LC386204		Complete genome	1	Smacoviridae
+Cremevirales	Smacoviridae		Bonzesmacovirus	bovine faeces associated smacovirus 1	KT862223		Complete genome	1	Smacoviridae
+Thumleimavirales	Soleiviridae		Eilatmyovirus	Haloarcula tailed virus 2	MZ334525	I	Complete genome	1	Soleiviridae
+Sobelivirales	Solemoviridae		Enamovirus	alfalfa enamovirus 1	KU297983	IV	Complete genome	1	Solemoviridae
+Sobelivirales	Solemoviridae		Enamovirus	Ageratum virus 2	OP660857	IV	Complete genome	1	Solemoviridae
+Picornavirales	Solinviviridae		Invictavirus	Solenopsis invicta virus 3	FJ528584	IV	Complete genome	1	Solinviviridae
+Norzivirales	Solspiviridae		Andihavirus	ssRNA phage SRR7976300_9	BK013716	IV	Coding-complete genome	1	Solspiviridae
+Norzivirales	Solspiviridae		Dibaevirus	ssRNA phage SRR7976299_12	BK014166	IV	Coding-complete genome	1	Solspiviridae
+	Speroviridae		Glazvirus	Methanobacterium virus C158	OX365879	I	Complete genome	1	Speroviridae
+Halopanivirales	Sphaerolipoviridae		Alphasphaerolipovirus	Haloarcula hispanica icosahedral virus 2	JN968479	I	Complete genome	1	Sphaerolipoviridae
+Halopanivirales	Sphaerolipoviridae		Alphasphaerolipovirus	Haloarcula hispanica PH1 virus	KC252997	I	Complete genome	1	Sphaerolipoviridae
+Ghabrivirales	Spiciviridae		Spicivirus	Aedes camptorhynchus toti-like virus 1	MF176241	III	Complete genome	1	Spiciviridae
+Ghabrivirales	Spiciviridae		Spicivirus	Scaphoideus titanus toti-like virus 1	MN982381	III	Complete genome	1	Spiciviridae
+Reovirales	Spinareoviridae		Aquareovirus	Scophthalmus maximus reovirus; aquareovirus E	L1: HM989930	III	Complete genome	1	Spinareoviridae
+Reovirales	Spinareoviridae		Dinovernavirus	Aedes albopictus reovirus	S1: PV842502	III	Complete genome	1	Spinareoviridae
+	Spiraviridae		Alphaspiravirus	Aeropyrum coil-shaped virus	HE681887		Complete genome	1	Spiraviridae
+Mividavirales	Sputniviroviridae		Sputnikvirus	Sputnik virus 1	EU606015	I	Complete genome	1	Sputniviroviridae
+Mividavirales	Sputniviroviridae		Sputnikvirus	Zamilon virus	HG531932	I	Complete genome	1	Sputniviroviridae
+	Stackebrandtviridae	Frickvirinae	Clownvirus	Gordonia phage Clown	MT771343	I	Complete genome	1	Stackebrandtviridae
+	Stackebrandtviridae	Frickvirinae	Riverraidervirus	Gordonia phage RiverRaider	PQ184823	I	Complete genome	1	Stackebrandtviridae
+	Stanwilliamsviridae	Boydwoodruffvirinae	Coruscantvirus	Streptomyces phage Coruscant	MT711976	I	Complete genome	1	Stanwilliamsviridae
+	Stanwilliamsviridae	Boydwoodruffvirinae	Karimacvirus	Streptomyces phage Karimac	MH590599	I	Complete genome	1	Stanwilliamsviridae
+Crassvirales	Steigviridae	Asinivirinae	Akihdevirus	Cellulophaga phage phi14:2	KC821624	I	Complete genome	1	Steigviridae
+Crassvirales	Steigviridae	Asinivirinae	Kahnovirus	uncultured phage cr44_1	MZ130483	I	Complete genome	1	Steigviridae
+Timlovirales	Steitzviridae		Cebevirus	Caulobacter phage phiCb5	HM066936	IV	Complete genome	1	Steitzviridae
+Pantevenvirales	Straboviridae	Emmerichvirinae	Ceceduovirus	Aeromonas phage AS-zj	MF448340	I	Complete genome	1	Straboviridae
+Pantevenvirales	Straboviridae	Emmerichvirinae	Ceceduovirus	Aeromonas phage CC2	JX123262	I	Complete genome	1	Straboviridae
+Gokushovirales	Sukshmaviridae		Subabevirus	Microviridae sp. 1527-1801 virus	MG945316		Complete genome	1	Sukshmaviridae
+Gokushovirales	Sukshmaviridae		Subethovenvirus	Microviridae sp. 3317-1602 virus	MG945562		Complete genome	1	Sukshmaviridae
+Mononegavirales	Sunviridae		Sunshinevirus	Sunshine Coast virus	JN192445	V	Coding-complete genome	1	Sunviridae
+	Suolaviridae		Pormufvirus	Halorubrum tailed virus 28	MZ334528	I	Complete genome	1	Suolaviridae
+Crassvirales	Suoliviridae	Bearivirinae	Afonbuvirus	uncultured phage cr6_1	MT774401	I	Complete genome	1	Suoliviridae
+Crassvirales	Suoliviridae	Bearivirinae	Afonbuvirus	uncultured phage cr12_1	MZ130492	I	Complete genome	1	Suoliviridae
+Secretvirales	Tainaviridae		Ascunsovirus	Sulfitobacter sp. ICBM5 virus	OM782324		Complete genome	1	Tainaviridae
+Secretvirales	Tainaviridae		Circularivirus	Microviridae sp. ctbc9 virus	MH617319		Complete genome	1	Tainaviridae
+Kalamavirales	Tectiviridae		Alphatectivirus	Enterobacteria phage PR4	AY848686	I	Complete genome	1	Tectiviridae
+Kalamavirales	Tectiviridae		Alphatectivirus	Enterobacteria phage PRD1	AY848689	I	Complete genome	1	Tectiviridae
+	Tenebraviridae		Caldusvirus	Archaeoglobus virus JdFR005	PQ111742	I	Complete genome	1	Tenebraviridae
+Ageovirales	Thalassapleoviridae		Aprofuvirus	Archaeoglobus profundus pleomorphic virus 1	BK065154	I	Complete genome	1	Thalassapleoviridae
+Ageovirales	Thalassapleoviridae		Avenivirus	Archaeoglobus veneficus pleomorphic virus 1	BK065155	I	Complete genome	1	Thalassapleoviridae
+	Thaspiviridae		Nitmarvirus	Nitrosopumilus spindle-shaped virus 1	MK570053	I	Complete genome	1	Thaspiviridae
+	Thaspiviridae		Nitmarvirus	Nitrosopumilus spindle-shaped virus 1	MK570054	I	Complete genome	1	Thaspiviridae
+Paracrassvirales	Tinaiviridae		Fahrevirus	Caudoviricetes sp. isolate ctR3g24	BK057374	I	Complete genome	1	Tinaiviridae
+Martellivirales	Tobaliviridae		Tobalivirus	Armillaria borealis mycovirgavirus 1	MW423800	IV	Complete genome	1	Tobaliviridae
+Martellivirales	Tobaliviridae		Tobalivirus	Auricularia heimuer mycovirgavirus 1	MN928963	IV	Complete genome	1	Tobaliviridae
+Nidovirales	Tobaniviridae	Piscanivirinae	Bafinivirus	white bream virus	DQ898157	IV	Complete genome	1	Tobaniviridae
+Nidovirales	Tobaniviridae	Piscanivirinae	Bafinivirus	fathead minnow nidovirus	GU002364	IV	Complete genome	1	Tobaniviridae
+Martellivirales	Togaviridae		Alphavirus	Barmah Forest virus	U73745	IV	Complete genome	1	Togaviridae
+Martellivirales	Togaviridae		Alphavirus	bebaru virus	HM147985	IV	Complete genome	1	Togaviridae
+	Tolecusatellitidae		Betasatellite	Okra leaf curl betasatellite	GU111963		Complete genome	1	Tolecusatellitidae
+	Tolecusatellitidae		Betasatellite	Bhendi yellow vein mosaic betasatellite	AJ308425		Complete genome	1	Tolecusatellitidae
+Tolivirales	Tombusviridae	Calvusvirinae	Umbravirus	groundnut rosette virus	Z69910	IV	Complete genome	1	Tombusviridae
+Tolivirales	Tombusviridae	Calvusvirinae	Umbravirus	carrot mottle mimic virus	U57305	IV	Complete genome	1	Tombusviridae
+Tombendovirales	Tomosaviridae		Virtovirus	satellite tobacco mosaic virus	M25782	IV	Partial genome (non-compliant)	1	Tomosaviridae
+	Tonesaviridae		Albetovirus	satellite tobacco necrosis virus 1	V01468	IV	Complete genome	1	Tonesaviridae
+	Tonesaviridae		Albetovirus	satellite tobacco necrosis virus 2	M64479	IV	Complete genome	1	Tonesaviridae
+Elliovirales	Tospoviridae		Orthotospovirus	lisianthus necrotic ringspot virus	MF469045		Complete genome	1	Tospoviridae
+Elliovirales	Tospoviridae		Orthotospovirus	Fatsia japonica ringspot-associated virus	LC626335		Complete genome	1	Tospoviridae
+	Toyamaviridae		Totsukavirus	Totsukavirus sp. isolate 2698_63430	OP074812	I	Complete genome	1	Toyamaviridae
+	Toyamaviridae		Ushigomevirus	Ushigomevirus sp. isolate 1319_99498	OP030930	I	Complete genome	1	Toyamaviridae
+	Trautnerviridae	Polsinellivirinae	Rivavirus	Bacillus phage 000TH010	MN176219	I	Complete genome	1	Trautnerviridae
+	Trautnerviridae	Polsinellivirinae	Rivavirus	Bacillus phage 049ML001	MN176227	I	Complete genome	1	Trautnerviridae
+Crytulvirales	Trimbiviridae		Orthotrimbivirus	Armillaria ectypa ambi-like virus 1	BK014418		Coding-complete genome	1	Trimbiviridae
+Crytulvirales	Trimbiviridae		Orthotrimbivirus	Heterobasidion ambi-like virus 3	MZ502386		Coding-complete genome	1	Trimbiviridae
+Metacrassvirales	Tripviridae		Crabavirus	virus sp. ctML55	BK059105	I	Complete genome	1	Tripviridae
+Primavirales	Tristromaviridae		Alphatristromavirus	Pyrobaculum filamentous virus 1	KU307456	I	Complete genome	1	Tristromaviridae
+Primavirales	Tristromaviridae		Alphatristromavirus	Pyrobaculum filamentous virus 2	MN876844	I	Complete genome	1	Tristromaviridae
+Elliovirales	Tulasviridae		Orthotulasvirus	Tulasnella bunyavirales-like virus 1	MN793997		Complete genome	1	Tulasviridae
+Belfryvirales	Turriviridae		Alphaturrivirus	Sulfolobus turreted icosahedral virus 2	GU080336	I	Complete genome	1	Turriviridae
+Belfryvirales	Turriviridae		Alphaturrivirus	Sulfolobus turreted icosahedral virus 1	AY569307	I	Complete genome	1	Turriviridae
+Tymovirales	Tymoviridae		Maculavirus	grapevine fleck virus	AJ309022	IV	Complete genome	1	Tymoviridae
+Tymovirales	Tymoviridae		Marafivirus	grapevine asteroid mosaic associated virus	KX354202	IV	Complete genome	1	Tymoviridae
+	Umezonoviridae		Moriyavirus	Moriyavirus sp. isolate 3108_57610	OP072523	I	Complete genome	1	Umezonoviridae
+	Umezonoviridae		Moriyavirus	Moriyavirus sp. isolate 3451_82951	OP072636	I	Complete genome	1	Umezonoviridae
+Crytulvirales	Unambiviridae		Orthounambivirus	Cryphonectria parasitica ambivirus 1	MT354566		Complete genome	1	Unambiviridae
+Ligamenvirales	Ungulaviridae		Captovirus	Acidianus filamentous virus 1	AJ567472	I	Complete genome	1	Ungulaviridae
+Methanobavirales	Usuviridae		Hewusuvirus	Methanobrevibacter gottschalkii virus vir075	BK068243	I	Complete genome	1	Usuviridae
+Methanobavirales	Usuviridae		Manusuvirus	Methanobrevibacter smithii tailed virus 1	PP537965	I	Complete genome	1	Usuviridae
+	Vandenendeviridae	Gorskivirinae	Dilongvirus	Pseudomonas phage PHB09	OK040171	I	Complete genome	1	Vandenendeviridae
+	Vandenendeviridae	Gorskivirinae	Flaumdravirus	Pseudomonas phage vB_PsyM_KIL4	KU130129	I	Complete genome	1	Vandenendeviridae
+	Verdandiviridae		Dolusvirus	Lokiarchaeia virus VerdaV4	LC711080	I	Complete genome	1	Verdandiviridae
+	Verdandiviridae		Dolusvirus	Lokiarchaeia virus VerdaV1	LC711077	I	Complete genome	1	Verdandiviridae
+	Vertoviridae		Chaovirus	Halobacterium phage ChaoS9	MK310226	I	Complete genome	1	Vertoviridae
+	Vertoviridae		Myohalovirus	Natrialba virus PhiCh1	MK450543	I	Complete genome	1	Vertoviridae
+	Vilmaviridae	Lclasvirinae	Bromdenvirus	Mycobacterium phage Bromden	MH576973	I	Complete genome	1	Vilmaviridae
+	Vilmaviridae	Lclasvirinae	Bromdenvirus	Mycobacterium phage DyoEdafos	MN234187	I	Complete genome	1	Vilmaviridae
+Cirlivirales	Vilyaviridae		Ancalagonvirus	Chaetfec virus UA24_7381	OM154927		Complete genome	1	Vilyaviridae
+Cirlivirales	Vilyaviridae		Ancalagonvirus	Sigmofec virus UA08Rod_17037	OM869491		Complete genome	1	Vilyaviridae
+Martellivirales	Virgaviridae		Tobamovirus	yellow tailflower mild mottle virus	KF495564	IV	Complete genome	1	Virgaviridae
+Martellivirales	Virgaviridae		Tobamovirus	Brugmansia mild mottle virus	AM398436	IV	Complete genome	1	Virgaviridae
+	Winoviridae		Peternellavirus	Winogradskyella phage Peternella_1	MT732475	I	Complete genome	1	Winoviridae
+	Winoviridae		Pippivirus	Flavobacterium phage vB_FspM_lotta8-1	MN812203	I	Complete genome	1	Winoviridae
+	Xigoviridae		Ispindelvirus	Danakil Halobacteriales spindle-shaped virus 1	PQ827552	I	Complete genome	1	Xigoviridae
+Mononegavirales	Xinmoviridae		Alasvirus	Húběi diptera virus 11	KX884430	V	Coding-complete genome	1	Xinmoviridae
+Mononegavirales	Xinmoviridae		Anphevirus	Xīnchéng mosquito virus	KM817661	V	Coding-complete genome	1	Xinmoviridae
+Yadokarivirales	Yadokariviridae		Alphayadokarivirus	yado-kari virus 1	LC006253	IV	Complete genome	1	Yadokariviridae
+Yadokarivirales	Yadokariviridae		Alphayadokarivirus	Aspergillus foetidus slow virus 2	HE588148	IV	Complete genome	1	Yadokariviridae
+Ghabrivirales	Yadonushiviridae		Yadonushivirus	Yado-nushi virus 1	LC061478	III	Complete genome	1	Yadonushiviridae
+	Yamazakiviridae		Kodayamazakivirus	Aeropyrum pernix spindle-shaped virus 1	HE580238	I	Complete genome	1	Yamazakiviridae
+Juravirales	Yangangviridae		Mathaucavirus	Nitrososphaeria virus YSH_922147	ON649701	I	Complete genome	1	Yangangviridae
+Juravirales	Yangangviridae		Nohelivirus	Nitrososphaeria virus YSH_462411	ON649699	I	Complete genome	1	Yangangviridae
+Juravirales	Yanlukaviridae		Sweetvirus	Nitrososphaeria virus YSH_1032793	ON649698	I	Complete genome	1	Yanlukaviridae
+	Yaraviridae		Yaravirus	Yaravirus	MT293574	I	Complete genome	1	Yaraviridae
+Goujianvirales	Yueviridae		Yuyuevirus	Běihǎi sesarmid crab virus 3	S1: KX884032	V	Coding-complete genome	1	Yueviridae
+Goujianvirales	Yueviridae		Yuyuevirus	Shāhé yuevirus-like virus 1	S1: KX884034	V	Coding-complete genome	1	Yueviridae
+	Zierdtviridae	Emilbogenvirinae	Commandariavirus	Gordonia phage Commandaria	OQ709208	I	Complete genome	1	Zierdtviridae
+	Zierdtviridae	Emilbogenvirinae	Foxborovirus	Gordonia phage Emianna	MH779501	I	Complete genome	1	Zierdtviridae
+	Zimmerviridae	Jacobvirinae	Alegriavirus	Escherichia phage 2B8	LR595859	I	Complete genome	1	Zimmerviridae
+	Zimmerviridae	Jacobvirinae	Bievrevirus	Escherichia phage 4A7	LR595864	I	Complete genome	1	Zimmerviridae
+	Zobellviridae	Cobavirinae	Siovirus	Roseobacter phage SIO1	AF189021	I	Complete genome	1	Zobellviridae
+	Zobellviridae	Cobavirinae	Siovirus	Celeribacter phage P12053L	JQ809650	I	Complete genome	1	Zobellviridae
