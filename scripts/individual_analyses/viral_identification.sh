@@ -65,6 +65,7 @@ source "${SCRIPTS_NFS}/bot_telegram.sh" 2>/dev/null || echo "Telegram bot not av
 ####==================================####
 
 module load ISG/apptainer/1.4.0 2>/dev/null || echo "Apptainer module not available"
+module loaf conda 2>/dev/null || echo "Conda module not available"
 
 THREADS=12
 CORES=6
@@ -263,29 +264,68 @@ run_virsorter2() {
         echo "  Skipping VirSorter2 analysis"
         return 0
     fi
+
+    local CONDA_ENV_PATH="/software/treeoflife/conda/users/envs/team222/jr46/virsorter2"
+
+    # Verify the conda environment exists
+    if [[ ! -d "${CONDA_ENV_PATH}" ]]; then
+        echo "  ERROR: Conda environment not found at ${CONDA_ENV_PATH}"
+        echo "  Please create it with: conda create -n virsorter2_env -c conda-forge -c bioconda virsorter snakemake mamba"
+        return 1
+    fi
     
+    # Create config file for VirSorter2
+    cat > "${output_dir}/config.yaml" << EOF
+input: /input/$(basename "$ASSEMBLY_FILE")
+output: /output/virsorter2
+db_dir: /virsorter2_db
+threads: ${CORES}
+EOF
+    
+    echo "  Using conda environment: ${CONDA_ENV_PATH}"
+    
+    # Run VirSorter2 using the conda environment
     apptainer exec \
         --bind "$(dirname "$ASSEMBLY_FILE")":/input:ro \
         --bind "${SAMPLE_OUTPUT}":/output \
         --bind "${VIRSORTER2_DB}":/virsorter2_db:ro \
+        --bind "${CONDA_ENV_PATH}":/conda_env \
+        --bind "${vs2_cache}":/root/.cache/virsorter2 \
+        --bind "${vs2_tmp}":/tmp \
+        --bind "${conda_pkgs}":/opt/conda/pkgs \
+        --env "TMPDIR=/tmp" \
+        --env "CONDA_PKGS_DIRS=/opt/conda/pkgs" \
         "${VIRSORTER2_CONTAINER}" \
-        virsorter run \
-            -i "/input/$(basename "$ASSEMBLY_FILE")" \
-            -w "/output/virsorter2" \
-            --db-dir /virsorter2_db \
-            --include-groups dsDNAphage,ssDNA,ssRNA,dsRNA \
-            --min-length 350 \
-            --min-score 0.5 \
-            -j "${CORES}" \
-            all \
-            2>&1 | tee "${output_dir}/virsorter2.log"
-    
+        /bin/bash -c "
+            # Initialize conda inside the container
+            source /opt/conda/etc/profile.d/conda.sh
+            
+            # Activate the mounted conda environment
+            conda activate /conda_env
+            
+            # Verify VirSorter2 is available
+            echo '  VirSorter2 version:'
+            virsorter --version
+            
+            # Run VirSorter2 using Snakemake
+            virsorter run \
+                -i /input/$(basename \"$ASSEMBLY_FILE\") \
+                -w /output/virsorter2 \
+                --db-dir /virsorter2_db \
+                --include-groups dsDNAphage,ssDNA,ssRNA,dsRNA \
+                --min-length 350 \
+                --min-score 0.5 \
+                -j ${CORES} \
+                all
+        " 2>&1 | tee "${output_dir}/virsorter2.log"
+
     if [[ $? -eq 0 ]]; then
         echo "VirSorter2 completed successfully"
         if [[ -f "${output_dir}/final-viral-combined.fa" ]]; then
             viral_count=$(grep -c '^>' "${output_dir}/final-viral-combined.fa")
             echo "  Found ${viral_count} viral contigs"
         fi
+
         return 0
     else
         echo "VirSorter2 failed"

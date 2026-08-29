@@ -107,25 +107,57 @@ echo "    - R2 unpaired: ${#star_r2_unpaired_samples[@]}"
 ####          GET ARRAY TASK SAMPLE                    ####
 ####===================================================####
 
-SAMPLE_INDEX=$((LSB_JOBINDEX - 1))
+# Combine all samples into a single array with type information
+all_samples=()
+sample_types=()
 
-if [[ $SAMPLE_INDEX -ge ${#star_paired_samples[@]} ]]; then
-    echo "ERROR: Invalid job index ${LSB_JOBINDEX} (max ${#star_paired_samples[@]})"
+# Add paired samples
+for sample in "${star_paired_samples[@]}"; do
+    all_samples+=("$sample")
+    sample_types+=("paired")
+done
+
+# Add R1 unpaired samples
+for sample in "${star_r1_unpaired_samples[@]}"; do
+    all_samples+=("${sample}_R1_unpaired")
+    sample_types+=("unpaired_R1")
+done
+
+# Add R2 unpaired samples
+for sample in "${star_r2_unpaired_samples[@]}"; do
+    all_samples+=("${sample}_R2_unpaired")
+    sample_types+=("unpaired_R2")
+done
+
+# Total samples for array job
+total_samples=${#all_samples[@]}
+
+if [[ $total_samples -eq 0 ]]; then
+    echo "No STAR samples found"
+    tg_send "No STAR samples found" 2>/dev/null || true
     exit 1
 fi
 
-sample="${star_paired_samples[$SAMPLE_INDEX]}"
-sample_type="paired"
+# Get the sample for this array task
+SAMPLE_INDEX=$((LSB_JOBINDEX - 1))
+
+if [[ $SAMPLE_INDEX -ge $total_samples ]]; then
+    echo "ERROR: Invalid job index ${LSB_JOBINDEX} (max ${total_samples})"
+    exit 1
+fi
+
+sample="${all_samples[$SAMPLE_INDEX]}"
+sample_type="${sample_types[$SAMPLE_INDEX]}"
 
 echo "========================================="
 echo "  Processing sample: ${sample}"
 echo "  Type: ${sample_type}"
 echo "  Source: STAR"
-echo "  Array task: ${LSB_JOBINDEX}/${#star_paired_samples[@]}"
+echo "  Array task: ${LSB_JOBINDEX}/${total_samples}"
 echo "  Date: $(date)"
 echo "========================================="
 
-tg_send "Processing: ${sample} (${sample_type}) from STAR (${LSB_JOBINDEX}/${#star_paired_samples[@]})" 2>/dev/null || true
+tg_send "Processing: ${sample} (${sample_type}) from STAR (${LSB_JOBINDEX}/${total_samples})" 2>/dev/null || true
 
 ####=====================================####
 ####        DETERMINE INPUT FILES        ####
@@ -134,44 +166,65 @@ tg_send "Processing: ${sample} (${sample_type}) from STAR (${LSB_JOBINDEX}/${#st
 # Create FASTQ directory
 mkdir -p "${FASTQ_DIR}/${sample}"
 
-# STAR paired-end unmapped reads
-R1_UNMAPPED_ORIG="${STAR_INPUT_DIR}/${sample}_paired_Unmapped.out.mate1"
-R2_UNMAPPED_ORIG="${STAR_INPUT_DIR}/${sample}_paired_Unmapped.out.mate2"
-
-R1_UNMAPPED="${FASTQ_DIR}/${sample}/${sample}_R1.fastq"
-R2_UNMAPPED="${FASTQ_DIR}/${sample}/${sample}_R2.fastq"
-
-if [[ ! -s "$R1_UNMAPPED_ORIG" ]] || [[ ! -s "$R2_UNMAPPED_ORIG" ]]; then
-    echo "WARNING: Unmapped files for ${sample} are empty or missing"
-    echo "  Skipping assembly for ${sample}"
-    exit 0
-fi
-
-echo "  Copying STAR unmapped reads to FASTQ directory..."
-
-# Copy files to FASTQ directory with .fastq extension
-cp -p "$R1_UNMAPPED_ORIG" "$R1_UNMAPPED"
-cp -p "$R2_UNMAPPED_ORIG" "$R2_UNMAPPED"
-
-# Compress original files to save space
-echo "  Compressing original unmapped files..."
-gzip -f "$R1_UNMAPPED_ORIG"
-gzip -f "$R2_UNMAPPED_ORIG"
-
-INPUT_DIR_FOR_BIND="${FASTQ_DIR}/${sample}"
-
-R1_READS=$(($(wc -l < "$R1_UNMAPPED") / 4))
-R2_READS=$(($(wc -l < "$R2_UNMAPPED") / 4))
-echo "  Using STAR unmapped reads (copied to FASTQ directory):"
-echo "  R1: $(basename "$R1_UNMAPPED") ($R1_READS reads)"
-echo "  R2: $(basename "$R2_UNMAPPED") ($R2_READS reads)"
-echo "  Original files compressed: $(basename "$R1_UNMAPPED_ORIG").gz and $(basename "$R2_UNMAPPED_ORIG").gz"
+# Determine input files based on sample type
+case "$sample_type" in
+    "paired")
+        R1_UNMAPPED_ORIG="${STAR_INPUT_DIR}/${sample}_paired_Unmapped.out.mate1"
+        R2_UNMAPPED_ORIG="${STAR_INPUT_DIR}/${sample}_paired_Unmapped.out.mate2"
+        R1_UNMAPPED="${FASTQ_DIR}/${sample}/${sample}_R1.fastq"
+        R2_UNMAPPED="${FASTQ_DIR}/${sample}/${sample}_R2.fastq"
+        IS_PAIRED=true
+        ;;
+    "unpaired_R1")
+        # Remove _R1_unpaired suffix to get original sample name
+        orig_sample="${sample%_R1_unpaired}"
+        R1_UNMAPPED_ORIG="${STAR_INPUT_DIR}/${orig_sample}_R1_unpaired_Unmapped.out.mate1"
+        R1_UNMAPPED="${FASTQ_DIR}/${sample}/${sample}.fastq"
+        IS_PAIRED=false
+        ;;
+    "unpaired_R2")
+        # Remove _R2_unpaired suffix to get original sample name
+        orig_sample="${sample%_R2_unpaired}"
+        R2_UNMAPPED_ORIG="${STAR_INPUT_DIR}/${orig_sample}_R2_unpaired_Unmapped.out.mate1"
+        R2_UNMAPPED="${FASTQ_DIR}/${sample}/${sample}.fastq"
+        IS_PAIRED=false
+        ;;
+esac
 
 # Check if input files exist
-if [[ ! -f "$R1_UNMAPPED" ]] || [[ ! -f "$R2_UNMAPPED" ]]; then
-    echo "ERROR: Input files not found"
-    exit 1
+if [[ "$IS_PAIRED" == true ]]; then
+    if [[ ! -s "$R1_UNMAPPED_ORIG" ]] || [[ ! -s "$R2_UNMAPPED_ORIG" ]]; then
+        echo "WARNING: Unmapped files for ${sample} are empty or missing"
+        echo "  Skipping assembly for ${sample}"
+        exit 0
+    fi
+    echo "  Copying STAR paired unmapped reads to FASTQ directory..."
+    cp -p "$R1_UNMAPPED_ORIG" "$R1_UNMAPPED"
+    cp -p "$R2_UNMAPPED_ORIG" "$R2_UNMAPPED"
+    gzip -f "$R1_UNMAPPED_ORIG"
+    gzip -f "$R2_UNMAPPED_ORIG"
+    
+    R1_READS=$(($(wc -l < "$R1_UNMAPPED") / 4))
+    R2_READS=$(($(wc -l < "$R2_UNMAPPED") / 4))
+    echo "  Using STAR unmapped reads (copied to FASTQ directory):"
+    echo "  R1: $(basename "$R1_UNMAPPED") ($R1_READS reads)"
+    echo "  R2: $(basename "$R2_UNMAPPED") ($R2_READS reads)"
+else
+    if [[ ! -s "$R1_UNMAPPED_ORIG" ]]; then
+        echo "WARNING: Unmapped file for ${sample} is empty or missing"
+        echo "  Skipping assembly for ${sample}"
+        exit 0
+    fi
+    echo "  Copying STAR single-end unmapped reads to FASTQ directory..."
+    cp -p "$R1_UNMAPPED_ORIG" "$R1_UNMAPPED"
+    gzip -f "$R1_UNMAPPED_ORIG"
+    
+    READS=$(($(wc -l < "$R1_UNMAPPED") / 4))
+    echo "  Using STAR unmapped reads (copied to FASTQ directory):"
+    echo "  $(basename "$R1_UNMAPPED") ($READS reads)"
 fi
+
+INPUT_DIR_FOR_BIND="${FASTQ_DIR}/${sample}"
 
 ####================================####
 ####          RUN ASSEMBLY          ####
@@ -181,37 +234,48 @@ fi
 THREADS=32
 MEMORY=128
 
-# Create base output directory
-mkdir -p "${OUTPUT_DIR}"
+# Create base output directory with type subdirectory
+mkdir -p "${OUTPUT_DIR}/${sample_type}"
 
 # Clean output directories before running
-rm -rf "${OUTPUT_DIR}/rnaSPAdes/${sample}"/*
-rm -rf "${OUTPUT_DIR}/metaSPAdes/${sample}"/*
-rm -rf "${OUTPUT_DIR}/metaviralSPAdes/${sample}"/*
-rm -rf "${OUTPUT_DIR}/MEGAhit/${sample}"/*
+rm -rf "${OUTPUT_DIR}/${sample_type}/rnaSPAdes/${sample}"/*
+rm -rf "${OUTPUT_DIR}/${sample_type}/metaSPAdes/${sample}"/*
+rm -rf "${OUTPUT_DIR}/${sample_type}/metaviralSPAdes/${sample}"/*
+rm -rf "${OUTPUT_DIR}/${sample_type}/MEGAhit/${sample}"/*
 
 # Create output directories
-mkdir -p "${OUTPUT_DIR}/rnaSPAdes/${sample}"
-mkdir -p "${OUTPUT_DIR}/metaSPAdes/${sample}"
-mkdir -p "${OUTPUT_DIR}/metaviralSPAdes/${sample}"
-mkdir -p "${OUTPUT_DIR}/MEGAhit/${sample}"
+mkdir -p "${OUTPUT_DIR}/${sample_type}/rnaSPAdes/${sample}"
+mkdir -p "${OUTPUT_DIR}/${sample_type}/metaSPAdes/${sample}"
+mkdir -p "${OUTPUT_DIR}/${sample_type}/metaviralSPAdes/${sample}"
+mkdir -p "${OUTPUT_DIR}/${sample_type}/MEGAhit/${sample}"
 
-echo "Starting assembly process for ${sample} from STAR..."
+echo "Starting assembly process for ${sample} (${sample_type}) from STAR..."
+
+# Build input arguments based on type
+if [[ "$IS_PAIRED" == true ]]; then
+    R1_BASENAME=$(basename "$R1_UNMAPPED")
+    R2_BASENAME=$(basename "$R2_UNMAPPED")
+    ASSEMBLY_ARGS="-1 /input/${R1_BASENAME} -2 /input/${R2_BASENAME}"
+    echo "  Paired-end assembly: ${R1_BASENAME} + ${R2_BASENAME}"
+else
+    R1_BASENAME=$(basename "$R1_UNMAPPED")
+    ASSEMBLY_ARGS="-s /input/${R1_BASENAME}"
+    echo "  Single-end assembly: ${R1_BASENAME}"
+fi
 
 ####================================####
 ####        rnaSPAdes Assembly      ####
 ####================================####
 
-echo "Starting rnaSPAdes assembly for sample ${sample}..."
+echo "Starting rnaSPAdes assembly for sample ${sample} (${sample_type})..."
 
 apptainer exec \
     --bind "${INPUT_DIR_FOR_BIND}:/input:ro" \
     --bind "${OUTPUT_DIR}:/output" \
     "$SPADES_CONTAINER" \
     rnaspades.py \
-    -1 "/input/$(basename "$R1_UNMAPPED")" \
-    -2 "/input/$(basename "$R2_UNMAPPED")" \
-    -o "/output/rnaSPAdes/${sample}" \
+    ${ASSEMBLY_ARGS} \
+    -o "/output/${sample_type}/rnaSPAdes/${sample}" \
     -t "$THREADS"
 
 if [[ $? -eq 0 ]]; then
@@ -224,16 +288,15 @@ fi
 ####        metaSPAdes Assembly      ####
 ####================================####
 
-echo "Starting metaSPAdes assembly for sample ${sample}..."
+echo "Starting metaSPAdes assembly for sample ${sample} (${sample_type})..."
 
 apptainer exec \
     --bind "${INPUT_DIR_FOR_BIND}:/input:ro" \
     --bind "${OUTPUT_DIR}:/output" \
     "$SPADES_CONTAINER" \
     metaspades.py \
-    -1 "/input/$(basename "$R1_UNMAPPED")" \
-    -2 "/input/$(basename "$R2_UNMAPPED")" \
-    -o "/output/metaSPAdes/${sample}" \
+    ${ASSEMBLY_ARGS} \
+    -o "/output/${sample_type}/metaSPAdes/${sample}" \
     -t "$THREADS"
 
 if [[ $? -eq 0 ]]; then
@@ -246,16 +309,15 @@ fi
 ####     metaviralSPAdes Assembly   ####
 ####================================####
 
-echo "Starting metaviralSPAdes assembly for sample ${sample}..."
+echo "Starting metaviralSPAdes assembly for sample ${sample} (${sample_type})..."
 
 apptainer exec \
     --bind "${INPUT_DIR_FOR_BIND}:/input:ro" \
     --bind "${OUTPUT_DIR}:/output" \
     "$SPADES_CONTAINER" \
     metaviralspades.py \
-    -1 "/input/$(basename "$R1_UNMAPPED")" \
-    -2 "/input/$(basename "$R2_UNMAPPED")" \
-    -o "/output/metaviralSPAdes/${sample}" \
+    ${ASSEMBLY_ARGS} \
+    -o "/output/${sample_type}/metaviralSPAdes/${sample}" \
     -t "$THREADS"
 
 if [[ $? -eq 0 ]]; then
@@ -268,18 +330,17 @@ fi
 ####        MEGAhit Assembly        ####
 ####================================####
 
-echo "Starting MEGAhit assembly for sample ${sample}..."
+echo "Starting MEGAhit assembly for sample ${sample} (${sample_type})..."
 
-rm -rf "${OUTPUT_DIR}/MEGAhit/${sample}" 2>/dev/null
+rm -rf "${OUTPUT_DIR}/${sample_type}/MEGAhit/${sample}" 2>/dev/null
 
 apptainer exec \
     --bind "${INPUT_DIR_FOR_BIND}:/input:ro" \
     --bind "${OUTPUT_DIR}:/output" \
     "$MEGAHIT_CONTAINER" \
     megahit \
-    -1 "/input/$(basename "$R1_UNMAPPED")" \
-    -2 "/input/$(basename "$R2_UNMAPPED")" \
-    -o "/output/MEGAhit/${sample}" \
+    ${ASSEMBLY_ARGS} \
+    -o "/output/${sample_type}/MEGAhit/${sample}" \
     -t "$THREADS" \
     -m "${MEMORY}"
 
@@ -295,12 +356,12 @@ fi
 
 echo ""
 echo "========================================="
-echo "  STAR Assembly completed for ${sample}"
+echo "  STAR Assembly completed for ${sample} (${sample_type})"
 echo "  Output directories:"
-echo "    - rnaSPAdes: ${OUTPUT_DIR}/rnaSPAdes/${sample}"
-echo "    - metaSPAdes: ${OUTPUT_DIR}/metaSPAdes/${sample}"
-echo "    - metaviralSPAdes: ${OUTPUT_DIR}/metaviralSPAdes/${sample}"
-echo "    - MEGAhit: ${OUTPUT_DIR}/MEGAhit/${sample}"
+echo "    - rnaSPAdes: ${OUTPUT_DIR}/${sample_type}/rnaSPAdes/${sample}"
+echo "    - metaSPAdes: ${OUTPUT_DIR}/${sample_type}/metaSPAdes/${sample}"
+echo "    - metaviralSPAdes: ${OUTPUT_DIR}/${sample_type}/metaviralSPAdes/${sample}"
+echo "    - MEGAhit: ${OUTPUT_DIR}/${sample_type}/MEGAhit/${sample}"
 echo "========================================="
 
-tg_send "Completed STAR: ${sample}" 2>/dev/null || true
+tg_send "Completed STAR: ${sample} (${sample_type})" 2>/dev/null || true

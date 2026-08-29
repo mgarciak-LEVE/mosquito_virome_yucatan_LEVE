@@ -1,8 +1,8 @@
 #!/bin/bash
 # Author: Jorge Alberto Castro Rodríguez
 # Script to assemble unmapped reads from Bowtie2
-# 13/08/2026
-# Ver. 1.4.0 (Bowtie-only)
+# 19/08/2026
+# Ver. 1.5.0 (Bowtie-only)
 
 ####==================================####
 ####           CONFIGURATION          ####
@@ -121,23 +121,27 @@ fi
 # Combine all samples into one array for processing
 all_samples=()
 all_types=()
+all_read_types=()
 
 # Add Bowtie paired samples
 for sample in "${bowtie_paired_samples[@]}"; do
     all_samples+=("$sample")
     all_types+=("paired_interleaved")
+    all_read_types+=("paired")
 done
 
 # Add Bowtie R1 unpaired samples
 for sample in "${bowtie_r1_unpaired_samples[@]}"; do
     all_samples+=("$sample")
     all_types+=("R1_unpaired")
+    all_read_types+=("unpaired_R1")
 done
 
 # Add Bowtie R2 unpaired samples
 for sample in "${bowtie_r2_unpaired_samples[@]}"; do
     all_samples+=("$sample")
     all_types+=("R2_unpaired")
+    all_read_types+=("unpaired_R2")
 done
 
 if [[ $SAMPLE_INDEX -ge ${#all_samples[@]} ]]; then
@@ -147,20 +151,26 @@ fi
 
 sample="${all_samples[$SAMPLE_INDEX]}"
 sample_type="${all_types[$SAMPLE_INDEX]}"
+read_type="${all_read_types[$SAMPLE_INDEX]}"
 
 echo "========================================="
 echo "  Processing sample: ${sample}"
 echo "  Type: ${sample_type}"
+echo "  Read type: ${read_type}"
 echo "  Source: Bowtie"
 echo "  Array task: $((SAMPLE_INDEX+1))/${#all_samples[@]}"
 echo "  Date: $(date)"
 echo "========================================="
 
-tg_send "Processing: ${sample} (${sample_type}) from Bowtie ($((SAMPLE_INDEX+1))/${#all_samples[@]})" 2>/dev/null || true
+tg_send "Processing: ${sample} (${read_type}) from Bowtie ($((SAMPLE_INDEX+1))/${#all_samples[@]})" 2>/dev/null || true
 
 ####=====================================####
 ####        DETERMINE INPUT FILES        ####
 ####=====================================####
+
+# Create read-specific directory structure
+READ_TYPE_DIR="${OUTPUT_DIR}/${read_type}"
+mkdir -p "${READ_TYPE_DIR}"
 
 case "$sample_type" in
     "paired_interleaved")
@@ -177,9 +187,9 @@ case "$sample_type" in
         ;;
 
     "R2_unpaired")
-        R2_UNMAPPED="${BOWTIE_INPUT_DIR}/${sample}_R2_unpaired_unmapped.fastq.gz"
+        R1_UNMAPPED="${BOWTIE_INPUT_DIR}/${sample}_R2_unpaired_unmapped.fastq.gz"
         INPUT_DIR_FOR_BIND="${BOWTIE_INPUT_DIR}"
-        echo "Bowtie R2 unpaired: $(basename "$R2_UNMAPPED")"
+        echo "Bowtie R2 unpaired: $(basename "$R1_UNMAPPED")"
         ;;
 
     *)
@@ -194,7 +204,6 @@ if [[ "$sample_type" == "paired_interleaved" ]]; then
         echo "ERROR: Input file not found: ${R1_UNMAPPED}"
         exit 1
     fi
-    # Check if file has content
     if [[ ! -s "$R1_UNMAPPED" ]]; then
         echo "WARNING: Input file is empty: ${R1_UNMAPPED}"
         echo "No reads to assemble. Exiting."
@@ -225,25 +234,25 @@ fi
 THREADS=32
 MEMORY=128
 
-# Clean output directories before running
-rm -rf "${OUTPUT_DIR}/rnaSPAdes/${sample}"/*
-rm -rf "${OUTPUT_DIR}/metaSPAdes/${sample}"/*
-rm -rf "${OUTPUT_DIR}/metaviralSPAdes/${sample}"/*
-rm -rf "${OUTPUT_DIR}/MEGAhit/${sample}"/*
+# Clean output directories before running (now with read_type subdirectory)
+rm -rf "${READ_TYPE_DIR}/rnaSPAdes/${sample}"/*
+rm -rf "${READ_TYPE_DIR}/metaSPAdes/${sample}"/*
+rm -rf "${READ_TYPE_DIR}/metaviralSPAdes/${sample}"/*
+rm -rf "${READ_TYPE_DIR}/MEGAhit/${sample}"/*
 
 # Create output directories
-mkdir -p "${OUTPUT_DIR}/rnaSPAdes/${sample}"
-mkdir -p "${OUTPUT_DIR}/metaSPAdes/${sample}"
-mkdir -p "${OUTPUT_DIR}/metaviralSPAdes/${sample}"
-mkdir -p "${OUTPUT_DIR}/MEGAhit/${sample}"
+mkdir -p "${READ_TYPE_DIR}/rnaSPAdes/${sample}"
+mkdir -p "${READ_TYPE_DIR}/metaSPAdes/${sample}"
+mkdir -p "${READ_TYPE_DIR}/metaviralSPAdes/${sample}"
+mkdir -p "${READ_TYPE_DIR}/MEGAhit/${sample}"
 
-echo "Starting assembly process for ${sample} from Bowtie..."
+echo "Starting assembly process for ${sample} (${read_type}) from Bowtie..."
 
 ####================================####
 ####        rnaSPAdes Assembly      ####
 ####================================####
 
-echo "Starting rnaSPAdes assembly for sample ${sample}..."
+echo "Starting rnaSPAdes assembly for sample ${sample} (${read_type})..."
 
 if [[ "$sample_type" == "paired_interleaved" ]]; then
     apptainer exec \
@@ -252,7 +261,7 @@ if [[ "$sample_type" == "paired_interleaved" ]]; then
         "$SPADES_CONTAINER" \
         rnaspades.py \
         --12 "/input/$(basename "$R1_UNMAPPED")" \
-        -o "/output/rnaSPAdes/${sample}" \
+        -o "/output/${read_type}/rnaSPAdes/${sample}" \
         -t "$THREADS"
 else
     apptainer exec \
@@ -261,7 +270,7 @@ else
         "$SPADES_CONTAINER" \
         rnaspades.py \
         -s "/input/$(basename "$R1_UNMAPPED")" \
-        -o "/output/rnaSPAdes/${sample}" \
+        -o "/output/${read_type}/rnaSPAdes/${sample}" \
         -t "$THREADS"
 fi
 
@@ -275,7 +284,7 @@ fi
 ####        metaSPAdes Assembly      ####
 ####================================####
 
-echo "Starting metaSPAdes assembly for sample ${sample}..."
+echo "Starting metaSPAdes assembly for sample ${sample} (${read_type})..."
 
 if [[ "$sample_type" == "paired_interleaved" ]]; then
     apptainer exec \
@@ -284,7 +293,7 @@ if [[ "$sample_type" == "paired_interleaved" ]]; then
         "$SPADES_CONTAINER" \
         metaspades.py \
         --12 "/input/$(basename "$R1_UNMAPPED")" \
-        -o "/output/metaSPAdes/${sample}" \
+        -o "/output/${read_type}/metaSPAdes/${sample}" \
         -t "$THREADS"
 else
     apptainer exec \
@@ -293,7 +302,7 @@ else
         "$SPADES_CONTAINER" \
         metaspades.py \
         -s "/input/$(basename "$R1_UNMAPPED")" \
-        -o "/output/metaSPAdes/${sample}" \
+        -o "/output/${read_type}/metaSPAdes/${sample}" \
         -t "$THREADS"
 fi
 
@@ -307,7 +316,7 @@ fi
 ####     metaviralSPAdes Assembly   ####
 ####================================####
 
-echo "Starting metaviralSPAdes assembly for sample ${sample}..."
+echo "Starting metaviralSPAdes assembly for sample ${sample} (${read_type})..."
 
 if [[ "$sample_type" == "paired_interleaved" ]]; then
     apptainer exec \
@@ -316,7 +325,7 @@ if [[ "$sample_type" == "paired_interleaved" ]]; then
         "$SPADES_CONTAINER" \
         metaviralspades.py \
         --12 "/input/$(basename "$R1_UNMAPPED")" \
-        -o "/output/metaviralSPAdes/${sample}" \
+        -o "/output/${read_type}/metaviralSPAdes/${sample}" \
         -t "$THREADS"
 else
     apptainer exec \
@@ -325,7 +334,7 @@ else
         "$SPADES_CONTAINER" \
         metaviralspades.py \
         -s "/input/$(basename "$R1_UNMAPPED")" \
-        -o "/output/metaviralSPAdes/${sample}" \
+        -o "/output/${read_type}/metaviralSPAdes/${sample}" \
         -t "$THREADS"
 fi
 
@@ -334,13 +343,14 @@ if [[ $? -eq 0 ]]; then
 else
     echo "metaviralSPAdes assembly FAILED for ${sample}"
 fi
+
 ####================================####
 ####        MEGAhit Assembly        ####
 ####================================####
 
-echo "Starting MEGAhit assembly for sample ${sample}..."
+echo "Starting MEGAhit assembly for sample ${sample} (${read_type})..."
 
-rm -rf "${OUTPUT_DIR}/MEGAhit/${sample}" 2>/dev/null
+rm -rf "${READ_TYPE_DIR}/MEGAhit/${sample}" 2>/dev/null
 
 if [[ "$sample_type" == "paired_interleaved" ]]; then
     apptainer exec \
@@ -349,7 +359,7 @@ if [[ "$sample_type" == "paired_interleaved" ]]; then
         "$MEGAHIT_CONTAINER" \
         megahit \
         -r "/input/$(basename "$R1_UNMAPPED")" \
-        -o "/output/MEGAhit/${sample}" \
+        -o "/output/${read_type}/MEGAhit/${sample}" \
         -t "$THREADS" \
         --memory "${MEMORY}"
 else
@@ -359,7 +369,7 @@ else
         "$MEGAHIT_CONTAINER" \
         megahit \
         -r "/input/$(basename "$R1_UNMAPPED")" \
-        -o "/output/MEGAhit/${sample}" \
+        -o "/output/${read_type}/MEGAhit/${sample}" \
         -t "$THREADS" \
         --memory "${MEMORY}"
 fi
@@ -374,9 +384,15 @@ fi
 ####          COMPLETION            ####
 ####================================####
 
+echo ""
 echo "========================================="
-echo "  Completed processing: ${sample}"
+echo "  Bowtie Assembly completed for ${sample} (${read_type})"
+echo "  Output directories:"
+echo "    - rnaSPAdes: ${READ_TYPE_DIR}/rnaSPAdes/${sample}"
+echo "    - metaSPAdes: ${READ_TYPE_DIR}/metaSPAdes/${sample}"
+echo "    - metaviralSPAdes: ${READ_TYPE_DIR}/metaviralSPAdes/${sample}"
+echo "    - MEGAhit: ${READ_TYPE_DIR}/MEGAhit/${sample}"
 echo "  Date: $(date)"
 echo "========================================="
 
-tg_send "Completed: ${sample} from Bowtie ($((SAMPLE_INDEX+1))/${#all_samples[@]})" 2>/dev/null || true
+tg_send "Completed: ${sample} (${read_type}) from Bowtie ($((SAMPLE_INDEX+1))/${#all_samples[@]})" 2>/dev/null || true
