@@ -3,7 +3,7 @@
 # Author: Jorge Alberto Castro Rodríguez
 # Script to identify assembled contigs
 # 18/08/2026
-# Ver. 1.3.0 (farm-ready)
+# Ver. 1.3.1 (farm-ready with conda env fix)
 
 ####==================================####
 ####           CONFIGURATION          ####
@@ -37,7 +37,7 @@ OUTPUT_DIR="${PROJECT_SCRATCH}/results/identification"
 # Database paths
 VIRSORTER2_DB="/nfs/users/nfs_j/jr46/databases/virsorter2_db/db"
 CHECKV_DB="/nfs/users/nfs_j/jr46/databases/checkv_db/checkv-db-v1.5"
-DIAMOND_DB="/nfs/users/nfs_j/jr46/databases/diamond_db/db"
+DIAMOND_DB="/nfs/users/nfs_j/jr46/databases/diamond_db"
 GRAVITY_DB="/nfs/users/nfs_j/jr46/databases/gravity_db"
 
 # Container configuration
@@ -48,11 +48,13 @@ CHECKV_CONTAINER="${CONTAINERS}/checkv.sif"
 DIAMOND_CONTAINER="${CONTAINERS}/diamond.sif"
 GRAVITY_CONTAINER="${CONTAINERS}/gravityv2_v2.2.sif"
 
+# Conda environment path (created on the host)
+# Create with: conda create -n virsorter2 -c conda-forge -c bioconda virsorter snakemake mamba
+CONDA_ENV_VIRSORTER2="/software/treeoflife/conda/users/envs/team222/jr46/virsorter2"
+
 # Gravity configuration
-GRAVITY_OUTPUT_DIR="${SAMPLE_OUTPUT}/gravity"
 GRAVITY_EMAIL="jacr@iibiomedicas.unam.mx"  # Required for NCBI downloads
 GRAVITY_TAXO_GROUP="Genus"
-GRAVITY_THREADS="${THREADS}"
 
 # Scripts directory
 SCRIPTS_NFS="${HOME}/git_repos/${PROJECT_NAME}/scripts/individual_analyses"
@@ -65,7 +67,7 @@ source "${SCRIPTS_NFS}/bot_telegram.sh" 2>/dev/null || echo "Telegram bot not av
 ####==================================####
 
 module load ISG/apptainer/1.4.0 2>/dev/null || echo "Apptainer module not available"
-module loaf conda 2>/dev/null || echo "Conda module not available"
+module load conda 2>/dev/null || echo "Conda module not available"
 
 THREADS=12
 CORES=6
@@ -78,6 +80,7 @@ echo "========================================="
 echo "  Viral Identification Pipeline"
 echo "  Project: ${PROJECT_NAME}"
 echo "  Threads: ${THREADS}"
+echo "  Conda env: ${CONDA_ENV_VIRSORTER2}"
 echo "  Input directories (mapping_tool/assembler/sample):"
 echo "    - STAR: ${STAR_ASSEMBLY_DIR}"
 echo "    - Bowtie: ${BOWTIE_ASSEMBLY_DIR}"
@@ -229,12 +232,14 @@ tg_send "Processing: ${MAPPING_TOOL}/${ASSEMBLER}/${SAMPLE} [${LSB_JOBINDEX}/${T
 SAMPLE_OUTPUT="${OUTPUT_DIR}/${MAPPING_TOOL}/${ASSEMBLER}/${SAMPLE}"
 mkdir -p "${SAMPLE_OUTPUT}"
 
+# Create writable directories for VirSorter2
+VS2_CACHE="${SAMPLE_OUTPUT}/virsorter2_cache"
+VS2_TMP="${SAMPLE_OUTPUT}/virsorter2_tmp"
+CONDA_PKGS="${SAMPLE_OUTPUT}/conda_pkgs"
+mkdir -p "$VS2_CACHE" "$VS2_TMP" "$CONDA_PKGS"
+
 # Change to output directory
 cd "$SAMPLE_OUTPUT" || exit 1
-
-####==================================####
-####    FUNCTION: RUN VIRSORTER2     ####
-####==================================####
 
 run_virsorter2() {
     echo ""
@@ -274,9 +279,12 @@ run_virsorter2() {
         return 1
     fi
     
+    # Get the basename of the assembly file
+    local assembly_basename=$(basename "$ASSEMBLY_FILE")
+    
     # Create config file for VirSorter2
     cat > "${output_dir}/config.yaml" << EOF
-input: /input/$(basename "$ASSEMBLY_FILE")
+input: /input/${assembly_basename}
 output: /output/virsorter2
 db_dir: /virsorter2_db
 threads: ${CORES}
@@ -290,9 +298,6 @@ EOF
         --bind "${SAMPLE_OUTPUT}":/output \
         --bind "${VIRSORTER2_DB}":/virsorter2_db:ro \
         --bind "${CONDA_ENV_PATH}":/conda_env \
-        --bind "${vs2_cache}":/root/.cache/virsorter2 \
-        --bind "${vs2_tmp}":/tmp \
-        --bind "${conda_pkgs}":/opt/conda/pkgs \
         --env "TMPDIR=/tmp" \
         --env "CONDA_PKGS_DIRS=/opt/conda/pkgs" \
         "${VIRSORTER2_CONTAINER}" \
@@ -309,7 +314,7 @@ EOF
             
             # Run VirSorter2 using Snakemake
             virsorter run \
-                -i /input/$(basename \"$ASSEMBLY_FILE\") \
+                -i /input/${assembly_basename} \
                 -w /output/virsorter2 \
                 --db-dir /virsorter2_db \
                 --include-groups dsDNAphage,ssDNA,ssRNA,dsRNA \
@@ -319,16 +324,13 @@ EOF
                 all
         " 2>&1 | tee "${output_dir}/virsorter2.log"
 
-    if [[ $? -eq 0 ]]; then
+    if [[ $? -eq 0 ]] && [[ -f "${output_dir}/final-viral-combined.fa" ]]; then
         echo "VirSorter2 completed successfully"
-        if [[ -f "${output_dir}/final-viral-combined.fa" ]]; then
-            viral_count=$(grep -c '^>' "${output_dir}/final-viral-combined.fa")
-            echo "  Found ${viral_count} viral contigs"
-        fi
-
+        viral_count=$(grep -c '^>' "${output_dir}/final-viral-combined.fa" 2>/dev/null || echo "0")
+        echo "  Found ${viral_count} viral contigs"
         return 0
     else
-        echo "VirSorter2 failed"
+        echo "VirSorter2 failed or produced no output"
         return 1
     fi
 }
@@ -354,13 +356,20 @@ run_deepvirfinder() {
     
     # Ensure CORES is set
     if [[ -z "${CORES}" ]]; then
-        CORES=4  # Default to 4 cores if not set
+        CORES=4
         echo "  WARNING: CORES not set, defaulting to ${CORES}"
     fi
+    
+    # Create writable directory for DeepVirFinder cache
+    local dvf_cache="${SAMPLE_OUTPUT}/dvf_cache"
+    mkdir -p "$dvf_cache"
     
     apptainer exec \
         --bind "$(dirname "$ASSEMBLY_FILE")":/input:ro \
         --bind "${SAMPLE_OUTPUT}":/output \
+        --bind "${VS2_TMP}":/tmp \
+        --bind "${dvf_cache}":/root/.dvf \
+        --env "TMPDIR=/tmp" \
         "${DEEPVIRFINDER_CONTAINER}" \
         python /DeepVirFinder/dvf.py \
             -i "/input/$(basename "$ASSEMBLY_FILE")" \
@@ -405,7 +414,7 @@ run_checkv() {
     
     # Ensure THREADS is set
     if [[ -z "${THREADS}" ]]; then
-        THREADS=4  # Default to 4 threads if not set
+        THREADS=4
         echo "  WARNING: THREADS not set, defaulting to ${THREADS}"
     fi
     
@@ -418,12 +427,12 @@ run_checkv() {
     
     # Determine which viral contigs to use for CheckV
     local viral_input="${ASSEMBLY_FILE}"
-    if [[ -f "${SAMPLE_OUTPUT}/virsorter2/final-viral-combined.fa" ]]; then
+    if [[ -f "${SAMPLE_OUTPUT}/virsorter2/final-viral-combined.fa" ]] && [[ -s "${SAMPLE_OUTPUT}/virsorter2/final-viral-combined.fa" ]]; then
         viral_input="${SAMPLE_OUTPUT}/virsorter2/final-viral-combined.fa"
         echo "  Using VirSorter2 output for CheckV analysis"
-    elif [[ -f "${SAMPLE_OUTPUT}/deepvirfinder/viral_contigs.txt" ]]; then
+    elif [[ -f "${SAMPLE_OUTPUT}/deepvirfinder/viral_contigs.txt" ]] && [[ -s "${SAMPLE_OUTPUT}/deepvirfinder/viral_contigs.txt" ]]; then
         # Extract viral sequences from assembly based on DeepVirFinder results
-        python -c "
+        python3 -c "
 import sys
 with open('${SAMPLE_OUTPUT}/deepvirfinder/viral_contigs.txt') as f:
     contigs = set(line.split()[0] for line in f)
@@ -431,7 +440,7 @@ with open('${ASSEMBLY_FILE}') as f:
     write_seq = False
     for line in f:
         if line.startswith('>'):
-            contig_id = line.strip()[1:]
+            contig_id = line.strip()[1:].split()[0]
             write_seq = contig_id in contigs
         if write_seq:
             sys.stdout.write(line)
@@ -440,10 +449,16 @@ with open('${ASSEMBLY_FILE}') as f:
         echo "  Using DeepVirFinder output for CheckV analysis"
     fi
     
+    # Create CheckV temp directory
+    local checkv_temp="${output_dir}/tmp"
+    mkdir -p "$checkv_temp"
+    
     apptainer exec \
         --bind "$(dirname "$viral_input")":/input:ro \
         --bind "${SAMPLE_OUTPUT}":/output \
         --bind "${CHECKV_DB}":/checkv_db:ro \
+        --bind "${checkv_temp}":/tmp \
+        --env "TMPDIR=/tmp" \
         "${CHECKV_CONTAINER}" \
         checkv end_to_end \
             "/input/$(basename "$viral_input")" \
@@ -453,7 +468,7 @@ with open('${ASSEMBLY_FILE}') as f:
             2>&1 | tee "${output_dir}/checkv.log"
     
     if [[ $? -eq 0 ]]; then
-        echo " CheckV completed successfully"
+        echo "  CheckV completed successfully"
         return 0
     else
         echo "  CheckV failed"
@@ -483,7 +498,7 @@ run_diamond() {
         echo "  WARNING: DIAMOND database not found at ${DIAMOND_DB}/viral_nr.dmnd"
         echo "  Skipping DIAMOND analysis - database needs to be created"
         echo "  To create: diamond makedb --in viral_proteins.faa -d viral_nr"
-        return 0  # Return 0 to continue pipeline without failing
+        return 0
     fi
     
     echo "  Running DIAMOND..."
@@ -494,10 +509,16 @@ run_diamond() {
         echo "  WARNING: THREADS not set, defaulting to ${THREADS}"
     fi
     
+    # Create diamond temp directory
+    local diamond_temp="${output_dir}/tmp"
+    mkdir -p "$diamond_temp"
+    
     apptainer exec \
         --bind "$(dirname "$ASSEMBLY_FILE")":/input:ro \
         --bind "${SAMPLE_OUTPUT}":/output \
         --bind "${DIAMOND_DB}":/db:ro \
+        --bind "${diamond_temp}":/tmp \
+        --env "TMPDIR=/tmp" \
         "${DIAMOND_CONTAINER}" \
         diamond blastx \
             -q "/input/$(basename "$ASSEMBLY_FILE")" \
@@ -510,14 +531,13 @@ run_diamond() {
             2>&1 | tee "${output_dir}/diamond.log"
     
     if [[ $? -eq 0 ]]; then
-        echo " DIAMOND completed successfully"
+        echo "  DIAMOND completed successfully"
         return 0
     else
         echo "  DIAMOND failed"
         return 1
     fi
 }
-
 
 ####==================================####
 ####      FUNCTION: RUN GRAVITY       ####
@@ -552,7 +572,7 @@ with open('${ASSEMBLY_FILE}') as f:
     write_seq = False
     for line in f:
         if line.startswith('>'):
-            contig_id = line.strip()[1:].split()[0]  # Handle potential spaces in header
+            contig_id = line.strip()[1:].split()[0]
             write_seq = contig_id in contigs
         if write_seq:
             sys.stdout.write(line)
@@ -578,17 +598,6 @@ with open('${ASSEMBLY_FILE}') as f:
         return 0
     fi
     
-    # Create GRAViTy-V2 input files
-    echo "  Preparing GRAViTy-V2 input files..."
-    
-    # Check if database exists - if not, GRAViTy will download references automatically
-    if [[ ! -d "${GRAVITY_DB}" ]] || [[ ! -f "${GRAVITY_DB}/latest_vmr.csv" ]]; then
-        echo "  WARNING: GRAViTy-V2 database not found at ${GRAVITY_DB}"
-        echo "  GRAViTy-V2 will download reference sequences from NCBI as needed"
-        echo "  This may take time and requires internet access"
-        # GRAViTy can work without a pre-built database - it will build on the fly
-    fi
-    
     echo "  Running GRAViTy-V2..."
     
     # Ensure THREADS is set
@@ -597,80 +606,7 @@ with open('${ASSEMBLY_FILE}') as f:
         echo "  WARNING: THREADS not set, defaulting to ${THREADS}"
     fi
     
-    # Create a temporary VMR file for GRAViTy-V2
-    local vmr_file="${output_dir}/input_vmr.csv"
-    
-    # Create VMR-like document from viral contigs
-    cat > "$vmr_file" << EOF
-Accession,Species,Genus,Family,GenomeLength,Segment,Host
-${SAMPLE}_contig,Unclassified_${SAMPLE},Unclassified,Unclassified,0,1,Unclassified
-EOF
-    
-    # For each viral contig, add to VMR
-    local contig_num=0
-    grep '^>' "$viral_contigs" | while read -r header; do
-        contig_num=$((contig_num + 1))
-        local contig_id=$(echo "$header" | sed 's/^>//' | cut -d' ' -f1)
-        echo "${contig_id},Unclassified_${SAMPLE},Unclassified,Unclassified,0,1,Unclassified" >> "$vmr_file"
-    done
-    
-    # Create GenBank file from FASTA
-    local gb_file="${output_dir}/input_sequences.gb"
-    if [[ -f "${GRAVITY_CONTAINER}" ]]; then
-        # Use GRAViTy-V2's built-in converter if available
-        apptainer exec \
-            --bind "$(dirname "$viral_contigs")":/input:ro \
-            --bind "${SAMPLE_OUTPUT}":/output \
-            "${GRAVITY_CONTAINER}" \
-            gravity_utils convert_fasta_to_genbank \
-                -i "/input/$(basename "$viral_contigs")" \
-                -o "/output/gravity/input_sequences.gb" \
-                2>&1 | tee "${output_dir}/convert.log" || {
-                    echo "  WARNING: Built-in conversion failed, using simple conversion"
-                    # Fallback: simple conversion
-                    python3 -c "
-import sys
-from Bio import SeqIO
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-
-records = []
-for record in SeqIO.parse('${viral_contigs}', 'fasta'):
-    record.id = record.id.replace(' ', '_')
-    records.append(record)
-SeqIO.write(records, '${gb_file}', 'genbank')
-" 2>/dev/null || true
-                }
-    else
-        # Fallback: simple conversion using BioPython
-        python3 -c "
-from Bio import SeqIO
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-import sys
-
-try:
-    records = []
-    for record in SeqIO.parse('${viral_contigs}', 'fasta'):
-        record.id = record.id.replace(' ', '_')
-        records.append(record)
-    SeqIO.write(records, '${gb_file}', 'genbank')
-except Exception as e:
-    print(f'Error converting to GenBank: {e}', file=sys.stderr)
-    # Create minimal GenBank file
-    with open('${gb_file}', 'w') as f:
-        f.write('LOCUS       Unclassified          0 bp    DNA     linear   UNK\\n')
-        f.write('FEATURES             Location/Qualifiers\\n')
-        f.write('ORIGIN\\n')
-        f.write('//\\n')
-" 2>/dev/null || true
-    fi
-    
-    # Run GRAViTy-V2 with appropriate parameters
-    echo "  Starting GRAViTy-V2 classification..."
-    
     # Determine which workflow to use based on viral contigs
-    # For small datasets (< 50 contigs) use similar_viruses
     if [[ ${viral_count} -lt 50 ]]; then
         WORKFLOW="similar_viruses"
         echo "  Using 'similar_viruses' workflow (small dataset)"
@@ -679,11 +615,17 @@ except Exception as e:
         echo "  Using 'new_classification_full' workflow (large dataset)"
     fi
     
+    # Create gravity temp directory
+    local gravity_temp="${output_dir}/tmp"
+    mkdir -p "$gravity_temp"
+    
     # Run GRAViTy-V2
     apptainer exec \
         --bind "$(dirname "$viral_contigs")":/input:ro \
         --bind "${SAMPLE_OUTPUT}":/output \
         --bind "${GRAVITY_DB}":/gravity_db:ro \
+        --bind "${gravity_temp}":/tmp \
+        --env "TMPDIR=/tmp" \
         "${GRAVITY_CONTAINER}" \
         gravy_cli \
             --GenomeDescTableFile "/output/gravity/input_vmr.csv" \
@@ -693,7 +635,7 @@ except Exception as e:
             --genbank_email "${GRAVITY_EMAIL}" \
             --ProteinLength_Cutoff 70 \
             --UseBlast true \
-            --NThreads "${GRAVITY_THREADS}" \
+            --NThreads "${THREADS}" \
             --Bootstrap_method "sumtrees" \
             --N_Bootstrap 10 \
             --workflow "${WORKFLOW}" \
@@ -703,16 +645,11 @@ except Exception as e:
     
     if [[ ${exit_code} -eq 0 ]]; then
         echo "  GRAViTy-V2 completed successfully"
-        
-        # Check for output files
         if [[ -f "${output_dir}/classification_results.csv" ]]; then
             echo "  Classification results generated"
             local classified=$(tail -n +2 "${output_dir}/classification_results.csv" | wc -l)
             echo "  Classified ${classified} viral contigs"
         fi
-        
-        # Generate summary
-        generate_gravity_summary "$output_dir"
         return 0
     else
         echo "  GRAViTy-V2 failed with exit code ${exit_code}"
@@ -721,55 +658,8 @@ except Exception as e:
 }
 
 ####==================================####
-####    FUNCTION: GRAVITY SUMMARY    ####
+####      FUNCTION: CONSOLIDATE       ####
 ####==================================####
-
-generate_gravity_summary() {
-    local gravity_dir="$1"
-    local summary_file="${gravity_dir}/gravity_summary.txt"
-    
-    cat > "$summary_file" << EOF
-===== GRAViTy-V2 Summary =====
-Mapping Tool: ${MAPPING_TOOL}
-Assembler: ${ASSEMBLER}
-Sample: ${SAMPLE}
-Date: $(date)
-
---- Classification Results ---
-$(if [[ -f "${gravity_dir}/classification_results.csv" ]]; then
-    echo "Top taxonomic assignments:"
-    head -20 "${gravity_dir}/classification_results.csv" | column -t -s,
-else
-    echo "No classification results available"
-fi)
-
---- Viral Groups ---
-$(if [[ -f "${gravity_dir}/virus_groups.csv" ]]; then
-    echo "Virus groups identified:"
-    cat "${gravity_dir}/virus_groups.csv" | column -t -s,
-else
-    echo "No virus groups available"
-fi)
-
---- Heatmap ---
-$(if [[ -f "${gravity_dir}/heatmap.pdf" ]]; then
-    echo "Heatmap generated: ${gravity_dir}/heatmap.pdf"
-else
-    echo "No heatmap available"
-fi)
-
---- Dendrogram ---
-$(if [[ -f "${gravity_dir}/dendrogram.pdf" ]]; then
-    echo "Dendrogram generated: ${gravity_dir}/dendrogram.pdf"
-else
-    echo "No dendrogram available"
-fi)
-
-=====================================
-EOF
-    
-    echo "  Summary created: $summary_file"
-}
 
 consolidate_results() {
     echo ""
@@ -800,9 +690,6 @@ fi)
 $(if [[ -f "${SAMPLE_OUTPUT}/virsorter2/final-viral-combined.fa" ]]; then
     viral_count=$(grep -c '^>' "${SAMPLE_OUTPUT}/virsorter2/final-viral-combined.fa" 2>/dev/null || echo "0")
     echo "Viral contigs found: $viral_count"
-    echo "Categories:"
-    grep '^>' "${SAMPLE_OUTPUT}/virsorter2/final-viral-combined.fa" 2>/dev/null | \
-        cut -d'|' -f2 | sort | uniq -c | head -20
 else
     echo "VirSorter2 results not available"
 fi)
@@ -811,40 +698,16 @@ fi)
 $(if [[ -f "${SAMPLE_OUTPUT}/deepvirfinder/viral_contigs.txt" ]]; then
     viral_count=$(wc -l < "${SAMPLE_OUTPUT}/deepvirfinder/viral_contigs.txt" 2>/dev/null || echo "0")
     echo "Viral contigs found (p < 0.05): $viral_count"
-    echo "Top hits:"
-    head -10 "${SAMPLE_OUTPUT}/deepvirfinder/viral_contigs.txt" 2>/dev/null || echo "No hits"
 else
     echo "DeepVirFinder results not available"
 fi)
 
 --- CheckV Completeness ---
 $(if [[ -f "${SAMPLE_OUTPUT}/checkv/quality_summary.tsv" ]]; then
-    echo "Completeness summary:"
-    echo "Contig\tCompleteness\tContamination\tQuality"
-    awk -F'\t' 'NR>1 && NR<=10 {print $1 "\t" $2 "\t" $3 "\t" $8}' \
-        "${SAMPLE_OUTPUT}/checkv/quality_summary.tsv" 2>/dev/null || echo "No data"
+    echo "Completeness summary available"
+    head -5 "${SAMPLE_OUTPUT}/checkv/quality_summary.tsv"
 else
     echo "CheckV results not available"
-fi)
-
---- GRAViTy-V2 Taxonomy ---
-$(if [[ -f "${SAMPLE_OUTPUT}/gravity/gravity_summary.txt" ]]; then
-    cat "${SAMPLE_OUTPUT}/gravity/gravity_summary.txt"
-elif [[ -f "${SAMPLE_OUTPUT}/gravity/taxonomy_results.csv" ]]; then
-    echo "Top taxonomic assignments:"
-    head -20 "${SAMPLE_OUTPUT}/gravity/taxonomy_results.csv" | column -t -s,
-else
-    echo "GRAViTy-V2 results not available"
-fi)
-
---- DIAMOND Annotation ---
-$(if [[ -f "${SAMPLE_OUTPUT}/diamond/diamond_results.tsv" ]]; then
-    echo "Top viral hits:"
-    echo "Query\tHit\tE-value\tBitscore"
-    awk -F'\t' 'NR<=10 {print $1 "\t" $2 "\t" $11 "\t" $12}' \
-        "${SAMPLE_OUTPUT}/diamond/diamond_results.tsv" 2>/dev/null || echo "No data"
-else
-    echo "DIAMOND results not available"
 fi)
 
 =======================================
@@ -867,8 +730,8 @@ echo "========================================="
 run_virsorter2
 run_deepvirfinder
 run_checkv
-run_gravity
 run_diamond
+run_gravity
 
 # Consolidate results
 consolidate_results
@@ -886,3 +749,5 @@ echo "  Sample: ${SAMPLE}"
 echo "  Output: ${SAMPLE_OUTPUT}"
 echo "  Report: ${SAMPLE_OUTPUT}/consolidated_report.txt"
 echo "========================================="
+
+tg_send "Completed: ${MAPPING_TOOL}/${ASSEMBLER}/${SAMPLE} [${LSB_JOBINDEX}/${TOTAL_JOBS}]" 2>/dev/null || true
