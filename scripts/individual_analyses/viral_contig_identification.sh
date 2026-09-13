@@ -2,8 +2,8 @@
 
 # Author: Jorge Alberto Castro Rodríguez
 # Script to identify assembled contigs
-# 18/08/2026
-# Ver. 1.3.1 (farm-ready with conda env fix)
+# 10/09/2026
+# Ver. 1.3.1
 
 ####==================================####
 ####           CONFIGURATION          ####
@@ -556,7 +556,7 @@ run_gravity() {
         return 0
     fi
     
-    # Get viral contigs (prioritize VirSorter2, then DeepVirFinder)
+    # Get viral contigs
     local viral_contigs=""
     if [[ -f "${SAMPLE_OUTPUT}/virsorter2/final-viral-combined.fa" ]] && [[ -s "${SAMPLE_OUTPUT}/virsorter2/final-viral-combined.fa" ]]; then
         viral_contigs="${SAMPLE_OUTPUT}/virsorter2/final-viral-combined.fa"
