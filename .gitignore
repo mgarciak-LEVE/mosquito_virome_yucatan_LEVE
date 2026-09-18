@@ -32,3 +32,4 @@ __pycache__/
 
 # Telegram bot
 /scripts/individual_analyses/.env
+/scripts/databases/.env
