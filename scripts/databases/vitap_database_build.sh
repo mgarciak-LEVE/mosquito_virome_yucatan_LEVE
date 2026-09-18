@@ -18,7 +18,7 @@ DB_BASE="${PERMANENT_BASE}/databases"
 # Input directory -  where VMR csv is
 INPUT_DIR="${DB_BASE}/vitap_db"
 # VMR ICTV file
-VMR_FILE="${INPUT_DIR}/VMR_MSL41.v1.20260729.csv"
+VMR_FILE="${INPUT_DIR}/VMR_MSL41_vitap.csv"
 
 # Output directory
 OUTPUT_DIR="${DB_BASE}/vitap_db/db"

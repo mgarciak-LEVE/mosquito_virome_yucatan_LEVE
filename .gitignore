@@ -15,6 +15,7 @@
 *.fastq
 *.fasta.gz
 *.fastq.gz
+*.log
 
 # LSF output files
 *.out
