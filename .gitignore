@@ -10,6 +10,12 @@
 /docs/czid_sequence_reports_provisional/
 /containers/*.sif
 
+# Files that potentially may be too large
+*.fasta
+*.fastq
+*.fasta.gz
+*.fastq.gz
+
 # LSF output files
 *.out
 *.err
