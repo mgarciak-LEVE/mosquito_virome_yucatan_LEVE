@@ -2,8 +2,8 @@
 
 # Author: Jorge Alberto Castro Rodríguez
 # Script to identify assembled contigs
-# 24/09/2026
-# Ver. 1.4.0
+# 10/09/2026
+# Ver. 1.3.1
 
 ####==================================####
 ####           CONFIGURATION          ####
@@ -35,12 +35,12 @@ BOWTIE_ASSEMBLY_DIR="${INPUT_DIR_BASE}/bowtie_assembly"
 OUTPUT_DIR="${PROJECT_SCRATCH}/results/identification"
 
 # Database paths
-VIRSORTER2_DB="/nfs/users/nfs_j/jr46/databases/virsorter2_db/db"
-VITAP_DB="/nfs/users/nfs_j/jr46/databases/vitap_db/db/DB_hybrid_MSL37_RefSeq209_IMGVR"
+DB_BASE="/lustre/scratch126/tol/teams/lawniczak/users/jr46/databases"
+VIRSORTER2_DB="${DB_BASE}/virsorter2_db/db"
+VITAP_DB="${DB_BASE}/vitap_db/db/DB_hybrid_MSL37_RefSeq209_IMGVR"
 
 # Container configuration
 CONTAINERS="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers"
-VIRSORTER2_CONTAINER="${CONTAINERS}/virsorter2.sif"
 DEEPVIRFINDER_CONTAINER="${CONTAINERS}/deepvirfinder.sif"
 VITAP_CONTAINER="${CONTAINERS}/vitap_1.12--pyhdfd78af_0.sif"
 
@@ -72,7 +72,7 @@ echo "  Viral Identification Pipeline"
 echo "  Project: ${PROJECT_NAME}"
 echo "  Threads: ${THREADS}"
 echo "  Conda env: ${CONDA_ENV_VIRSORTER2}"
-echo "  Input directories (mapping_tool/assembler/read_type/sample):"
+echo "  Input directories (mapping_tool/assembler/sample):"
 echo "    - STAR: ${STAR_ASSEMBLY_DIR}"
 echo "    - Bowtie: ${BOWTIE_ASSEMBLY_DIR}"
 echo "  Output: ${OUTPUT_DIR}"
@@ -88,7 +88,6 @@ tg_send "Starting viral identification pipeline" 2>/dev/null || true
 # Create arrays to store sample-mapping-assembler combinations
 declare -a SAMPLE_ARRAY
 declare -a MAPPING_ARRAY
-declare -a READ_TYPE_ARRAY
 declare -a ASSEMBLER_ARRAY
 declare -a ASSEMBLY_FILE_ARRAY
 
@@ -97,20 +96,18 @@ echo "Building sample-assembler list..."
 # Function to add sample-assembler combination
 add_combination() {
     local mapping_tool=$1
-    local read_type=$2         
-    local assembler=$3
-    local sample=$4
-    local assembly_file=$5
-
+    local assembler=$2
+    local sample=$3
+    local assembly_file=$4
+    
     if [[ -f "$assembly_file" ]] && [[ -s "$assembly_file" ]]; then
         SAMPLE_ARRAY+=("$sample")
         MAPPING_ARRAY+=("$mapping_tool")
-        READ_TYPE_ARRAY+=("$read_type")
         ASSEMBLER_ARRAY+=("$assembler")
         ASSEMBLY_FILE_ARRAY+=("$assembly_file")
-        echo "  Added: $mapping_tool/$read_type/$assembler/$sample - $(basename "$assembly_file")"
+        echo "  Added: $mapping_tool/$assembler/$sample - $(basename "$assembly_file")"
     else
-        echo "  WARNING: Assembly file not found or empty for $mapping_tool/$read_type/$assembler/$sample: $assembly_file"
+        echo "  WARNING: Assembly file not found or empty for $mapping_tool/$assembler/$sample: $assembly_file"
     fi
 }
 
@@ -118,52 +115,50 @@ add_combination() {
 process_mapping_tool() {
     local mapping_tool=$1
     local base_dir=$2
-
+    
     if [[ ! -d "$base_dir" ]]; then
         echo "  WARNING: Directory not found: $base_dir"
         return
     fi
-
+    
     echo "  Processing mapping tool: $mapping_tool"
-
-    # Iterate read_type first
-    for read_type_dir in "$base_dir"/*/; do
-        [[ -d "$read_type_dir" ]] || continue
-        read_type=$(basename "$read_type_dir")
-        echo "    Processing read type: $read_type"
-
-        for assembler_dir in "$read_type_dir"/*/; do
-            [[ -d "$assembler_dir" ]] || continue
+    
+    # For each assembler under this mapping tool
+    for assembler_dir in "$base_dir"/*/; do
+        if [[ -d "$assembler_dir" ]]; then
             assembler=$(basename "$assembler_dir")
-            echo "      Processing assembler: $assembler"
-
+            echo "    Processing assembler: $assembler"
+            
+            # For each sample under this assembler
             for sample_dir in "$assembler_dir"/*/; do
-                [[ -d "$sample_dir" ]] || continue
-                sample=$(basename "$sample_dir")
-
-                case $assembler in
-                    "MEGAhit")
-                        assembly_file="${sample_dir}/final.contigs.fa"
-                        ;;
-                    "metaSPAdes"|"metaviralSPAdes")
-                        assembly_file="${sample_dir}/contigs.fasta"
-                        ;;
-                    "rnaSPAdes")
-                        if [[ -f "${sample_dir}/hard_filtered_transcripts.fasta" ]]; then
-                            assembly_file="${sample_dir}/hard_filtered_transcripts.fasta"
-                        else
-                            assembly_file="${sample_dir}/transcripts.fasta"
-                        fi
-                        ;;
-                    *)
-                        echo "        WARNING: Unknown assembler: $assembler"
-                        continue
-                        ;;
-                esac
-
-                add_combination "$mapping_tool" "$read_type" "$assembler" "$sample" "$assembly_file"
+                if [[ -d "$sample_dir" ]]; then
+                    sample=$(basename "$sample_dir")
+                    
+                    # Determine which assembly file to use based on assembler
+                    case $assembler in
+                        "MEGAhit")
+                            assembly_file="${sample_dir}/final.contigs.fa"
+                            ;;
+                        "metaSPAdes"|"metaviralSPAdes")
+                            assembly_file="${sample_dir}/contigs.fasta"
+                            ;;
+                        "rnaSPAdes")
+                            if [[ -f "${sample_dir}/hard_filtered_transcripts.fasta" ]]; then
+                                assembly_file="${sample_dir}/hard_filtered_transcripts.fasta"
+                            else
+                                assembly_file="${sample_dir}/transcripts.fasta"
+                            fi
+                            ;;
+                        *)
+                            echo "      WARNING: Unknown assembler: $assembler"
+                            continue
+                            ;;
+                    esac
+                    
+                    add_combination "$mapping_tool" "$assembler" "$sample" "$assembly_file"
+                fi
             done
-        done
+        fi
     done
 }
 
@@ -206,7 +201,6 @@ fi
 # Get sample, mapping tool, and assembler for this job
 SAMPLE="${SAMPLE_ARRAY[$JOB_INDEX]}"
 MAPPING_TOOL="${MAPPING_ARRAY[$JOB_INDEX]}"
-READ_TYPE="${READ_TYPE_ARRAY[$JOB_INDEX]}"       
 ASSEMBLER="${ASSEMBLER_ARRAY[$JOB_INDEX]}"
 ASSEMBLY_FILE="${ASSEMBLY_FILE_ARRAY[$JOB_INDEX]}"
 
@@ -226,21 +220,15 @@ tg_send "Processing: ${MAPPING_TOOL}/${ASSEMBLER}/${SAMPLE} [${LSB_JOBINDEX}/${T
 ####==================================####
 
 # Output structure: mapping_tool/assembler/sample
-SAMPLE_OUTPUT="${OUTPUT_DIR}/${MAPPING_TOOL}/${READ_TYPE}/${ASSEMBLER}/${SAMPLE}"
+SAMPLE_OUTPUT="${OUTPUT_DIR}/${MAPPING_TOOL}/${ASSEMBLER}/${SAMPLE}"
 mkdir -p "${SAMPLE_OUTPUT}"
-
-# Create writable directories for VirSorter2
-VS2_CACHE="${SAMPLE_OUTPUT}/virsorter2_cache"
-VS2_TMP="${SAMPLE_OUTPUT}/virsorter2_tmp"
-CONDA_PKGS="${SAMPLE_OUTPUT}/conda_pkgs"
-mkdir -p "$VS2_CACHE" "$VS2_TMP" "$CONDA_PKGS"
 
 # Change to output directory
 cd "$SAMPLE_OUTPUT" || exit 1
 
 run_virsorter2() {
     echo ""
-    echo "--- Running VirSorter2 ---"
+    echo "--- Running VirSorter2 (native conda) ---"
     
     local output_dir="${SAMPLE_OUTPUT}/virsorter2"
     mkdir -p "$output_dir"
@@ -255,83 +243,56 @@ run_virsorter2() {
     
     # Ensure CORES is set
     if [[ -z "${CORES}" ]]; then
-        CORES=4  # Default to 4 cores if not set
-        echo "  WARNING: CORES not set, defaulting to ${CORES}"
+        CORES=4
     fi
 
     # Check if database exists
     if [[ ! -d "${VIRSORTER2_DB}" ]] || [[ ! -f "${VIRSORTER2_DB}/hmm/viral/combined.hmm" ]]; then
         echo "  WARNING: VirSorter2 database not found or incomplete at ${VIRSORTER2_DB}"
-        echo "  Expected to find: ${VIRSORTER2_DB}/hmm/viral/combined.hmm"
         echo "  Skipping VirSorter2 analysis"
         return 0
     fi
 
-    # Verify the conda environment exists
-    if [[ ! -d "${CONDA_ENV_VIRSORTER2}" ]]; then
-        echo "  ERROR: Conda environment not found at ${CONDA_ENV_VIRSORTER2}"
-        echo "  Please create it with: conda create -n virsorter2_env -c conda-forge -c bioconda virsorter snakemake mamba"
+    # Activate conda environment
+    source /software/treeoflife/conda/miniconda/etc/profile.d/conda.sh
+    conda activate "${CONDA_ENV_VIRSORTER2}"
+    
+    # Verify virsorter is available
+    if ! command -v virsorter &> /dev/null; then
+        echo "  ERROR: virsorter command not found in conda environment"
+        conda deactivate
         return 1
     fi
     
-    # Get the basename of the assembly file
-    local assembly_basename=$(basename "$ASSEMBLY_FILE")
-    
-    # Create config file for VirSorter2
-    cat > "${output_dir}/config.yaml" << EOF
-input: /input/${assembly_basename}
-output: /output/virsorter2
-db_dir: /virsorter2_db
-threads: ${CORES}
-EOF
-    
-    echo "  Using conda environment: ${CONDA_ENV_VIRSORTER2}"
-    
-    # Run VirSorter2 using the conda environment
-    apptainer exec \
-        --bind "$(dirname "$ASSEMBLY_FILE")":/input:ro \
-        --bind "${SAMPLE_OUTPUT}":/output \
-        --bind "${VIRSORTER2_DB}":/virsorter2_db:ro \
-        --bind "${CONDA_ENV_VIRSORTER2}":/conda_env \
-        --env "TMPDIR=/tmp" \
-        "${VIRSORTER2_CONTAINER}" \
-        /bin/bash -c "
-            # Initialize conda inside the container
-            source /opt/conda/etc/profile.d/conda.sh
-            
-            # Activate the mounted conda environment
-            conda activate /conda_env
-            
-            # Verify VirSorter2 is  available
-            echo '  VirSorter2 version:'
-            virsorter --version
-            
-            # Run VirSorter2 using Snakemake
-            virsorter run \
-                -i /input/${assembly_basename} \
-                -w /output/virsorter2 \
-                --db-dir /virsorter2_db \
-                --include-groups dsDNAphage,ssDNA,ssRNA,dsRNA \
-                --min-length 350 \
-                --min-score 0.5 \
-                -j ${CORES} \
-                all
-        " 2>&1 | tee "${output_dir}/virsorter2.log"
+    # Run VirSorter2 natively
+    virsorter run \
+        -i "${ASSEMBLY_FILE}" \
+        -w "${output_dir}" \
+        --db-dir "${VIRSORTER2_DB}" \
+        --include-groups dsDNAphage,ssDNA,ssRNA,dsRNA \
+        --min-length 250 \
+        --min-score 0.5 \
+        -j "${CORES}" \
+        all \
+        2>&1 | tee "${output_dir}/virsorter2.log"
 
     local vs2_exit=${PIPESTATUS[0]}
+    
+    # Deactivate conda environment
+    conda deactivate
 
     if [[ ${vs2_exit} -ne 0 ]]; then
-        echo " VirSorter2 failed (exit ${vs2_exit})"
+        echo "  VirSorter2 failed (exit ${vs2_exit})"
         return 1
     fi
 
     if [[ -f "${output_dir}/final-viral-combined.fa" ]]; then
-        echo "VirSorter2 completed successfully"
+        echo "  VirSorter2 completed successfully"
         viral_count=$(grep -c '^>' "${output_dir}/final-viral-combined.fa" 2>/dev/null || echo "0")
         echo "  Found ${viral_count} viral contigs"
         return 0
     else
-        echo "VirSorter2 failed or produced no output"
+        echo "  VirSorter2 failed or produced no output"
         return 1
     fi
 }
@@ -349,7 +310,7 @@ run_deepvirfinder() {
     
     # Check if already completed
     if [[ -f "${output_dir}/${SAMPLE}_prediction.txt" ]] && [[ -s "${output_dir}/${SAMPLE}_prediction.txt" ]]; then
-        echo "  DeepVirFinder already completed for ${MAPPING_TOOL}/${READ_TYPE}/${ASSEMBLER}/${SAMPLE}"
+        echo "  DeepVirFinder already completed for ${MAPPING_TOOL}/${ASSEMBLER}/${SAMPLE}"
         return 0
     fi
     
@@ -412,7 +373,7 @@ run_vitap() {
 
     if [[ -f "${output_dir}/best_determined_lineages.tsv" ]] && \
     [[ -s "${output_dir}/best_determined_lineages.tsv" ]]; then
-    echo "  VITAP already completed for ${MAPPING_TOOL}/${READ_TYPE}/${ASSEMBLER}/${SAMPLE}"
+    echo "  VITAP already completed for ${MAPPING_TOOL}/${ASSEMBLER}/${SAMPLE}"
     return 0
     fi
 
@@ -457,7 +418,6 @@ run_vitap() {
             -i "/input/$(basename "${input_contigs}")" \
             -o "/output" \
             -d "/vitap_db" \
-            -t "${THREADS}" \
         2>&1 | tee "${output_dir}/vitap.log"
 
     local vitap_exit=${PIPESTATUS[0]}
@@ -493,7 +453,6 @@ consolidate_results() {
 ===== VIRAL IDENTIFICATION REPORT =====
 Mapping Tool: ${MAPPING_TOOL}
 Assembler: ${ASSEMBLER}
-Read Type: ${READ_TYPE}
 Sample: ${SAMPLE}
 Assembly file: $(basename "$ASSEMBLY_FILE")
 Date: $(date)
@@ -549,7 +508,7 @@ EOF
 echo ""
 echo "========================================="
 echo "  Starting viral identification tools"
-echo "  ${MAPPING_TOOL}/${READ_TYPE}/${ASSEMBLER}/${SAMPLE}"
+echo "  ${MAPPING_TOOL}/${ASSEMBLER}/${SAMPLE}"
 echo "========================================="
 
 # Run each tool
@@ -574,4 +533,4 @@ echo "  Output: ${SAMPLE_OUTPUT}"
 echo "  Report: ${SAMPLE_OUTPUT}/consolidated_report.txt"
 echo "========================================="
 
-tg_send "Completed: ${MAPPING_TOOL}/${READ_TYPE}/${ASSEMBLER}/${SAMPLE} [${LSB_JOBINDEX}/${TOTAL_JOBS}]" 2>/dev/null || true
+tg_send "Completed: ${MAPPING_TOOL}/${ASSEMBLER}/${SAMPLE} [${LSB_JOBINDEX}/${TOTAL_JOBS}]" 2>/dev/null || true

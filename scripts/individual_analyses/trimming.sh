@@ -199,7 +199,7 @@ R2_UNPAIRED="${trimmed_dir}/${sample_name}_R2_unpaired.fastq"
 echo "Running Trimmomatic..."
 tg_send "Running Trimmomatic for ${sample_name}" 2>/dev/null || true
 
-# FIX 1: Bind mount TEMP_DIR (not INPUT_DIR)
+# Bind mount TEMP_DIR (not INPUT_DIR)
 if apptainer exec \
     --bind "${TEMP_DIR}:/input:ro" \
     --bind "${trimmed_dir}:/output" \
@@ -214,8 +214,8 @@ if apptainer exec \
     "/output/${sample_name}_R2_paired.fastq" \
     "/output/${sample_name}_R2_unpaired.fastq" \
     ILLUMINACLIP:/usr/local/share/trimmomatic-0.39-2/adapters/TruSeq3-PE.fa:2:30:8:2:keepBothReads \
-    LEADING:20 \
-    TRAILING:20 \
+    TRAILING:3 \
+    LEADING:3 \
     SLIDINGWINDOW:4:15 \
     MINLEN:36 2>&1; then
     

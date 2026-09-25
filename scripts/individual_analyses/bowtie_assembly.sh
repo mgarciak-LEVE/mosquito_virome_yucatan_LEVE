@@ -360,6 +360,7 @@ if [[ "$sample_type" == "paired_interleaved" ]]; then
         megahit \
         -r "/input/$(basename "$R1_UNMAPPED")" \
         -o "/output/${read_type}/MEGAhit/${sample}" \
+        --min-contig-len 100 \
         -t "$THREADS" \
         --memory "${MEMORY}"
 else
@@ -370,6 +371,7 @@ else
         megahit \
         -r "/input/$(basename "$R1_UNMAPPED")" \
         -o "/output/${read_type}/MEGAhit/${sample}" \
+        --min-contig-len 100 \
         -t "$THREADS" \
         --memory "${MEMORY}"
 fi

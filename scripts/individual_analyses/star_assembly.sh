@@ -2,8 +2,8 @@
 
 # Author: Jorge Alberto Castro Rodríguez
 # Script to assemble unmapped reads from STAR
-# 07/08/2026
-# Ver. 1.0.0 (STAR-only)
+# 24/09/2026
+# Ver. 1.1.0 (STAR-only)
 
 ####==================================####
 ####           CONFIGURATION          ####
@@ -176,17 +176,15 @@ case "$sample_type" in
         IS_PAIRED=true
         ;;
     "unpaired_R1")
-        # Remove _R1_unpaired suffix to get original sample name
         orig_sample="${sample%_R1_unpaired}"
-        R1_UNMAPPED_ORIG="${STAR_INPUT_DIR}/${orig_sample}_R1_unpaired_Unmapped.out.mate1"
-        R1_UNMAPPED="${FASTQ_DIR}/${sample}/${sample}.fastq"
+        SINGLE_UNMAPPED_ORIG="${STAR_INPUT_DIR}/${orig_sample}_R1_unpaired_Unmapped.out.mate1"
+        SINGLE_UNMAPPED="${FASTQ_DIR}/${sample}/${sample}.fastq"
         IS_PAIRED=false
         ;;
     "unpaired_R2")
-        # Remove _R2_unpaired suffix to get original sample name
         orig_sample="${sample%_R2_unpaired}"
-        R2_UNMAPPED_ORIG="${STAR_INPUT_DIR}/${orig_sample}_R2_unpaired_Unmapped.out.mate1"
-        R2_UNMAPPED="${FASTQ_DIR}/${sample}/${sample}.fastq"
+        SINGLE_UNMAPPED_ORIG="${STAR_INPUT_DIR}/${orig_sample}_R2_unpaired_Unmapped.out.mate1"
+        SINGLE_UNMAPPED="${FASTQ_DIR}/${sample}/${sample}.fastq"
         IS_PAIRED=false
         ;;
 esac
@@ -210,18 +208,15 @@ if [[ "$IS_PAIRED" == true ]]; then
     echo "  R1: $(basename "$R1_UNMAPPED") ($R1_READS reads)"
     echo "  R2: $(basename "$R2_UNMAPPED") ($R2_READS reads)"
 else
-    if [[ ! -s "$R1_UNMAPPED_ORIG" ]]; then
+    if [[ ! -s "$SINGLE_UNMAPPED_ORIG" ]]; then
         echo "WARNING: Unmapped file for ${sample} is empty or missing"
-        echo "  Skipping assembly for ${sample}"
         exit 0
     fi
-    echo "  Copying STAR single-end unmapped reads to FASTQ directory..."
-    cp -p "$R1_UNMAPPED_ORIG" "$R1_UNMAPPED"
-    gzip -f "$R1_UNMAPPED_ORIG"
+    cp -p "$SINGLE_UNMAPPED_ORIG" "$SINGLE_UNMAPPED"
+    gzip -f "$SINGLE_UNMAPPED_ORIG"
     
-    READS=$(($(wc -l < "$R1_UNMAPPED") / 4))
-    echo "  Using STAR unmapped reads (copied to FASTQ directory):"
-    echo "  $(basename "$R1_UNMAPPED") ($READS reads)"
+    READS=$(($(wc -l < "$SINGLE_UNMAPPED") / 4))
+    echo "  $(basename "$SINGLE_UNMAPPED") ($READS reads)"
 fi
 
 INPUT_DIR_FOR_BIND="${FASTQ_DIR}/${sample}"
@@ -232,7 +227,7 @@ INPUT_DIR_FOR_BIND="${FASTQ_DIR}/${sample}"
 
 # Parameters
 THREADS=32
-MEMORY=128
+MEMORY=108
 
 # Create base output directory with type subdirectory
 mkdir -p "${OUTPUT_DIR}/${sample_type}"
@@ -258,9 +253,9 @@ if [[ "$IS_PAIRED" == true ]]; then
     ASSEMBLY_ARGS="-1 /input/${R1_BASENAME} -2 /input/${R2_BASENAME}"
     echo "  Paired-end assembly: ${R1_BASENAME} + ${R2_BASENAME}"
 else
-    R1_BASENAME=$(basename "$R1_UNMAPPED")
-    ASSEMBLY_ARGS="-s /input/${R1_BASENAME}"
-    echo "  Single-end assembly: ${R1_BASENAME}"
+    SINGLE_BASENAME=$(basename "$SINGLE_UNMAPPED")
+    ASSEMBLY_ARGS="-s /input/${SINGLE_BASENAME}"
+    echo "  Single-end assembly: ${SINGLE_BASENAME}"
 fi
 
 ####================================####
@@ -276,7 +271,8 @@ apptainer exec \
     rnaspades.py \
     ${ASSEMBLY_ARGS} \
     -o "/output/${sample_type}/rnaSPAdes/${sample}" \
-    -t "$THREADS"
+    -t "${THREADS}" \
+    -m "${MEMORY}"
 
 if [[ $? -eq 0 ]]; then
     echo "rnaSPAdes assembly completed for ${sample}"
@@ -297,7 +293,8 @@ apptainer exec \
     metaspades.py \
     ${ASSEMBLY_ARGS} \
     -o "/output/${sample_type}/metaSPAdes/${sample}" \
-    -t "$THREADS"
+    -t "${THREADS}" \
+    -m "${MEMORY}"
 
 if [[ $? -eq 0 ]]; then
     echo "metaSPAdes assembly completed for ${sample}"
@@ -318,7 +315,8 @@ apptainer exec \
     metaviralspades.py \
     ${ASSEMBLY_ARGS} \
     -o "/output/${sample_type}/metaviralSPAdes/${sample}" \
-    -t "$THREADS"
+    -t "${THREADS}" \
+    -m "${MEMORY}"
 
 if [[ $? -eq 0 ]]; then
     echo "metaviralSPAdes assembly completed for ${sample}"
@@ -342,7 +340,8 @@ apptainer exec \
     ${ASSEMBLY_ARGS} \
     -o "/output/${sample_type}/MEGAhit/${sample}" \
     -t "$THREADS" \
-    -m "${MEMORY}"
+    --min-contig-len 100 \
+    -m 0.9
 
 if [[ $? -eq 0 ]]; then
     echo "MEGAhit assembly completed for ${sample}"

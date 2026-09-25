@@ -28,8 +28,8 @@ bsub -o "${DATE_DIR}/star_assembly_%J_%I.out" \
      -e "${DATE_DIR}/star_assembly_%J_%I.err" \
      -q long \
      -n 32 \
-     -M 128000 \
-     -R "select[mem>128000] rusage[mem=128000] span[hosts=1]" \
+     -M 108000 \
+     -R "select[mem>108000] rusage[mem=108000] span[hosts=1]" \
      -G team222 \
      -J "star_assembly[1-${total_samples}]%4" \
      "${HOME}/git_repos/mosquito_virome_yucatan_LEVE/scripts/individual_analyses/star_assembly.sh" \

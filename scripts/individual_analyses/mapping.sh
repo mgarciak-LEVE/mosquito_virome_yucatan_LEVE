@@ -3,7 +3,7 @@
 # Author: Jorge Alberto Castro Rodríguez
 # Script to map trimmed sequences to mosquito genome superreference
 # 28/07/2026
-# Ver. 1.0.3 (farm-ready with compression support)
+# Ver. 1.0.3
 
 ####==================================####
 ####           CONFIGURATION          ####
@@ -187,7 +187,7 @@ R2_UNPAIRED="${INPUT_DIR}/${sample}/${sample}_R2_unpaired.fastq"
 
 # Parameters
 THREADS=8
-RAM=64000000000  # 32GB
+RAM=70000000000  # 70GB
 
 echo "Aligning sample with STAR: ${sample}"
 tg_send "Aligning ${sample} with STAR" 2>/dev/null || true

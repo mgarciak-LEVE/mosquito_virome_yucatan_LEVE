@@ -1,5 +1,5 @@
 #!/bin/bash
-# ~/git_repos/mosquito_virome_yucatan_LEVE/scripts/individual_analyses/viral_identification_submit.sh
+# ~/git_repos/mosquito_virome_yucatan_LEVE/scripts/individual_analyses/viral_contig_identification_submit.sh
 
 DATE=$(date +%d_%m_%Y)
 DATE_DIR="${HOME}/lsf_logs/${DATE}"
@@ -109,15 +109,15 @@ if [[ $file_count -eq 0 ]]; then
 fi
 
 # Submit array job
-bsub -o "${DATE_DIR}/viral_identification_%J_%I.out" \
-     -e "${DATE_DIR}/viral_identification_%J_%I.err" \
+bsub -o "${DATE_DIR}/viral_contig_identification_%J_%I.out" \
+     -e "${DATE_DIR}/viral_contig_identification_%J_%I.err" \
      -q normal \
      -n 12 \
      -M 32768 \
      -R "select[mem>=32768] rusage[mem=32768] span[hosts=1]" \
      -G team222 \
      -J "viral_identification[1-${file_count}]%10" \
-     "${HOME}/git_repos/mosquito_virome_yucatan_LEVE/scripts/individual_analyses/viral_identification.sh"
+     "${HOME}/git_repos/mosquito_virome_yucatan_LEVE/scripts/individual_analyses/viral_contig_identification.sh"
 
 if [[ $? -eq 0 ]]; then
     echo ""

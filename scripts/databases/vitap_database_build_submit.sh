@@ -11,7 +11,7 @@ mkdir -p "${DATE_DIR}"
 # Submit the job
 bsub -o "${DATE_DIR}/vitap_database_build_%J.out" \
      -e "${DATE_DIR}/vitap_database_build_%J.err" \
-     -q week \
+     -q long \
      -n 32 \
      -M 64000 \
      -R "select[mem>64000] rusage[mem=64000] span[hosts=1]" \

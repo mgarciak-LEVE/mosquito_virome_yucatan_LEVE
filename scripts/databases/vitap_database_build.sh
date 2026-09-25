@@ -9,8 +9,8 @@
 ####           CONFIGURATION          ####
 ####==================================####
 
-# --- STORAGE LOCATIONS ---
-PERMANENT_BASE="/nfs/users/nfs_j/jr46"
+# --- WAREHOUSE STORAGE LOCATIONS ---
+PERMANENT_BASE="/lustre/scratch126/tol/teams/lawniczak/users/jr46"
 
 # --- DATABASE DIRECTORIES ---
 DB_BASE="${PERMANENT_BASE}/databases"
@@ -18,7 +18,7 @@ DB_BASE="${PERMANENT_BASE}/databases"
 # Input directory -  where VMR csv is
 INPUT_DIR="${DB_BASE}/vitap_db"
 # VMR ICTV file
-VMR_FILE="${INPUT_DIR}/VMR_MSL41_vitap.csv"
+VMR_FILE="${INPUT_DIR}/VMR_MSL41_vitap_clean.csv"
 
 # Output directory
 OUTPUT_DIR="${DB_BASE}/vitap_db/db"
