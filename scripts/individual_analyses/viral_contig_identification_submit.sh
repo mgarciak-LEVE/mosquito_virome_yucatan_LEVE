@@ -15,74 +15,68 @@ file_count=0
 count_assemblies() {
     local mapping_tool=$1
     local base_dir="${ASSEMBLY_DIR}/${mapping_tool}"
-    
+
     echo "  Checking: ${mapping_tool}"
-    
+
     if [[ ! -d "$base_dir" ]]; then
         echo "    WARNING: Directory not found: ${base_dir}"
         return
     fi
-    
-    # For each assembler directory (MEGAhit, metaSPAdes, metaviralSPAdes, rnaSPAdes)
-    for assembler_dir in "$base_dir"/*/; do
-        if [[ -d "$assembler_dir" ]]; then
+
+    # Level 1: sample_type (paired, unpaired_R1, unpaired_R2)
+    for sample_type_dir in "$base_dir"/*/; do
+        [[ -d "$sample_type_dir" ]] || continue
+        local sample_type
+        sample_type=$(basename "$sample_type_dir")
+        echo "    Sample type: ${sample_type}"
+
+        # Level 2: assembler (MEGAhit, metaSPAdes, metaviralSPAdes, rnaSPAdes)
+        for assembler_dir in "$sample_type_dir"*/; do
+            [[ -d "$assembler_dir" ]] || continue
+            local assembler
             assembler=$(basename "$assembler_dir")
-            echo "    Assembler: ${assembler}"
+            echo "      Assembler: ${assembler}"
 
-            # For each sample directory
-            for sample_dir in "$assembler_dir"/*/; do
-                if [[ -d "$sample_dir" ]]; then  # FIXED: removed % character
-                    sample=$(basename "$sample_dir")
-                    
-                    # Skip k-mer directories (K21, K33, K55, etc.)
-                    if [[ "$sample" =~ ^K[0-9]+$ ]]; then
+            # Level 3: sample
+            for sample_dir in "$assembler_dir"*/; do
+                [[ -d "$sample_dir" ]] || continue
+                local sample
+                sample=$(basename "$sample_dir")
+
+                # Skip k-mer dirs (K21, K33, ...) just in case
+                if [[ "$sample" =~ ^K[0-9]+$ ]]; then
+                    continue
+                fi
+
+                local fasta=""
+                case $assembler in
+                    "MEGAhit")
+                        fasta="${sample_dir}final.contigs.fa"
+                        ;;
+                    "metaSPAdes"|"metaviralSPAdes")
+                        fasta="${sample_dir}contigs.fasta"
+                        ;;
+                    "rnaSPAdes")
+                        if [[ -s "${sample_dir}hard_filtered_transcripts.fasta" ]]; then
+                            fasta="${sample_dir}hard_filtered_transcripts.fasta"
+                        elif [[ -s "${sample_dir}transcripts.fasta" ]]; then
+                            fasta="${sample_dir}transcripts.fasta"
+                        fi
+                        ;;
+                    *)
+                        echo "        WARNING: Unknown assembler: ${assembler}"
                         continue
-                    fi
+                        ;;
+                esac
 
-                    # Check based on assembler type
-                    case $assembler in
-                        "MEGAhit")
-                            if [[ -f "${sample_dir}/final.contigs.fa" && -s "${sample_dir}/final.contigs.fa" ]]; then
-                                file_count=$((file_count + 1))
-                                echo "      Found: ${mapping_tool}/${assembler}/${sample}"
-                            else
-                                echo "      WARNING: No valid final.contigs.fa in ${sample_dir}"
-                            fi
-                            ;;
-                        "metaSPAdes")
-                            if [[ -f "${sample_dir}/contigs.fasta" && -s "${sample_dir}/contigs.fasta" ]]; then
-                                file_count=$((file_count + 1))
-                                echo "      Found: ${mapping_tool}/${assembler}/${sample}"
-                            else
-                                echo "      WARNING: No valid contigs.fasta in ${sample_dir}"
-                            fi
-                            ;;
-                        "metaviralSPAdes")
-                            if [[ -f "${sample_dir}/contigs.fasta" && -s "${sample_dir}/contigs.fasta" ]]; then
-                                file_count=$((file_count + 1))
-                                echo "      Found: ${mapping_tool}/${assembler}/${sample}"
-                            else
-                                echo "      WARNING: No valid contigs.fasta in ${sample_dir}"
-                            fi
-                            ;;
-                        "rnaSPAdes")
-                            if [[ -f "${sample_dir}/hard_filtered_transcripts.fasta" && -s "${sample_dir}/hard_filtered_transcripts.fasta" ]]; then
-                                file_count=$((file_count + 1))
-                                echo "      Found: ${mapping_tool}/${assembler}/${sample} (hard_filtered)"
-                            elif [[ -f "${sample_dir}/transcripts.fasta" && -s "${sample_dir}/transcripts.fasta" ]]; then
-                                file_count=$((file_count + 1))
-                                echo "      Found: ${mapping_tool}/${assembler}/${sample} (transcripts)"
-                            else
-                                echo "      WARNING: No valid transcripts in ${sample_dir}"
-                            fi
-                            ;;
-                        *)
-                            echo "      WARNING: Unknown assembler: ${assembler}"
-                            ;;
-                    esac
+                if [[ -n "$fasta" && -s "$fasta" ]]; then
+                    file_count=$((file_count + 1))
+                    echo "        Found: ${mapping_tool}/${sample_type}/${assembler}/${sample}"
+                else
+                    echo "        WARNING: No valid assembly in ${sample_dir}"
                 fi
             done
-        fi
+        done
     done
 }
 
@@ -111,10 +105,10 @@ fi
 # Submit array job
 bsub -o "${DATE_DIR}/viral_contig_identification_%J_%I.out" \
      -e "${DATE_DIR}/viral_contig_identification_%J_%I.err" \
-     -q normal \
+     -q long \
      -n 12 \
-     -M 32768 \
-     -R "select[mem>=32768] rusage[mem=32768] span[hosts=1]" \
+     -M 48000 \
+     -R "select[mem>=48000] rusage[mem=48000] span[hosts=1]" \
      -G team222 \
      -J "viral_identification[1-${file_count}]%10" \
      "${HOME}/git_repos/mosquito_virome_yucatan_LEVE/scripts/individual_analyses/viral_contig_identification.sh"

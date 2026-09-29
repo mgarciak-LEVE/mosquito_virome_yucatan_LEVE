@@ -12,7 +12,7 @@ bsub -o "${DATE_DIR}/fastq_validation_%J.out" \
      -e "${DATE_DIR}/fastq_validation_%J.err" \
      -q long \
      -n 8 \
-     -M 16000 \
-     -R "select[mem>16000] rusage[mem=16000] span[hosts=1]" \
+     -M 10000 \
+     -R "select[mem>10000] rusage[mem=10000] span[hosts=1]" \
      -G team222 \
      < "${HOME}/git_repos/mosquito_virome_yucatan_LEVE/scripts/individual_analyses/fastq_validation.sh"

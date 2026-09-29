@@ -1,4 +1,8 @@
 sample,file,status,size_mb
+PM2469,PM2469_R1_paired.fastq,PASSED,0
+PM2469,PM2469_R1_unpaired.fastq,PASSED,0
+PM2469,PM2469_R2_paired.fastq,PASSED,0
+PM2469,PM2469_R2_unpaired.fastq,PASSED,0
 PM2486,PM2486_R1_paired.fastq,PASSED,0
 PM2486,PM2486_R1_unpaired.fastq,PASSED,0
 PM2486,PM2486_R2_paired.fastq,PASSED,0
@@ -15,6 +19,10 @@ PM2524,PM2524_R1_paired.fastq,PASSED,0
 PM2524,PM2524_R1_unpaired.fastq,PASSED,0
 PM2524,PM2524_R2_paired.fastq,PASSED,0
 PM2524,PM2524_R2_unpaired.fastq,PASSED,0
+PM2528,PM2528_R1_paired.fastq,PASSED,0
+PM2528,PM2528_R1_unpaired.fastq,PASSED,0
+PM2528,PM2528_R2_paired.fastq,PASSED,0
+PM2528,PM2528_R2_unpaired.fastq,PASSED,0
 PM2539,PM2539_R1_paired.fastq,PASSED,0
 PM2539,PM2539_R1_unpaired.fastq,PASSED,0
 PM2539,PM2539_R2_paired.fastq,PASSED,0

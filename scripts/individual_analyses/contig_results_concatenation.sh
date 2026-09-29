@@ -22,7 +22,7 @@ BOWTIE_ASM_DIR="${ASM_BASE}/bowtie_assembly"
 
 # Containers
 CONTAINERS="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers"
-SEQKIT_CONTAINER="${CONTAINERS}/seqtk_1.5.sif"  
+SEQKIT_CONTAINER="${CONTAINERS}/seqkit_2.8.2.sif"  
 
 # Thresholds
 DVF_PVALUE=0.05
@@ -228,15 +228,15 @@ fi
 ####       DEEPVIRFINDER              ####
 ####==================================####
 
-dvf_in="${SAMPLE_INPUT}/deepvirfinder/${SAMPLE}_prediction.txt"
+dvf_in="${SAMPLE_INPUT}/deepvirfinder/"*_dvfpred.txt
 dvf_ids="${SAMPLE_OUTPUT}/.dvf_ids.txt"
 dvf_out="${SAMPLE_OUTPUT}/deepvirfinder.fa"
 : > "${dvf_out}"
 
 if [[ -s "${dvf_in}" ]]; then
-    # Columns: name  length  score  pvalue  (tab-separated)
-    # Keep IDs with pvalue <= threshold
-    awk -v thr="${DVF_PVALUE}" -F'\t' 'NR>1 && $4+0 <= thr {print $1}' \
+    # DVF columns are tab-separated: name  length  score  pvalue
+    # $1 (name) may contain the MegaHit description (spaces), so keep only the first token
+    awk -v thr="${DVF_PVALUE}" -F'\t' 'NR>1 && $4+0 <= thr {sub(/ .*/,"",$1); print $1}' \
         "${dvf_in}" > "${dvf_ids}"
 
     n_ids=$(wc -l < "${dvf_ids}")
@@ -244,8 +244,6 @@ if [[ -s "${dvf_in}" ]]; then
 
     if [[ "${n_ids}" -gt 0 ]]; then
         run_seqkit_grep "${dvf_ids}" "${ASSEMBLY_FILE}" "${dvf_out}"
-        n=$(grep -c '^>' "${dvf_out}" || true)
-        echo "  DeepVirFinder: ${n} sequences extracted"
     fi
 else
     echo "  DeepVirFinder: no input (empty output)"
@@ -261,11 +259,12 @@ vitap_out="${SAMPLE_OUTPUT}/vitap.fa"
 : > "${vitap_out}"
 
 if [[ -s "${vitap_in}" ]]; then
-    # Columns: Genome_ID  lineage  lineage_score  Confidence_level
-    # Filter viral realms, then drop reference accessions.
+    # VITAP columns: Genome_ID  lineage  lineage_score  Confidence_level
+    # File has CRLF line endings — strip CR before/after filtering
     awk -F'\t' -v realms="${VITAP_REALMS}" \
         'NR>1 && $2 ~ realms {print $1}' \
         "${vitap_in}" \
+        | tr -d '\r' \
         | grep -v -E '^[A-Z]{1,3}[0-9]{4,}\.[0-9]+$' \
         > "${vitap_ids}"
 
@@ -274,8 +273,6 @@ if [[ -s "${vitap_in}" ]]; then
 
     if [[ "${n_ids}" -gt 0 ]]; then
         run_seqkit_grep "${vitap_ids}" "${ASSEMBLY_FILE}" "${vitap_out}"
-        n=$(grep -c '^>' "${vitap_out}" || true)
-        echo "  VITAP: ${n} sequences extracted"
     fi
 else
     echo "  VITAP: no input (empty output)"
@@ -379,3 +376,4 @@ echo "  Outputs in ${SAMPLE_OUTPUT}"
 echo "========================================="
 
 tg_send "Completed concatenation: ${OUTPUT_DIR}/${MAPPING_TOOL}/${READ_TYPE}/${ASSEMBLER}/${SAMPLE}" 2>/dev/null || true
+

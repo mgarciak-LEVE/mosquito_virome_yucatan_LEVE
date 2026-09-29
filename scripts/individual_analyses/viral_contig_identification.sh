@@ -35,17 +35,16 @@ BOWTIE_ASSEMBLY_DIR="${INPUT_DIR_BASE}/bowtie_assembly"
 OUTPUT_DIR="${PROJECT_SCRATCH}/results/identification"
 
 # Database paths
-VIRSORTER2_DB="/nfs/users/nfs_j/jr46/databases/virsorter2_db/db"
-VITAP_DB="/nfs/users/nfs_j/jr46/databases/vitap_db/db/DB_hybrid_MSL37_RefSeq209_IMGVR"
+VIRSORTER2_DB="/lustre/scratch126/tol/teams/lawniczak/users/jr46/databases/virsorter2_db/db"
+VITAP_DB="/lustre/scratch126/tol/teams/lawniczak/users/jr46/databases/vitap_db/db/DB_hybrid_MSL37_RefSeq209_IMGVR"
 
 # Container configuration
 CONTAINERS="/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers"
-VIRSORTER2_CONTAINER="${CONTAINERS}/virsorter2.sif"
 DEEPVIRFINDER_CONTAINER="${CONTAINERS}/deepvirfinder.sif"
 VITAP_CONTAINER="${CONTAINERS}/vitap_1.12--pyhdfd78af_0.sif"
 
 # Conda environment path
-CONDA_ENV_VIRSORTER2="/software/treeoflife/conda/users/envs/team222/jr46/virsorter2"
+CONDA_ENV_VIRSORTER2="/software/treeoflife/conda/users/envs/team222/jr46/vs2"
 
 # Scripts directory
 SCRIPTS_NFS="${HOME}/git_repos/${PROJECT_NAME}/scripts/individual_analyses"
@@ -53,12 +52,12 @@ SCRIPTS_NFS="${HOME}/git_repos/${PROJECT_NAME}/scripts/individual_analyses"
 # Telegram bot
 source "${SCRIPTS_NFS}/bot_telegram.sh" 2>/dev/null || echo "Telegram bot not available"
 
-####==================================####
-####          LOAD MODULES            ####
-####==================================####
+# Explicitly initialize conda for non-interactive batch jobs
+source /software/treeoflife/conda/miniconda/etc/profile.d/conda.sh
+conda activate /software/treeoflife/conda/users/envs/team222/jr46/vs2
 
+# Apptainer load
 module load ISG/apptainer/1.4.0 2>/dev/null || echo "Apptainer module not available"
-module load conda 2>/dev/null || echo "Conda module not available"
 
 THREADS=12
 CORES=6
@@ -199,7 +198,7 @@ echo "========================================="
 JOB_INDEX=$((LSB_JOBINDEX - 1))
 
 if [[ $JOB_INDEX -ge ${#SAMPLE_ARRAY[@]} ]]; then
-    echo "ERROR: Invalid job index ${LSB_JOBINDEX} (max ${#SAMPLE_ARRAY[@]})"
+    echo "ERROR: Invlid job index ${LSB_JOBINDEX} (max ${#SAMPLE_ARRAY[@]})"
     exit 1
 fi
 
@@ -240,98 +239,56 @@ cd "$SAMPLE_OUTPUT" || exit 1
 
 run_virsorter2() {
     echo ""
-    echo "--- Running VirSorter2 ---"
-    
+    echo "--- Running VirSorter2 (native conda) ---"
+
     local output_dir="${SAMPLE_OUTPUT}/virsorter2"
     mkdir -p "$output_dir"
-    
-    # Check if already completed
-    if [[ -f "${output_dir}/final-viral-combined.fa" ]] && [[ -s "${output_dir}/final-viral-combined.fa" ]]; then
-        echo "  VirSorter2 already completed for ${MAPPING_TOOL}/${ASSEMBLER}/${SAMPLE}"
-        return 0
-    fi
-    
-    echo "  Running VirSorter2..."
-    
-    # Ensure CORES is set
-    if [[ -z "${CORES}" ]]; then
-        CORES=4  # Default to 4 cores if not set
-        echo "  WARNING: CORES not set, defaulting to ${CORES}"
-    fi
 
-    # Check if database exists
-    if [[ ! -d "${VIRSORTER2_DB}" ]] || [[ ! -f "${VIRSORTER2_DB}/hmm/viral/combined.hmm" ]]; then
-        echo "  WARNING: VirSorter2 database not found or incomplete at ${VIRSORTER2_DB}"
-        echo "  Expected to find: ${VIRSORTER2_DB}/hmm/viral/combined.hmm"
-        echo "  Skipping VirSorter2 analysis"
+    if [[ -s "${output_dir}/final-viral-combined.fa" ]]; then
+        echo "  VirSorter2 already completed for ${MAPPING_TOOL}/${READ_TYPE}/${ASSEMBLER}/${SAMPLE}"
         return 0
     fi
 
-    # Verify the conda environment exists
-    if [[ ! -d "${CONDA_ENV_VIRSORTER2}" ]]; then
-        echo "  ERROR: Conda environment not found at ${CONDA_ENV_VIRSORTER2}"
-        echo "  Please create it with: conda create -n virsorter2_env -c conda-forge -c bioconda virsorter snakemake mamba"
+    if [[ ! -f "${VIRSORTER2_DB}/hmm/viral/combined.hmm" ]]; then
+        echo "  WARNING: VirSorter2 DB missing at ${VIRSORTER2_DB}"
+        return 0
+    fi
+
+    if ! command -v virsorter >/dev/null 2>&1; then
+        echo "  ERROR: virsorter not on PATH after conda activate"
+        conda deactivate
         return 1
     fi
-    
-    # Get the basename of the assembly file
-    local assembly_basename=$(basename "$ASSEMBLY_FILE")
-    
-    # Create config file for VirSorter2
-    cat > "${output_dir}/config.yaml" << EOF
-input: /input/${assembly_basename}
-output: /output/virsorter2
-db_dir: /virsorter2_db
-threads: ${CORES}
-EOF
-    
-    echo "  Using conda environment: ${CONDA_ENV_VIRSORTER2}"
-    
-    # Run VirSorter2 using the conda environment
-    apptainer exec \
-        --bind "$(dirname "$ASSEMBLY_FILE")":/input:ro \
-        --bind "${SAMPLE_OUTPUT}":/output \
-        --bind "${VIRSORTER2_DB}":/virsorter2_db:ro \
-        --bind "${CONDA_ENV_VIRSORTER2}":/conda_env \
-        --env "TMPDIR=/tmp" \
-        "${VIRSORTER2_CONTAINER}" \
-        /bin/bash -c "
-            # Initialize conda inside the container
-            source /opt/conda/etc/profile.d/conda.sh
-            
-            # Activate the mounted conda environment
-            conda activate /conda_env
-            
-            # Verify VirSorter2 is  available
-            echo '  VirSorter2 version:'
-            virsorter --version
-            
-            # Run VirSorter2 using Snakemake
-            virsorter run \
-                -i /input/${assembly_basename} \
-                -w /output/virsorter2 \
-                --db-dir /virsorter2_db \
-                --include-groups dsDNAphage,ssDNA,ssRNA,dsRNA \
-                --min-length 350 \
-                --min-score 0.5 \
-                -j ${CORES} \
-                all
-        " 2>&1 | tee "${output_dir}/virsorter2.log"
+
+    echo "  virsorter at: $(command -v virsorter)"
+    echo "  interpreter:  $(head -1 "$(command -v virsorter)")"
+
+    virsorter run \
+        -i "${ASSEMBLY_FILE}" \
+        -w "${output_dir}" \
+        --db-dir "${VIRSORTER2_DB}" \
+        --include-groups "dsDNAphage,ssDNA,RNA" \
+        --min-length 1000 \
+        --min-score 0.5 \
+        --use-conda-off \
+        -j "${CORES}" \
+        all \
+        2>&1 | tee "${output_dir}/virsorter2.log"
 
     local vs2_exit=${PIPESTATUS[0]}
 
     if [[ ${vs2_exit} -ne 0 ]]; then
-        echo " VirSorter2 failed (exit ${vs2_exit})"
+        echo "  VirSorter2 failed (exit ${vs2_exit})"
         return 1
     fi
 
-    if [[ -f "${output_dir}/final-viral-combined.fa" ]]; then
-        echo "VirSorter2 completed successfully"
-        viral_count=$(grep -c '^>' "${output_dir}/final-viral-combined.fa" 2>/dev/null || echo "0")
-        echo "  Found ${viral_count} viral contigs"
+    if [[ -s "${output_dir}/final-viral-combined.fa" ]]; then
+        local n
+        n=$(grep -c '^>' "${output_dir}/final-viral-combined.fa")
+        echo "  VirSorter2 completed (${n} viral contigs)"
         return 0
     else
-        echo "VirSorter2 failed or produced no output"
+        echo "  VirSorter2 finished but no output — check ${output_dir}/virsorter2.log"
         return 1
     fi
 }
@@ -348,7 +305,9 @@ run_deepvirfinder() {
     mkdir -p "$output_dir"
     
     # Check if already completed
-    if [[ -f "${output_dir}/${SAMPLE}_prediction.txt" ]] && [[ -s "${output_dir}/${SAMPLE}_prediction.txt" ]]; then
+    local existing_pred
+    existing_pred=$(find "${output_dir}" -maxdepth 1 -name "*_dvfpred.txt" 2>/dev/null | head -n1)
+    if [[ -n "${existing_pred}" ]] && [[ -s "${existing_pred}" ]]; then
         echo "  DeepVirFinder already completed for ${MAPPING_TOOL}/${READ_TYPE}/${ASSEMBLER}/${SAMPLE}"
         return 0
     fi
@@ -375,7 +334,7 @@ run_deepvirfinder() {
         python /DeepVirFinder/dvf.py \
             -i "/input/$(basename "$ASSEMBLY_FILE")" \
             -o "/output/deepvirfinder" \
-            -l 350 \
+            -l 1000 \
             -c "${CORES}" \
             2>&1 | tee "${output_dir}/deepvirfinder.log"
 
@@ -386,15 +345,18 @@ run_deepvirfinder() {
         return 1
     fi
 
-    if [[ -f "${output_dir}/${SAMPLE}_prediction.txt" ]]; then
-        awk '$4 <= 0.05' "${output_dir}/${SAMPLE}_prediction.txt" \
-            > "${output_dir}/viral_contigs.txt"
+    local dvf_pred
+    dvf_pred=$(find "${output_dir}" -maxdepth 1 -name "*_dvfpred.txt" 2>/dev/null | head -n1)
+
+    if [[ -n "${dvf_pred}" ]] && [[ -s "${dvf_pred}" ]]; then
+        awk '$4 <= 0.05' "${dvf_pred}" > "${output_dir}/viral_contigs.txt"
         local viral_count
         viral_count=$(wc -l < "${output_dir}/viral_contigs.txt")
         echo "  Found ${viral_count} viral contigs (p < 0.05)"
         return 0
     else
         echo "  DeepVirFinder finished but produced no prediction file"
+        echo "  Looked for: ${output_dir}/*_dvfpred.txt"
         return 1
     fi
 }
@@ -457,7 +419,6 @@ run_vitap() {
             -i "/input/$(basename "${input_contigs}")" \
             -o "/output" \
             -d "/vitap_db" \
-            -t "${THREADS}" \
         2>&1 | tee "${output_dir}/vitap.log"
 
     local vitap_exit=${PIPESTATUS[0]}
@@ -528,8 +489,7 @@ fi)
 --- VITAP Results ---
 $(if [[ -f "${SAMPLE_OUTPUT}/vitap/best_determined_lineages.tsv" ]]; then
     viral_count=$(awk -F'\t' 'NR>1 && ($2 ~ /Riboviria|Duplodnaviria|Monodnaviria/) {print $1}' \
-        "${SAMPLE_OUTPUT}/vitap/best_determined_lineages.tsv" | \
-        grep -c -v -E '^[A-Z]{2}[0-9]{6}' || echo "0")
+        "${SAMPLE_OUTPUT}/vitap/best_determined_lineages.tsv" | wc -l)
     echo "Viral contigs detected (realm filter): $viral_count"
 else
     echo "VITAP results not available"
