@@ -24,8 +24,8 @@ CONTAINERS="${PERMANENT_BASE}/containers"
 DIAMOND_CONTAINER="${CONTAINERS}/diamond.sif"
 
 # --- Runtime ---
-THREADS=32
-FORCE_REBUILD="${FORCE_REBUILD:-false}"
+THREADS=40
+FORCE_REBUILD="${FORCE_REBUILD:-true}"
 
 ####==================================####
 ####          LOAD MODULES            ####
@@ -68,7 +68,7 @@ NR_GZ="${DOWNLOAD_DIR}/nr.gz"
 NR_FASTA="${DOWNLOAD_DIR}/nr"
 
 if [ ! -f "${NR_GZ}" ]; then
-    wget -c https://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/nr.gz -O "${NR_GZ}"
+    wget -c -O "${NR_GZ}" "https://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/nr.gz"
 else
     echo "nr.gz already present, skipping download."
 fi
@@ -90,16 +90,15 @@ echo "[2/5] Downloading NCBI taxonomy files..."
 
 # --- nodes.dmp / names.dmp (from new_taxdump) ---
 if [ ! -f nodes.dmp ] || [ ! -f names.dmp ]; then
-    wget -c https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz \
-         -O new_taxdump.tar.gz
+    wget -c -O new_taxdump.tar.gz https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz
     tar -xzf new_taxdump.tar.gz nodes.dmp names.dmp
 fi
 
 # --- prot.accession2taxid (non-FULL is ~5GB vs ~100GB for FULL) ---
 if [ ! -f prot.accession2taxid ]; then
-    wget -c ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/prot.accession2taxid.gz \
-         -O prot.accession2taxid.gz
-    pigz -d -p ${THREADS} prot.accession2taxid.gz
+    wget -c -O prot.accession2taxid.gz \
+        "https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/prot.accession2taxid.gz"
+    pigz -d -p "${THREADS}" prot.accession2taxid.gz
 fi
 
 # --- Verify ---
@@ -112,6 +111,7 @@ echo "Taxonomy files verified."
 ####  STEP 3: BUILD DIAMOND nr_tax    ####
 ####==================================####
 echo "[3/5] Building DIAMOND nr_tax database..."
+TAXDIR="${DOWNLOAD_DIR}"
 NR_TAX="${DIAMOND_DB}/nr_tax"
 
 if [ -f "${NR_TAX}.dmnd" ] && [ "${FORCE_REBUILD}" != "true" ]; then
@@ -122,12 +122,12 @@ else
     ${DIAMOND_CMD} makedb \
         --in "${NR_FASTA}" \
         -d "${NR_TAX}" \
-        --taxonnodes nodes.dmp \
-        --taxonnames names.dmp \
-        --taxonmap prot.accession2taxid \
+        --taxonnodes "${TAXDIR}/nodes.dmp" \
+        --taxonnames "${TAXDIR}/names.dmp" \
+        --taxonmap  "${TAXDIR}/prot.accession2taxid" \
         --threads ${THREADS} \
         --tmpdir "${TMP_DIR}" \
-        --verbose
+        --log
 fi
 
 [ -f "${NR_TAX}.dmnd" ] || { echo "Error: DIAMOND DB build failed"; exit 1; }
