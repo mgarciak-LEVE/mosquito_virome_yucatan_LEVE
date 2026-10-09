@@ -74,8 +74,8 @@ fi
 # Submit array job
 bsub -o "${DATE_DIR}/vOTU_taxonomy_%J_%I.out" \
      -e "${DATE_DIR}/vOTU_taxonomy_%J_%I.err" \
-     -q normal \
-     -n 24 \
+     -q long \
+     -n 36 \
      -M 40000 \
      -R "select[mem>=40000] rusage[mem=40000] span[hosts=1]" \
      -G team222 \

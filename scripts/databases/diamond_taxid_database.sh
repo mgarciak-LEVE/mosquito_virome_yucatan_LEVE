@@ -2,7 +2,7 @@
 # Author: Jorge Alberto Castro Rodríguez
 # DIAMOND nr_tax database construction (protein, with taxonomy)
 # Based on: https://github.com/JPbio/Metagenomics_dealing_with_blastn_diamond_results
-# Ver. 1.1.0
+# Ver. 1.2.0
 
 ####==================================####
 ####           CONFIGURATION          ####
@@ -44,11 +44,11 @@ echo "========================================="
 mkdir -p "${DIAMOND_DB}" "${TMP_DIR}" "${DOWNLOAD_DIR}"
 cd "${DOWNLOAD_DIR}"
 
-# --- Apptainer wrapper (bind /lustre + work dirs) ---
-APPTAINER_BIND="/lustre:/lustre,${DOWNLOAD_DIR}:${DOWNLOAD_DIR},${TMP_DIR}:${TMP_DIR}"
-DIAMOND_CMD="apptainer exec --bind ${APPTAINER_BIND} ${DIAMOND_CONTAINER} diamond"
+# --- Apptainer wrapper ---
+APPTAINER_BIND="/lustre:/lustre"
+DIAMOND_CMD="apptainer exec --pwd / --bind ${APPTAINER_BIND} ${DIAMOND_CONTAINER} diamond"
 
-# Verify DIAMOND
+# Verify container
 if [ ! -f "${DIAMOND_CONTAINER}" ]; then
     echo "Error: DIAMOND container not found at ${DIAMOND_CONTAINER}"
     exit 1
@@ -59,6 +59,10 @@ if ! ${DIAMOND_CMD} --version >/dev/null 2>&1; then
 fi
 DIAMOND_VERSION="$(${DIAMOND_CMD} --version 2>&1 | head -n 1 || true)"
 echo "DIAMOND version: ${DIAMOND_VERSION}"
+echo "DIAMOND_DB:     ${DIAMOND_DB}"
+echo "DOWNLOAD_DIR:   ${DOWNLOAD_DIR}"
+echo "TMP_DIR:        ${TMP_DIR}"
+echo "========================================="
 
 ####==================================####
 ####  STEP 1: DOWNLOAD nr (protein)   ####
@@ -75,10 +79,9 @@ fi
 [ -s "${NR_GZ}" ] || { echo "Error: nr.gz is missing or empty"; exit 1; }
 echo "nr.gz size: $(du -h "${NR_GZ}" | cut -f1)"
 
-# Decompress (keep .gz so re-runs can skip download)
 if [ ! -f "${NR_FASTA}" ]; then
     echo "Decompressing nr.gz (this takes a while)..."
-    pigz -d -p ${THREADS} -k "${NR_GZ}"
+    pigz -d -p "${THREADS}" -k "${NR_GZ}"
 fi
 [ -s "${NR_FASTA}" ] || { echo "Error: nr FASTA is missing or empty"; exit 1; }
 echo "nr FASTA size: $(du -h "${NR_FASTA}" | cut -f1)"
@@ -88,20 +91,18 @@ echo "nr FASTA size: $(du -h "${NR_FASTA}" | cut -f1)"
 ####==================================####
 echo "[2/5] Downloading NCBI taxonomy files..."
 
-# --- nodes.dmp / names.dmp (from new_taxdump) ---
 if [ ! -f nodes.dmp ] || [ ! -f names.dmp ]; then
-    wget -c -O new_taxdump.tar.gz https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz
+    wget -c -O new_taxdump.tar.gz \
+        https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz
     tar -xzf new_taxdump.tar.gz nodes.dmp names.dmp
 fi
 
-# --- prot.accession2taxid (non-FULL is ~5GB vs ~100GB for FULL) ---
 if [ ! -f prot.accession2taxid ]; then
     wget -c -O prot.accession2taxid.gz \
         "https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/prot.accession2taxid.gz"
     pigz -d -p "${THREADS}" prot.accession2taxid.gz
 fi
 
-# --- Verify ---
 for f in nodes.dmp names.dmp prot.accession2taxid; do
     [ -s "$f" ] || { echo "Error: required taxonomy file $f missing/empty"; exit 1; }
 done
@@ -114,19 +115,23 @@ echo "[3/5] Building DIAMOND nr_tax database..."
 TAXDIR="${DOWNLOAD_DIR}"
 NR_TAX="${DIAMOND_DB}/nr_tax"
 
+# Ensure the tmpdir exists inside the container path (it does because /lustre is bound 1:1)
+mkdir -p "${TMP_DIR}"
+
 if [ -f "${NR_TAX}.dmnd" ] && [ "${FORCE_REBUILD}" != "true" ]; then
     echo "nr_tax.dmnd already exists. Set FORCE_REBUILD=true to rebuild."
 else
-    [ -f "${NR_TAX}.dmnd" ] && rm -f "${NR_TAX}.dmnd"
-    echo "Building (this can take many hours and ~1TB RAM/disk)..."
+    # Move any existing DB aside so we don't get confused mid-build
+    [ -f "${NR_TAX}.dmnd" ] && mv "${NR_TAX}.dmnd" "${NR_TAX}.dmnd.old.$(date +%s)"
+    echo "Building (this can take 1-2 hours for nr; ~500 GB peak disk)..."
     ${DIAMOND_CMD} makedb \
-        --in "${NR_FASTA}" \
-        -d "${NR_TAX}" \
+        --in        "${NR_FASTA}" \
+        -d          "${NR_TAX}" \
         --taxonnodes "${TAXDIR}/nodes.dmp" \
         --taxonnames "${TAXDIR}/names.dmp" \
-        --taxonmap  "${TAXDIR}/prot.accession2taxid" \
-        --threads ${THREADS} \
-        --tmpdir "${TMP_DIR}" \
+        --taxonmap   "${TAXDIR}/prot.accession2taxid" \
+        --threads   "${THREADS}" \
+        --tmpdir    "${TMP_DIR}" \
         --log
 fi
 
@@ -134,7 +139,7 @@ fi
 echo "nr_tax.dmnd size: $(du -h "${NR_TAX}.dmnd" | cut -f1)"
 
 ####==================================####
-####  STEP 4: TEST                    ####
+####  STEP 4: TEST (real taxonomy check) ####
 ####==================================####
 echo "[4/5] Testing DIAMOND nr_tax with a protein query..."
 
@@ -143,37 +148,48 @@ cat > test_query.fasta << 'EOF'
 MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFGYGVACFARYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYITADKQKNGIKANFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK
 EOF
 
-# Protein query -> blastp (NOT blastx)
 ${DIAMOND_CMD} blastp \
     -q test_query.fasta \
     -d "${NR_TAX}.dmnd" \
     -k 5 \
     -p 4 \
     -e 0.001 \
-    -f 6 qseqid sseqid pident length evalue bitscore staxids stitle \
+    -f 6 qseqid sseqid pident length evalue bitscore staxids sscinames \
     -o test_diamond.tab \
     --quiet || true
 
-if [ -s test_diamond.tab ]; then
-    echo "Test OK — top hits:"
-    echo "----------------------------------------"
-    head -n 3 test_diamond.tab | column -t
-    echo "----------------------------------------"
-else
-    echo "WARNING: test returned no hits (check DB or query)."
+if [ ! -s test_diamond.tab ]; then
+    echo "ERROR: test returned no hits — DB build is broken."
+    exit 1
 fi
+
+echo "Test hits:"
+echo "----------------------------------------"
+column -t test_diamond.tab | head -n 5
+echo "----------------------------------------"
+
+# Real taxonomy verification: check that at least one row has a non-empty taxid
+N_WITH_TAXID=$(awk -F'\t' '$6 != "" && $6 != "N/A"' test_diamond.tab | wc -l)
+N_TOTAL=$(wc -l < test_diamond.tab)
+echo "Taxonomy check: ${N_WITH_TAXID}/${N_TOTAL} test hits have a taxid."
+
+if [ "${N_WITH_TAXID}" -eq 0 ]; then
+    echo "ERROR: DB has no taxonomy! Check that --taxonmap/--taxonnodes/--taxonnames were passed."
+    echo "Inspect diamond_makedb.log for 'Loading taxonomy mapping file...'."
+    exit 1
+fi
+
+echo "SUCCESS: DB contains taxonomy and produces staxids."
 
 ####==================================####
 ####  STEP 5: CLEANUP                 ####
 ####==================================####
 echo "[5/5] Cleaning up..."
 
-# Keep nr.gz (re-download avoidance) but drop the huge uncompressed FASTA
 rm -f "${NR_FASTA}"
-# Drop the compressed accession map (uncompressed version kept for reference)
 rm -f prot.accession2taxid.gz
-# Drop taxdump archive
 rm -f new_taxdump.tar.gz
+rm -f test_query.fasta
 
 echo "Cleaning DIAMOND temp dir..."
 rm -rf "${TMP_DIR:?}"/*

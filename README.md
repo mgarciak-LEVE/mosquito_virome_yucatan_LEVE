@@ -35,10 +35,12 @@ mosquito_virome_yucatan_LEVE
 │ └── pipeline_whole/ # Complete pipeline integration
 │
 │── project_data / SYMLINK to Lustre directory
+│ 
+│── containers/ # SYMLINK to Lustre container directory
 │
-│── raw_data/ # SYMLINK to Lustre raw data directory
+│── databases/ # SYMLINK to Lustre databases directories
 │
-└── cat_files/ # SYMLINK to concatenated raw files directory
+└── raw_data/ # SYMLINK to Lustre raw data directory
 ```
 
 ### Lustre
@@ -96,3 +98,6 @@ mosquito_virome_yucatan_LEVE/
 
 ### Containers 
 **Location:** `/lustre/scratch126/tol/teams/lawniczak/users/jr46/containers`
+
+### Databases
+**Location:** `/lustre/scratch126/tol/teams/lawniczak/users/jr46/databases`

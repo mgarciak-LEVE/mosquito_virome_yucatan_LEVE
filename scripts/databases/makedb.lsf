@@ -1,0 +1,30 @@
+#!/bin/bash
+#BSUB -J diamond_makedb
+#BSUB -q hugemem
+#BSUB -n 40
+#BSUB -R "span[hosts=1] rusage[mem=200000] select[mem>=200000]"
+#BSUB -M 200000
+#BSUB -o makedb.%J.out
+#BSUB -e makedb.%J.err
+#BSUB -G team222
+#BSUB -W 72:00
+
+module load ISG/apptainer/1.4.0
+
+cd /lustre/scratch126/tol/teams/lawniczak/users/jr46/databases/diamond_db/diamond_db_build
+
+mkdir -p tmp
+ls -ld tmp
+
+apptainer exec \
+    --bind "$PWD":/work \
+    /lustre/scratch126/tol/teams/lawniczak/users/jr46/containers/diamond.sif \
+    diamond makedb \
+        --in /work/nr \
+        --db /work/nr_tax_withtax \
+        --taxonmap   /work/prot.accession2taxid \
+        --taxonnodes /work/nodes.dmp \
+        --taxonnames /work/names.dmp \
+        --threads 40 \
+        --tmpdir /work/tmp \
+        2>&1 | tee "$PWD/diamond_makedb.log"

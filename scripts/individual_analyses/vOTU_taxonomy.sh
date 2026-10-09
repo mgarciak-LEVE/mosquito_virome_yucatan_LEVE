@@ -27,9 +27,9 @@ PROJECT_SCRATCH="${SCRATCH_BASE}/${PROJECT_NAME}"
 # Input directories ---
 INPUT_DIR_BASE="${PROJECT_SCRATCH}/results/vOTU"
 # STAR assembly directory (parent indicates mapping tool)
-STAR_ASSEMBLY_DIR="${INPUT_DIR_BASE}/star_assembly"
+STAR_ASSEMBLY_DIR="${INPUT_DIR_BASE}/STAR"
 # Bowtie assembly directory (parent indicates mapping tool)
-BOWTIE_ASSEMBLY_DIR="${INPUT_DIR_BASE}/bowtie_assembly"
+BOWTIE_ASSEMBLY_DIR="${INPUT_DIR_BASE}/Bowtie"
 
 # Output directories ---
 OUTPUT_DIR_BASE="${PROJECT_SCRATCH}/results"
@@ -43,8 +43,8 @@ DIAMOND_CONTAINER="${CONTAINERS}/diamond.sif"
 # Databases paths
 DB_BASE="/lustre/scratch126/tol/teams/lawniczak/users/jr46/databases"
 GENOMAD_DB="${DB_BASE}/genomad_db"
-REFSEQ_DB="${DB_BASE}/blast_dbviral_refseq"
-DIAMOND_DB="${DB_BASE}/diamond_db/diamond_db_build"
+NT_DB="${DB_BASE}/blast_db/viral_refseq"
+DIAMOND_DB="${DB_BASE}/diamond_db"
 
 # Scripts directory
 SCRIPTS_NFS="${HOME}/git_repos/${PROJECT_NAME}/scripts/individual_analyses"
@@ -59,7 +59,7 @@ source "${SCRIPTS_NFS}/bot_telegram.sh" 2>/dev/null || echo "Telegram bot not av
 module load ISG/apptainer/1.4.0 2>/dev/null || echo "Apptainer module not available"
 module load blast/2.15.0--pl5321h6f7f691_1 || echo "BLAST module not available"
 
-THREADS=24
+THREADS=36
 
 ####==================================####
 ####          PRINT CONFIG            ####
@@ -283,27 +283,32 @@ run_blastn() {
         return 0
     fi
 
-    # Verify the nucleotide BLAST database exists
-    if [[ ! -f "${NT_DB}.nhr" ]] && [[ ! -f "${NT_DB}.nin" ]]; then
-        echo "  ERROR: BLASTn DB not found at ${NT_DB} (expected ${NT_DB}.nhr/.nin/.nsq)"
+    if [[ ! -d "${NT_DB}" ]]; then
+        echo "  ERROR: BLASTn DB directory not found: ${NT_DB}"
         return 1
     fi
 
-    # Bind the database directory, not a single file (BLAST DBs are multi-file)
-    local db_dir
-    db_dir="$(dirname "${NT_DB}")"
+    # Find the DB prefix: expect exactly one *.nhr file in the directory
     local db_prefix
-    db_prefix="$(basename "${NT_DB}")"
+    db_prefix="$(find "${NT_DB}" -maxdepth 1 -name '*.nhr' -printf '%f\n' | sed 's/\.nhr$//' | head -n1)"
 
-    apptainer exec \
-        --bind "$(dirname "$OTU_FILE")":/input:ro \
-        --bind "${output_dir}":/output \
-        --bind "${db_dir}":/database:ro \
-        "${GENOMAD_CONTAINER}" \
-        blastn \
-        -query /input/vOTUs.fa \
-        -db /database/"${db_prefix}" \
-        -out /output/vOTUs_vs_nt.tsv \
+    if [[ -z "${db_prefix}" ]]; then
+        echo "  ERROR: No *.nhr file found in ${NT_DB}"
+        return 1
+    fi
+
+    local db_path="${NT_DB}/${db_prefix}"
+
+    # Sanity check: ensure blastn is available on the host
+    if ! command -v blastn >/dev/null 2>&1; then
+        echo "  ERROR: blastn not found in PATH. Load the BLAST+ module or install it."
+        return 1
+    fi
+
+    BLASTDB="${NT_DB}" blastn \
+        -query "${OTU_FILE}" \
+        -db "${db_path}" \
+        -out "${out_file}" \
         -outfmt "6 qseqid sseqid pident length qcovs evalue bitscore staxids sscinames scomnames" \
         -evalue 1e-5 \
         -max_target_seqs 5 \
@@ -334,12 +339,12 @@ run_diamond() {
     local output_dir="${SAMPLE_OUTPUT_DIAMOND}"
     mkdir -p "$output_dir"
 
-    local orf_file="${SAMPLE_OUTPUT_PRODIGAL}/vOTUs_orfs.faa" 
+    local orf_file="${SAMPLE_OUTPUT_PRODIGAL}/vOTUs_orfs.faa"
     local out_file="${output_dir}/vOTUs_orfs_vs_refseq.tsv"
 
-    local db_dir db_prefix
-    db_dir="$(dirname "${DIAMOND_DB}")"
-    db_prefix="$(basename "${DIAMOND_DB}" .dmnd)"
+    # DB file (the .dmnd) and its prefix inside the container
+    local db_file="${DIAMOND_DB}/nr_tax.dmnd"
+    local db_prefix="nr_tax"
 
     # Skip if done
     if [[ -f "$out_file" ]] && [[ -s "$out_file" ]]; then
@@ -353,27 +358,27 @@ run_diamond() {
         return 1
     fi
 
-    if [[ ! -f "${DIAMOND_DB}" ]]; then
-        echo "  ERROR: DIAMOND DB not found at ${DIAMOND_DB}"
+    if [[ ! -f "$db_file" ]]; then
+        echo "  ERROR: DIAMOND DB not found at ${db_file}"
         return 1
     fi
 
     apptainer exec \
-    --bind  "$(dirname "$orf_file")":/input:ro \
-    --bind "$(dirname "$out_file")":/output \
-    --bind "${DIAMOND_DB}":/database:ro \
-    "${DIAMOND_CONTAINER}" \
-    diamond blastp \
-        --query /input/vOTUs_orfs.faa \
-        --db /database/"${db_prefix}" \
-        --out /output/vOTUs_orfs_vs_refseq.tsv \
-        --outfmt 6 qseqid sseqid pident length evalue bitscore staxids sscinames scomnames \
-        --evalue 1e-5 \
-        --max-target-seqs 5 \
-        --threads "${THREADS}" \
-        --very-sensitive \
-        --quiet \
-        2>&1 | tee "${output_dir}/diamond.log"
+        --bind "$(dirname "$orf_file")":/input:ro \
+        --bind "$(dirname "$out_file")":/output \
+        --bind "${DIAMOND_DB}":/database:ro \
+        "${DIAMOND_CONTAINER}" \
+        diamond blastp \
+            --query /input/vOTUs_orfs.faa \
+            --db /database/"${db_prefix}" \
+            --out /output/vOTUs_orfs_vs_refseq.tsv \
+            --outfmt 6 qseqid sseqid pident length evalue bitscore staxids sscinames \
+            --evalue 1e-5 \
+            --max-target-seqs 5 \
+            --threads "${THREADS}" \
+            --very-sensitive \
+            --quiet \
+            2>&1 | tee "${output_dir}/diamond.log"
 
     local diamond_exit=${PIPESTATUS[0]}
 
