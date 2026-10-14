@@ -236,26 +236,47 @@ run_coverm() {
         return 1
     fi
 
+    local split_dir="${output_dir}/vOTU_split"
+    local n_refs
+    n_refs=$(grep -c '^>' "${VOTU_FASTA}")
+    local n_split
+    n_split=$(find "${split_dir}" -maxdepth 1 -name '*.fna' 2>/dev/null | wc -l)
+
+     if [[ ! -d "${split_dir}" ]] || [[ "${n_split}" -ne "${n_refs}" ]]; then
+        rm -rf "${split_dir}"
+        mkdir -p "${split_dir}"
+        awk -v dir="${split_dir}" '
+            /^>/ {
+                if (out) close(out)
+                hdr = substr($0, 2)
+                sub(/[ \t].*/, "", hdr)
+                gsub(/[^A-Za-z0-9_.-]/, "_", hdr)
+                out = dir "/" hdr ".fna"
+            }
+            { print > out }
+        ' "${VOTU_FASTA}"
+   fi
+
     apptainer exec \
-        --bind "$(dirname "${BAM_FILE}")":/input:ro \
-        --bind "$(dirname "${VOTU_FASTA}")":/ref:ro \
-        --bind "${output_dir}":/output \
-        "${COVERM_CONTAINER}" \
-        coverm genome \
-        --bam-files "/input/${SAMPLE}_vOTU_sorted.bam" \
-        --genome-fasta-files "/ref/$(basename "${VOTU_FASTA}")" \
-        -m mean relative_abundance covered_fraction \
-        --min-covered-fraction 0 \
-        -t "${THREADS}" \
-        --output-file "/output/coverm_abundance_${SAMPLE}.tsv" \
-        2>&1 | tee "${output_dir}/coverm.log"
+    	--bind "$(dirname "${BAM_FILE}")":/input:ro \
+    	--bind "${split_dir}":/ref:ro \
+    	--bind "${output_dir}":/output \
+    	"${COVERM_CONTAINER}" \
+   	 coverm genome \
+    	--bam-files "/input/${SAMPLE}_vOTU_sorted.bam" \
+   	 --genome-fasta-directory /ref \
+    	-m mean relative_abundance covered_fraction \
+   	 --min-covered-fraction 0 \
+    	-t "${THREADS}" \
+   	 --output-file "/output/coverm_abundance_${SAMPLE}.tsv" \
+   	 2>&1 | tee "${output_dir}/coverm.log"
 
     local coverm_exit=${PIPESTATUS[0]}
     if [[ ${coverm_exit} -ne 0 ]]; then
         echo "  CoverM failed (exit ${coverm_exit})"
         return 1
     fi
-    return 0
+
 }
 
 ####==================================####
@@ -268,7 +289,15 @@ if run_coverm; then
     if [[ -d "${SAMPLE_OUTPUT_COVERM}" ]]; then
         echo "Copying results to permanent storage..."
         mkdir -p "${SAMPLE_OUTPUT_NFS}"
-        cp -r "${SAMPLE_OUTPUT_COVERM}/." "${SAMPLE_OUTPUT_NFS}/"
+
+        # Copy only the CoverM TSV and its log
+        cp -v "${SAMPLE_OUTPUT_COVERM}/coverm_abundance_${SAMPLE}.tsv" \
+              "${SAMPLE_OUTPUT_NFS}/"
+        if [[ -f "${SAMPLE_OUTPUT_COVERM}/coverm.log" ]]; then
+            cp -v "${SAMPLE_OUTPUT_COVERM}/coverm.log" \
+                  "${SAMPLE_OUTPUT_NFS}/"
+        fi
+
         echo "Results copied to: ${SAMPLE_OUTPUT_NFS}"
         tg_send "Results copied to NFS: ${SAMPLE_OUTPUT_NFS}" 2>/dev/null || true
     else

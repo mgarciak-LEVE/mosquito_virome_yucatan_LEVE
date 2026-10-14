@@ -59,7 +59,7 @@ source "${SCRIPTS_NFS}/bot_telegram.sh" 2>/dev/null || echo "Telegram bot not av
 module load ISG/apptainer/1.4.0 2>/dev/null || echo "Apptainer module not available"
 module load blast/2.15.0--pl5321h6f7f691_1 || echo "BLAST module not available"
 
-THREADS=36
+THREADS=8
 
 ####==================================####
 ####          PRINT CONFIG            ####
@@ -229,13 +229,13 @@ run_prodigal() {
     fi
 
 
-    # Verify the Checkv container exists
+    # Verify if the prodigal container exists
     if [[ ! -f "${PRODIGAL_CONTAINER}" ]]; then
         echo "  ERROR: Container not found at ${PRODIGAL_CONTAINER}"
         return 1
     fi
 
-    # Run cd-hit using apptainer container
+    # Run prodigal using apptainer container
     apptainer exec \
         --bind "$(dirname "$OTU_FILE")":/input:ro \
         --bind "${output_dir}":/output \
@@ -313,7 +313,7 @@ run_blastn() {
         -evalue 1e-5 \
         -max_target_seqs 5 \
         -num_threads "${THREADS}" \
-        -task megablast \
+        -task blastn \
         2>&1 | tee "${output_dir}/blastn.log"
 
     local blastn_exit=${PIPESTATUS[0]}

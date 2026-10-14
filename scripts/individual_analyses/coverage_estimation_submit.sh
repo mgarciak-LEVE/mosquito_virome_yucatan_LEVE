@@ -78,10 +78,10 @@ bsub -o "${DATE_DIR}/coverage_estimation_%J_%I.out" \
      -e "${DATE_DIR}/coverage_estimation_%J_%I.err" \
      -q normal \
      -n 24 \
-     -M 8000 \
-     -R "select[mem>=8000] rusage[mem=8000] span[hosts=1]" \
+     -M 2000 \
+     -R "select[mem>=2000] rusage[mem=2000] span[hosts=1]" \
      -G team222 \
-     -J "coverage_estimation[1-${file_count}]%10" \
+     -J "coverage_estimation[1-${file_count}]%15" \
      "${HOME}/git_repos/${PROJECT_NAME}/scripts/individual_analyses/coverage_estimation.sh"
 
 if [[ $? -eq 0 ]]; then

@@ -58,30 +58,45 @@ tg_send "Starting viral contig concatenation" 2>/dev/null || true
 ####          SANITY CHECKS           ####
 ####==================================####
 
+run_seqkit_grep() {
+    # $1 = ID file (one ID per line), $2 = FASTA, $3 = output FASTA (host path)
+    local id_file=$1
+    local fasta=$2
+    local out=$3
+
+    local id_dir fasta_dir
+    id_dir=$(dirname "${id_file}")
+    fasta_dir=$(dirname "${fasta}")
+
+    local id_base fasta_base
+    id_base=$(basename "${id_file}")
+    fasta_base=$(basename "${fasta}")
+
+    apptainer exec \
+        --bind "${id_dir}":/id:ro \
+        --bind "${fasta_dir}":/asm:ro \
+        "${SEQKIT_CONTAINER}" \
+        seqkit grep -f "/id/${id_base}" "/asm/${fasta_base}" \
+        > "${out}"
+
+    local n
+    n=$(grep -c '^>' "${out}" 2>/dev/null || echo 0)
+    n=${n:-0}
+    if [[ "${n}" -eq 0 ]]; then
+        echo "    WARNING: seqkit grep returned 0 sequences (ids=${id_file}, fasta=${fasta})"
+        echo "    First 3 IDs in list:"
+        head -3 "${id_file}" | sed 's/^/      /'
+        echo "    First 3 headers in FASTA:"
+        grep -m3 '^>' "${fasta}" | sed 's/^/      /'
+    fi
+
+}
+
 if [[ ! -f "${SEQKIT_CONTAINER}" ]]; then
     echo "WARNING: seqkit container not found at ${SEQKIT_CONTAINER}"
     exit 1
-else
-    run_seqkit_grep() {
-        # $1 = ID file, $2 = FASTA, $3 = output
-        local id_file=$1
-        local fasta=$2
-        local out=$3
-
-        local id_dir fasta_dir fasta_base
-        id_dir=$(dirname "${id_file}")
-        fasta_dir=$(dirname "${fasta}")
-        fasta_base=$(basename "${fasta}")
-        id_file_base=$(basename "${id_file}")
-
-        apptainer exec \
-            --bind "${id_dir}":/id:ro \
-            --bind "${fasta_dir}":/asm:ro \
-            "${SEQKIT_CONTAINER}" \
-            seqkit grep -f "/id/${id_file_base}" "/asm/${fasta_base}" \
-            > "${out}"
-    }
 fi
+
 
 ####==================================####
 ####     BUILD SAMPLE LIST            ####
@@ -228,16 +243,18 @@ fi
 ####       DEEPVIRFINDER              ####
 ####==================================####
 
-dvf_in="${SAMPLE_INPUT}/deepvirfinder/"*_dvfpred.txt
-dvf_ids="${SAMPLE_OUTPUT}/.dvf_ids.txt"
+dvf_dir="${SAMPLE_INPUT}/deepvirfinder"
+dvf_pred=$(ls "${dvf_dir}/"*_dvfpred.txt 2>/dev/null | head -1)
+dvf_ids="${SAMPLE_OUTPUT}/dvf_ids.txt"          # drop the leading dot
 dvf_out="${SAMPLE_OUTPUT}/deepvirfinder.fa"
 : > "${dvf_out}"
 
-if [[ -s "${dvf_in}" ]]; then
+if [[ -s "${dvf_pred}" ]]; then
     # DVF columns are tab-separated: name  length  score  pvalue
     # $1 (name) may contain the MegaHit description (spaces), so keep only the first token
-    awk -v thr="${DVF_PVALUE}" -F'\t' 'NR>1 && $4+0 <= thr {sub(/ .*/,"",$1); print $1}' \
-        "${dvf_in}" > "${dvf_ids}"
+    awk -v thr="${DVF_PVALUE}" -F'\t' \
+        'NR>1 && $4+0 <= thr {sub(/ .*/,"",$1); print $1}' \
+        "${dvf_pred}" > "${dvf_ids}"
 
     n_ids=$(wc -l < "${dvf_ids}")
     echo "  DeepVirFinder: ${n_ids} viral IDs (p <= ${DVF_PVALUE})"

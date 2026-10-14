@@ -75,11 +75,11 @@ fi
 bsub -o "${DATE_DIR}/vOTU_taxonomy_%J_%I.out" \
      -e "${DATE_DIR}/vOTU_taxonomy_%J_%I.err" \
      -q long \
-     -n 36 \
-     -M 40000 \
-     -R "select[mem>=40000] rusage[mem=40000] span[hosts=1]" \
+     -n 8 \
+     -M 20000 \
+     -R "select[mem>=20000] rusage[mem=20000] span[hosts=1]" \
      -G team222 \
-     -J "vOTU_taxonomy[1-${file_count}]%10" \
+     -J "vOTU_taxonomy[1-${file_count}]%5" \
      "${HOME}/git_repos/${PROJECT_NAME}/scripts/individual_analyses/vOTU_taxonomy.sh"
 
 if [[ $? -eq 0 ]]; then
