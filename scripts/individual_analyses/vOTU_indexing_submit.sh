@@ -10,11 +10,9 @@ SCRATCH_BASE="/lustre/scratch126/tol/teams/lawniczak/users/jr46/projects"
 PROJECT_SCRATCH="${SCRATCH_BASE}/${PROJECT_NAME}"
 INPUT_DIR_BASE="${PROJECT_SCRATCH}/results/vOTU"
 
-# Count assembly files
 file_count=0
 
-# Function to count assemblies for a given mapping tool and assembler
-count_assemblies() {
+count_votus() {
     local mapping_tool=$1
     local base_dir="${INPUT_DIR_BASE}/${mapping_tool}"
 
@@ -25,53 +23,43 @@ count_assemblies() {
 
     echo "  Processing mapping tool: $mapping_tool"
 
-    # Iterate read_type first
+    # Two levels: read_type -> sample
     for read_type_dir in "$base_dir"/*/; do
         [[ -d "$read_type_dir" ]] || continue
+        local read_type
         read_type=$(basename "$read_type_dir")
         echo "    Processing read type: $read_type"
 
-        for assembler_dir in "$read_type_dir"/*/; do
-            [[ -d "$assembler_dir" ]] || continue
-            assembler=$(basename "$assembler_dir")
-            echo "      Processing assembler: $assembler"
-
-            for sample_dir in "$assembler_dir"/*/; do
-                [[ -d "$sample_dir" ]] || continue
-                sample=$(basename "$sample_dir")
-                if [[ -f "${sample_dir}/vOTUs.fa" && -s "${sample_dir}/vOTUs.fa" ]]; then
-                    file_count=$((file_count + 1))
-                    echo "      Found: ${mapping_tool}/${read_type}/${assembler}/${sample}"
-
-                fi
-            done
+        for sample_dir in "$read_type_dir"/*/; do
+            [[ -d "$sample_dir" ]] || continue
+            local sample
+            sample=$(basename "$sample_dir")
+            if [[ -s "${sample_dir}/vOTUs.fa" ]]; then
+                file_count=$((file_count + 1))
+                echo "      Found: ${mapping_tool}/${read_type}/${sample}"
+            fi
         done
-   done
+    done
 }
 
-# Count assemblies for each mapping tool
 echo ""
-echo "Counting OTU files..."
+echo "Counting vOTU fasta files..."
 echo "------------------------"
 
-# Count STAR assemblies
-count_assemblies "STAR"
-
-# Count Bowtie assemblies
-count_assemblies "Bowtie"
+count_votus "STAR"
+count_votus "Bowtie"
 
 echo "------------------------"
 echo ""
-echo "Total OTU files found: ${file_count}"
+echo "Total vOTU files found: ${file_count}"
 
 if [[ $file_count -eq 0 ]]; then
     echo "ERROR: No vOTU files found!"
     echo "Check directory: ${INPUT_DIR_BASE}"
-    echo "Expected structure: ${INPUT_DIR_BASE}/{star_assembly,bowtie_assembly}/{read_type}/{assembler}/{sample}/vOTUs.fa"
+    echo "Expected structure: ${INPUT_DIR_BASE}/{STAR,Bowtie}/<read_type>/<sample>/vOTUs.fa"
     exit 1
 fi
 
-# Submit array job
 bsub -o "${DATE_DIR}/vOTU_indexing_%J_%I.out" \
      -e "${DATE_DIR}/vOTU_indexing_%J_%I.err" \
      -q normal \
@@ -85,7 +73,7 @@ bsub -o "${DATE_DIR}/vOTU_indexing_%J_%I.out" \
 if [[ $? -eq 0 ]]; then
     echo ""
     echo "   vOTU indexing array job submitted successfully!"
-    echo "   Submitted ${file_count} jobs"
+    echo "   Submitted ${file_count} jobs (one per mapper/read_type/sample)"
 else
     echo "Job submission failed!"
     exit 1

@@ -3,7 +3,7 @@
 # Author: Jorge Alberto Castro Rodríguez
 # Script to recover data associated with mapping statistics for STAR and Bowtie2.
 # 30/07/2026
-# Ver. 1.1.0 (farm-ready)
+# Ver. 1.1.0
 
 ####==================================####
 ####           CONFIGURATION          ####

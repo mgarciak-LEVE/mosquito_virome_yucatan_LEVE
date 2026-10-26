@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Author: Jorge Alberto Castro Rodríguez
-# Script assign taxonomy to viral OTUs and individual ORFs with geNOMAD and BLAST.
+# Script assign taxonomy to viral OTUs and individual ORFs with DIAMOND and BLAST.
 # 29/09/2026
 # Ver. 1.0.0
 
@@ -87,7 +87,6 @@ tg_send "Starting viral identification pipeline" 2>/dev/null || true
 declare -a SAMPLE_ARRAY
 declare -a MAPPING_ARRAY
 declare -a READ_TYPE_ARRAY
-declare -a ASSEMBLER_ARRAY
 declare -a OTU_FILE_ARRAY
 
 echo "Building sample-assembler list..."
@@ -98,19 +97,17 @@ echo "Building sample-assembler list..."
 add_combination() {
     local mapping_tool=$1
     local read_type=$2         
-    local assembler=$3
-    local sample=$4
-    local otu_file=$5
+    local sample=$3
+    local otu_file=$4
 
     if [[ -f "$otu_file" ]] && [[ -s "$otu_file" ]]; then
         SAMPLE_ARRAY+=("$sample")
         MAPPING_ARRAY+=("$mapping_tool")
         READ_TYPE_ARRAY+=("$read_type")
-        ASSEMBLER_ARRAY+=("$assembler")
         OTU_FILE_ARRAY+=("$otu_file")
-        echo "  Added: $mapping_tool/$read_type/$assembler/$sample - $(basename "$otu_file")"
+        echo "  Added: $mapping_tool/$read_type/$sample - $(basename "$otu_file")"
     else
-        echo "  WARNING: Assembly file not found or empty for $mapping_tool/$read_type/$assembler/$sample: $otu_file"
+        echo "  WARNING: Assembly file not found or empty for $mapping_tool/$read_type/$sample: $otu_file"
     fi
 }
 
@@ -126,26 +123,21 @@ process_mapping_tool() {
 
     echo "  Processing mapping tool: $mapping_tool"
 
-    # Iterate read_type first
+    # Two levels only: read_type -> sample
     for read_type_dir in "$base_dir"/*/; do
         [[ -d "$read_type_dir" ]] || continue
+        local read_type
         read_type=$(basename "$read_type_dir")
         echo "    Processing read type: $read_type"
 
-        for assembler_dir in "$read_type_dir"/*/; do
-            [[ -d "$assembler_dir" ]] || continue
-            assembler=$(basename "$assembler_dir")
-            echo "      Processing assembler: $assembler"
-
-            for sample_dir in "$assembler_dir"/*/; do
-                [[ -d "$sample_dir" ]] || continue
-                sample=$(basename "$sample_dir")
-                otu_file="${sample_dir}/vOTUs.fa"
-                add_combination "$mapping_tool" "$read_type" "$assembler" "$sample" "$otu_file"
-
-                done
-            done
+        for sample_dir in "$read_type_dir"/*/; do           # ← FIXED
+            [[ -d "$sample_dir" ]] || continue
+            local sample
+            sample=$(basename "$sample_dir")
+            local otu_file="${sample_dir}/vOTUs.fa"
+            add_combination "$mapping_tool" "$read_type" "$sample" "$otu_file"
         done
+    done
 }
 
 # Process STAR assemblies
@@ -194,19 +186,17 @@ fi
 SAMPLE="${SAMPLE_ARRAY[$JOB_INDEX]}"
 MAPPING_TOOL="${MAPPING_ARRAY[$JOB_INDEX]}"
 READ_TYPE="${READ_TYPE_ARRAY[$JOB_INDEX]}"       
-ASSEMBLER="${ASSEMBLER_ARRAY[$JOB_INDEX]}"
 OTU_FILE="${OTU_FILE_ARRAY[$JOB_INDEX]}"
 
 echo "========================================="
 echo "  Processing job ${LSB_JOBINDEX}/${TOTAL_JOBS}"
 echo "  Mapping Tool: ${MAPPING_TOOL}"
 echo "  Sample: ${SAMPLE}"
-echo "  Assembler: ${ASSEMBLER}"
 echo "  Contig file: ${OTU_FILE}"
 echo "  Date: $(date)"
 echo "========================================="
 
-tg_send "Processing: ${MAPPING_TOOL}/${ASSEMBLER}/${READ_TYPE}/${SAMPLE} [${LSB_JOBINDEX}/${TOTAL_JOBS}]" 2>/dev/null || true
+tg_send "Processing: ${MAPPING_TOOL}/${READ_TYPE}/${SAMPLE} [${LSB_JOBINDEX}/${TOTAL_JOBS}]" 2>/dev/null || true
 
 
 ####================================####
@@ -214,7 +204,7 @@ tg_send "Processing: ${MAPPING_TOOL}/${ASSEMBLER}/${READ_TYPE}/${SAMPLE} [${LSB_
 ####================================####
 
 # Output structure: mapping_tool/read_type/assembler/sample
-SAMPLE_OUTPUT_PRODIGAL="${OUTPUT_DIR_TAXONOMY}/${MAPPING_TOOL}/${READ_TYPE}/${ASSEMBLER}/${SAMPLE}/ORFs"
+SAMPLE_OUTPUT_PRODIGAL="${OUTPUT_DIR_TAXONOMY}/${MAPPING_TOOL}/${READ_TYPE}/${SAMPLE}/ORFs"
 
 run_prodigal() {
     echo ""
@@ -224,7 +214,7 @@ run_prodigal() {
     
     # Check if it has been completed already 
     if [[ -f "${output_dir}/vOTUs_orfs.faa" ]] && [[ -s "${output_dir}/vOTUs_orfs.faa" ]]; then 
-        echo "Prodigal already completed for ${MAPPING_TOOL}/${READ_TYPE}/${ASSEMBLER}/${SAMPLE}"
+        echo "Prodigal already completed for ${MAPPING_TOOL}/${READ_TYPE}/${SAMPLE}"
         return 0
     fi
 
@@ -267,7 +257,7 @@ run_prodigal() {
 ####     BLASTN TAXONOMY    ####
 ####=========================####
 
-SAMPLE_OUTPUT_BLASTN="${OUTPUT_DIR_TAXONOMY}/${MAPPING_TOOL}/${READ_TYPE}/${ASSEMBLER}/${SAMPLE}/blastn"
+SAMPLE_OUTPUT_BLASTN="${OUTPUT_DIR_TAXONOMY}/${MAPPING_TOOL}/${READ_TYPE}/${SAMPLE}/blastn"
 
 run_blastn() {
     echo ""
@@ -279,7 +269,7 @@ run_blastn() {
 
     # Skip if already done
     if [[ -f "$out_file" ]] && [[ -s "$out_file" ]]; then
-        echo "BLASTn already completed for ${MAPPING_TOOL}/${READ_TYPE}/${ASSEMBLER}/${SAMPLE}"
+        echo "BLASTn already completed for ${MAPPING_TOOL}/${READ_TYPE}/${SAMPLE}"
         return 0
     fi
 
@@ -331,7 +321,7 @@ run_blastn() {
 ####    DIAMOND TAXONOMY     ####
 ####=========================####
 
-SAMPLE_OUTPUT_DIAMOND="${OUTPUT_DIR_TAXONOMY}/${MAPPING_TOOL}/${READ_TYPE}/${ASSEMBLER}/${SAMPLE}/diamond"
+SAMPLE_OUTPUT_DIAMOND="${OUTPUT_DIR_TAXONOMY}/${MAPPING_TOOL}/${READ_TYPE}/${SAMPLE}/diamond"
 
 run_diamond() {
     echo ""
@@ -348,7 +338,7 @@ run_diamond() {
 
     # Skip if done
     if [[ -f "$out_file" ]] && [[ -s "$out_file" ]]; then
-        echo "DIAMOND already completed for ${MAPPING_TOOL}/${READ_TYPE}/${ASSEMBLER}/${SAMPLE}"
+        echo "DIAMOND already completed for ${MAPPING_TOOL}/${READ_TYPE}/${SAMPLE}"
         return 0
     fi
 
@@ -398,27 +388,27 @@ run_diamond() {
 echo ""
 echo "========================================="
 echo "  Starting viral taxonomy tools"
-echo "  ${MAPPING_TOOL}/${READ_TYPE}/${ASSEMBLER}/${SAMPLE}"
+echo "  ${MAPPING_TOOL}/${READ_TYPE}/${SAMPLE}"
 echo "========================================="
 
 # Prodigal must run first — DIAMOND needs the ORFs
 if ! run_prodigal; then
-    echo "ERROR: Prodigal failed for ${MAPPING_TOOL}/${ASSEMBLER}/${SAMPLE}"
-    tg_send "ERROR: Prodigal failed for ${MAPPING_TOOL}/${ASSEMBLER}/${SAMPLE}" 2>/dev/null || true
+    echo "ERROR: Prodigal failed for ${MAPPING_TOOL}/${SAMPLE}"
+    tg_send "ERROR: Prodigal failed for ${MAPPING_TOOL}/${SAMPLE}" 2>/dev/null || true
     exit 1
 fi
 
 # BLASTn on contigs (nucleotide-level taxonomy)
 if ! run_blastn; then
-    echo "ERROR: BLASTn failed for ${MAPPING_TOOL}/${ASSEMBLER}/${SAMPLE}"
-    tg_send "ERROR: BLASTn failed for ${MAPPING_TOOL}/${ASSEMBLER}/${SAMPLE}" 2>/dev/null || true
+    echo "ERROR: BLASTn failed for ${MAPPING_TOOL}/${SAMPLE}"
+    tg_send "ERROR: BLASTn failed for ${MAPPING_TOOL}/${SAMPLE}" 2>/dev/null || true
     exit 1
 fi
 
 # DIAMOND on ORFs (protein-level taxonomy)
 if ! run_diamond; then
-    echo "ERROR: DIAMOND failed for ${MAPPING_TOOL}/${ASSEMBLER}/${SAMPLE}"
-    tg_send "ERROR: DIAMOND failed for ${MAPPING_TOOL}/${ASSEMBLER}/${SAMPLE}" 2>/dev/null || true
+    echo "ERROR: DIAMOND failed for ${MAPPING_TOOL}/${SAMPLE}"
+    tg_send "ERROR: DIAMOND failed for ${MAPPING_TOOL}/${SAMPLE}" 2>/dev/null || true
     exit 1
 fi
 
@@ -430,10 +420,9 @@ echo ""
 echo "========================================="
 echo "  Completed job ${LSB_JOBINDEX}/${TOTAL_JOBS}"
 echo "  Mapping Tool: ${MAPPING_TOOL}"
-echo "  Assembler: ${ASSEMBLER}"
 echo "  Sample: ${SAMPLE}"
 echo "  Output: ${SAMPLE_OUTPUT_BLASTN} & ${SAMPLE_OUTPUT_PRODIGAL} & ${SAMPLE_OUTPUT_DIAMOND}"
 echo "========================================="
 
-tg_send "Completed: ${MAPPING_TOOL}/${READ_TYPE}/${ASSEMBLER}/${SAMPLE} [${LSB_JOBINDEX}/${TOTAL_JOBS}]" 2>/dev/null || true
+tg_send "Completed: ${MAPPING_TOOL}/${READ_TYPE}/${SAMPLE} [${LSB_JOBINDEX}/${TOTAL_JOBS}]" 2>/dev/null || true
 

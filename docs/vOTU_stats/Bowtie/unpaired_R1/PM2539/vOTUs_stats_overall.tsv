@@ -1,0 +1,2 @@
+file	format	type	num_seqs	sum_len	min_len	avg_len	max_len	Q1	Q2	Q3	sum_gap	N50	N50_num	Q20(%)	Q30(%)	AvgQual	GC(%)
+/lustre/scratch126/tol/teams/lawniczak/users/jr46/projects/mosquito_virome_yucatan_LEVE/results/vOTU/Bowtie/unpaired_R1//PM2539//vOTUs.fa	FASTA	DNA	11	11609	239	1055.4	2336	445.0	618.0	1865.5	0	1915	3	0.00	0.00	0.00	47.50

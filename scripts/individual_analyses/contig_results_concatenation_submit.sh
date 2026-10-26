@@ -1,20 +1,25 @@
 #!/bin/bash
 # ~/git_repos/mosquito_virome_yucatan_LEVE/scripts/individual_analyses/contig_results_concatenation_submit.sh
+#
+# Submits one job per (mapper, read_type, sample) — the pipeline script
+# pools all four assemblers per sample, then runs CAP3 + CD-HIT-EST.
 
 DATE=$(date +%d_%m_%Y)
 DATE_DIR="${HOME}/lsf_logs/${DATE}"
 mkdir -p "${DATE_DIR}"
 
 PROJECT_NAME="mosquito_virome_yucatan_LEVE"
-ASSEMBLY_DIR="/lustre/scratch126/tol/teams/lawniczak/users/jr46/projects/${PROJECT_NAME}/results/assembly"
+IDENT_DIR="/lustre/scratch126/tol/teams/lawniczak/users/jr46/projects/${PROJECT_NAME}/results/identification"
 
-# Count assembly files
-file_count=0
+# Assemblers we expect to find under each sample
+ASSEMBLERS=(MEGAhit metaSPAdes metaviralSPAdes rnaSPAdes)
 
-# Function to count assemblies for a given mapping tool and assembler
-count_assemblies() {
+# Count (mapper, read_type, sample) tuples — one job each
+tuple_count=0
+
+count_tuples() {
     local mapping_tool=$1
-    local base_dir="${ASSEMBLY_DIR}/${mapping_tool}"
+    local base_dir="${IDENT_DIR}/${mapping_tool}"
 
     echo "  Checking: ${mapping_tool}"
 
@@ -23,70 +28,65 @@ count_assemblies() {
         return
     fi
 
-    # For each read type (e.g. ribo, polyA)
+    # Walk read_type → sample directly (no assembler level in the loop)
     for read_type_dir in "$base_dir"/*/; do
-        if [[ -d "$read_type_dir" ]]; then
-            read_type=$(basename "$read_type_dir")
+        [[ -d "$read_type_dir" ]] || continue
+        local read_type
+        read_type=$(basename "$read_type_dir")
 
-            # For each assembler directory
-            for assembler_dir in "$read_type_dir"/*/; do
-                if [[ -d "$assembler_dir" ]]; then
-                    assembler=$(basename "$assembler_dir")
+        # Enumerate samples using any assembler that has an identification dir
+        local sample_root=""
+        for asm in "${ASSEMBLERS[@]}"; do
+            if [[ -d "${read_type_dir}${asm}" ]]; then
+                sample_root="${read_type_dir}${asm}"
+                break
+            fi
+        done
+        [[ -n "$sample_root" ]] || continue
 
-                    # For each sample directory
-                    for sample_dir in "$assembler_dir"/*/; do
-                        if [[ -d "$sample_dir" ]]; then
-                            sample=$(basename "$sample_dir")
+        for sample_dir in "$sample_root"/*/; do
+            [[ -d "$sample_root" ]] || continue
+            local sample
+            sample=$(basename "$sample_dir")
 
-                            # Check based on assembler type
-                            case $assembler in
-                                "MEGAhit")
-                                    if [[ -f "${sample_dir}/final.contigs.fa" && -s "${sample_dir}/final.contigs.fa" ]]; then
-                                        file_count=$((file_count + 1))
-                                        echo "      Found: ${mapping_tool}/${read_type}/${assembler}/${sample}"
-                                    fi
-                                    ;;
-                                "metaSPAdes"|"metaviralSPAdes")
-                                    if [[ -f "${sample_dir}/contigs.fasta" && -s "${sample_dir}/contigs.fasta" ]]; then
-                                        file_count=$((file_count + 1))
-                                        echo "      Found: ${mapping_tool}/${read_type}/${assembler}/${sample}"
-                                    fi
-                                    ;;
-                                "rnaSPAdes")
-                                    if [[ -f "${sample_dir}/hard_filtered_transcripts.fasta" && -s "${sample_dir}/hard_filtered_transcripts.fasta" ]] \
-                                       || [[ -f "${sample_dir}/transcripts.fasta" && -s "${sample_dir}/transcripts.fasta" ]]; then
-                                        file_count=$((file_count + 1))
-                                        echo "      Found: ${mapping_tool}/${read_type}/${assembler}/${sample}"
-                                    fi
-                                    ;;
-                            esac
-                        fi
-                    done
+            # At least one assembler must have produced something for this sample
+            local any_found=0
+            for asm in "${ASSEMBLERS[@]}"; do
+                local asm_dir="${read_type_dir}${asm}/${sample}"
+                if [[ -d "${asm_dir}/virsorter2" ]] \
+                || [[ -d "${asm_dir}/deepvirfinder" ]] \
+                || [[ -d "${asm_dir}/vitap" ]]; then
+                    any_found=1
+                    break
                 fi
             done
-        fi
+
+            if [[ $any_found -eq 1 ]]; then
+                tuple_count=$((tuple_count + 1))
+                echo "      Found: ${mapping_tool}/${read_type}/${sample}"
+            fi
+        done
     done
 }
 
-# Count assemblies for each mapping tool
 echo ""
-echo "Counting assembly files..."
+echo "Counting (mapper, read_type, sample) tuples..."
 echo "------------------------"
 
-count_assemblies "star_assembly"
-count_assemblies "bowtie_assembly"
+count_tuples "STAR"
+count_tuples "Bowtie"
 
 echo "------------------------"
 echo ""
-echo "Total assembly files found: ${file_count}"
+echo "Total jobs to submit: ${tuple_count}"
 
-if [[ $file_count -eq 0 ]]; then
-    echo "ERROR: No assembly files found!"
-    echo "Check directory: ${ASSEMBLY_DIR}"
+if [[ $tuple_count -eq 0 ]]; then
+    echo "ERROR: No samples found!"
+    echo "Check directory: ${IDENT_DIR}"
     exit 1
 fi
 
-# Submit array job
+# Submit array job — one task per tuple
 bsub -o "${DATE_DIR}/contig_results_concatenation_%J_%I.out" \
      -e "${DATE_DIR}/contig_results_concatenation_%J_%I.err" \
      -q normal \
@@ -94,13 +94,13 @@ bsub -o "${DATE_DIR}/contig_results_concatenation_%J_%I.out" \
      -M 2000 \
      -R "select[mem>=2000] rusage[mem=2000] span[hosts=1]" \
      -G team222 \
-     -J "contig_concat[1-${file_count}]%20" \
+     -J "contig_concat[1-${tuple_count}]%20" \
      "${HOME}/git_repos/mosquito_virome_yucatan_LEVE/scripts/individual_analyses/contig_results_concatenation.sh"
 
 if [[ $? -eq 0 ]]; then
     echo ""
-    echo "   Contig concatenation array job submitted successfully!"
-    echo "   Submitted ${file_count} jobs"
+    echo "   Contig concatenation + merge array job submitted successfully!"
+    echo "   Submitted ${tuple_count} jobs (one per mapper/read_type/sample)"
 else
     echo "Job submission failed!"
     exit 1
